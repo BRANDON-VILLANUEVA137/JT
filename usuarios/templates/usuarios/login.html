@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Sesión - PlaColégio{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-image: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.45)), url('/static/images/Escuela.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        animation: fadeInDown 0.5s ease both;
+    }
+
+    .login-card {
+        position: relative;
+        width: 100%;
+        min-height: 520px;
+        background-color: rgba(17, 24, 39, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
+        padding: 12px;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 12px;
+        text-align: center;
+        border-radius: 12px;
+        color: white;
+    }
+
+    .brand-logo {
+        font-size: 2.5rem;
+        margin-bottom: 2px;
+        display: block;
+    }
+
+    .login-body {
+        padding: 14px 10px 10px;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-right: none;
+        color: #667085;
+    }
+
+    .form-control {
+        background-color: #fff;
+        border-left: none;
+        border-radius: 0 5px 5px 0;
+        padding: 12px;
+        transition: all 0.3s;
+    }
+
+    .input-group > .form-control:focus {
+        box-shadow: none;
+        border-color: #667eea;
+    }
+
+    .input-group:focus-within .input-group-text {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .input-group:focus-within .form-control {
+        border-color: #667eea;
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .forgot-link {
+        font-size: 0.9rem;
+        color: #e2e8f0;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+        color: #c7d2fe;
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 8px;
+        border: none;
+    }
+
+    .alert-error {
+        background-color: #dc3545;
+        color: white;
+        border: 1px solid #c82333;
+    }
+
+    .alert-success {
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #1e7e34;
+    }
+
+    .alert-warning {
+        background-color: #ffc107;
+        color: #333;
+        border: 1px solid #e0a800;
+    }
+
+    .alert-info {
+        background-color: #17a2b8;
+        color: white;
+        border: 1px solid #117a8b;
+    }
+
+    .info-box {
+        background-color: rgba(255, 255, 255, 0.95);
+        border-left: 4px solid #ffc107;
+        color: #333;
+    }
+
+    .login-subtitle {
+        letter-spacing: 0.3px;
+        color: #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-sm-9 col-md-7 col-lg-5 col-xl-4">
+            
+            <!-- Tarjeta de Login -->
+            <div class="login-card">
+                
+                <!-- Header con gradiente -->
+                <div class="login-header">
+                    <span class="brand-logo">🏫</span>
+                    <h4 class="mb-1 fw-bold">PlaColégio</h4>
+                    <p class="mb-0 small">Gestión Educativa</p>
+                </div>
+
+                <div class="login-body">
+                    
+                    <h5 class="text-center mb-4 fw-bold text-white">Bienvenido</h5>
+                    <p class="text-center small login-subtitle mb-4">Ingresa con tus credenciales institucionales</p>
+
+                    <!-- Mensajes del sistema -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} shadow-sm small py-2 mb-3" role="alert">
+                                <i class="bi 
+                                {% if message.tags == 'success' %}bi-check-circle-fill
+                                {% elif message.tags == 'error' %}bi-exclamation-triangle-fill
+                                {% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Campo Documento/Correo con Icono -->
+                        <div class="mb-4">
+                            <label for="id_numero_documento" class="form-label fw-bold small text-white">DOCUMENTO O CORREO</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                <input 
+                                    type="text" 
+                                    class="form-control {% if form.numero_documento.errors %}is-invalid{% endif %}" 
+                                    id="id_numero_documento"
+                                    name="numero_documento"
+                                    placeholder="Ej: 1234567890"
+                                    required
+                                    aria-describedby="docHelp"
+                                >
+                                {% if form.numero_documento.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.numero_documento.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div id="docHelp" class="form-text text-white mt-1 " style="font-size: 0.8rem; ">
+                                Ingrese su documento o correo institucional.
+                            </div>
+                        </div>
+
+                        <!-- Campo Contraseña con Icono y Toggle -->
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label fw-bold small text-white">CONTRASEÑA</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                                <input 
+                                    type="password" 
+                                    class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                    id="id_password"
+                                    name="password"
+                                    placeholder="••••••••"
+                                    required
+                                >
+                                
+                                {% if form.password.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.password.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Recordar y Olvidaste contraseña -->
+                        <div class="d-flex justify-content-between align-items-center mb-4 text-white"> 
+                            <a href="{% url 'usuarios:password_reset' %}" class="forgot-link small ">¿Olvidaste tu contraseña?</a>
+                        </div>
+
+                        <!-- Botón Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-login text-white">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Ingresar al Sistema
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Información Adicional (Fuera de la tarjeta para no saturar) -->
+            <div class="text-center mt-4 text-white opacity-75 small">
+                <p class="mb-1">
+                    <i class="bi bi-shield-lock-fill"></i> 
+                    Sistema seguro. Su cuenta se bloqueará si hay múltiples intentos fallidos.
+                </p>
+            </div>
+            
+            <!-- Alerta de Prueba -->
+            <div class="alert info-box shadow-sm mt-3" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill text-warning fs-5 me-2"></i>
+                    <div>
+                        <strong>Información de Prueba:</strong>
+                        <span class="d-block small">Contacte al administrador para crear su usuario.</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

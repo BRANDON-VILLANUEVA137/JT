@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Docente - PlaColégio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 12px 12px 0 0;
+        padding: 25px;
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+    }
+    
+    .info-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    
+    .info-item {
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    
+    .info-value {
+        font-weight: 600;
+        color: #2d3436;
+        font-size: 1rem;
+    }
+    
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .feature-card {
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+    
+    .feature-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 15px;
+    }
+    
+    .alert-custom {
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 16px;
+        }
+
+        .profile-header .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 10px;
+        }
+
+        .profile-avatar {
+            width: 56px;
+            height: 56px;
+            font-size: 1.6rem;
+        }
+
+        .alert-custom {
+            padding: 14px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Título Principal -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1 fw-bold">
+                    <i class="bi bi-speedometer2"></i> Panel del Docente
+                </h2>
+                <p class="text-muted mb-0">Bienvenido, {{ user.get_nombre_completo }}</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success fs-6">
+                    <i class="bi bi-circle-fill me-1"></i> Sesión Activa
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if perfil_docente %}
+<div class="row mb-4">
+    <!-- Perfil del Docente -->
+    <div class="col-lg-12 mb-4">
+        <div class="card info-card h-100">
+            <div class="profile-header">
+                <div class="d-flex align-items-center">
+                    <div class="profile-avatar me-3">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-0 fw-bold">{{ user.get_nombre_completo }}</h4>
+                        <small class="opacity-75">
+                            <i class="bi bi-briefcase me-1"></i>
+                            {{ perfil_docente.especialidad|default:"Especialidad no especificada" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="row m-0">
+                    <div class="col-md-6 p-3">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="bi bi-envelope me-1"></i> Correo Electrónico
+                            </div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="bi bi-card-text me-1"></i> Documento de Identidad
+                            </div>
+                            <div class="info-value">{{ user.get_tipo_documento_display }} - {{ user.numero_documento }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="bi bi-telephone me-1"></i> Teléfono Institucional
+                            </div>
+                            <div class="info-value">
+                                {% if perfil_docente.telefono_institucional %}
+                                    {{ perfil_docente.telefono_institucional }}
+                                {% else %}
+                                    <span class="text-muted">No registrado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 p-3 bg-light">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="bi bi-briefcase me-1"></i> Especialidad
+                            </div>
+                            <div class="info-value">{{ perfil_docente.especialidad|default:"No registrada" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="bi bi-calendar-check me-1"></i> Miembro desde
+                            </div>
+                            <div class="info-value">
+                                <small class="text-muted">{{ user.fecha_creacion|date:"d/m/Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <!-- Ayuda -->
+        <div class="card info-card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-question-circle me-2 text-primary"></i>¿Necesitas Ayuda?
+                </h6>
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2">
+                        <a href="#" onclick="alert('Manual de usuario en desarrollo'); return false;" class="text-decoration-none">
+                            <i class="bi bi-book me-2"></i>Manual de Usuario
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="#" onclick="alert('Videos tutoriales en desarrollo'); return false;" class="text-decoration-none">
+                            <i class="bi bi-play-circle me-2"></i>Videos Tutoriales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:soporte@placolegio.com" class="text-decoration-none">
+                            <i class="bi bi-headset me-2"></i>Soporte Técnico
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Alerta cuando no hay perfil -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-warning alert-custom d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-1 me-3"></i>
+            <div>
+                <h4 class="alert-heading fw-bold">Perfil Incompleto</h4>
+                <p class="mb-0">
+                    Su perfil de docente no está configurado correctamente. 
+                    Por favor, contacte al administrador del sistema para completar su registro.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

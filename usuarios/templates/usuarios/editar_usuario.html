@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuario - PlaColégio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .section-box {
+        border: 1px solid #eef0f3;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 14px;
+        background: #fff;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #4f46a5;
+        margin-bottom: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-pencil-square me-2"></i>Editar Usuario</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="section-box mt-0">
+                        <h5 class="section-title"><i class="bi bi-person-vcard me-2"></i>Información Personal</h5>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="primer_nombre" class="form-label">Primer Nombre</label>
+                            <input type="text" class="form-control" id="primer_nombre" name="primer_nombre" value="{{ usuario.primer_nombre }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="segundo_nombre" class="form-label">Segundo Nombre</label>
+                            <input type="text" class="form-control" id="segundo_nombre" name="segundo_nombre" value="{{ usuario.segundo_nombre }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="primer_apellido" class="form-label">Primer Apellido</label>
+                            <input type="text" class="form-control" id="primer_apellido" name="primer_apellido" value="{{ usuario.primer_apellido }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="segundo_apellido" class="form-label">Segundo Apellido</label>
+                            <input type="text" class="form-control" id="segundo_apellido" name="segundo_apellido" value="{{ usuario.segundo_apellido }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Correo Electrónico</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ usuario.email }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Documento</label>
+                            <input type="text" class="form-control" value="{{ usuario.tipo_documento }} - {{ usuario.numero_documento }}" disabled>
+                        </div>
+                    </div>
+
+                    </div>
+
+                    {% if estudiante %}
+                    <div class="section-box">
+                    <h5 class="section-title"><i class="bi bi-mortarboard me-2"></i>Información de Estudiante</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="{% if estudiante.fecha_nacimiento %}{{ estudiante.fecha_nacimiento|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre_acudiente" class="form-label">Nombre del Acudiente</label>
+                            <input type="text" class="form-control" id="nombre_acudiente" name="nombre_acudiente" value="{{ estudiante.nombre_acudiente }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono_acudiente" class="form-label">Teléfono Acudiente</label>
+                            <input type="tel" class="form-control" id="telefono_acudiente" name="telefono_acudiente" value="{{ estudiante.telefono_acudiente }}">
+                        </div>
+                    </div>
+                    </div>
+
+                    {% elif docente %}
+                    <div class="section-box">
+                    <h5 class="section-title"><i class="bi bi-person-badge me-2"></i>Información de Docente</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="especialidad" class="form-label">Especialidad</label>
+                            <input type="text" class="form-control" id="especialidad" name="especialidad" value="{{ docente.especialidad }}">
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono_institucional" class="form-label">Teléfono Institucional</label>
+                            <input type="tel" class="form-control" id="telefono_institucional" name="telefono_institucional" value="{{ docente.telefono_institucional }}">
+                        </div>
+                    </div>
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

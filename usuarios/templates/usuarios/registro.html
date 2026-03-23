@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Usuario - PlaColégio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-section {
+        border: 1px solid #eef0f3;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+        background: #fff;
+    }
+
+    .section-heading {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #4f46a5;
+        margin-bottom: 14px;
+    }
+
+    .credentials-box {
+        border-left: 4px solid #6366f1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0"><i class="bi bi-person-plus me-2"></i>{{ titulo }}</h3>
+            </div>
+            <div class="card-body p-4">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_primer_nombre" class="form-label">Primer Nombre *</label>
+                            {{ form.primer_nombre }}
+                            {% if form.primer_nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.primer_nombre.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_segundo_nombre" class="form-label">Segundo Nombre</label>
+                            {{ form.segundo_nombre }}
+                            {% if form.segundo_nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.segundo_nombre.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_primer_apellido" class="form-label">Primer Apellido *</label>
+                            {{ form.primer_apellido }}
+                            {% if form.primer_apellido.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.primer_apellido.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_segundo_apellido" class="form-label">Segundo Apellido</label>
+                            {{ form.segundo_apellido }}
+                            {% if form.segundo_apellido.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.segundo_apellido.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="id_tipo_documento" class="form-label">Tipo de Documento *</label>
+                            {{ form.tipo_documento }}
+                            {% if form.tipo_documento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tipo_documento.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-8 mb-3">
+                            <label for="id_numero_documento" class="form-label">Número de Documento *</label>
+                            {{ form.numero_documento }}
+                            {% if form.numero_documento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.numero_documento.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Correo Electrónico *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_rol" class="form-label">Rol *</label>
+                        {{ form.rol }}
+                        {% if form.rol.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.rol.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Campos opcionales para Estudiante -->
+                    <div id="estudiante-fields" style="display: none;">
+                        <div class="form-section">
+                        <h5 class="section-heading"><i class="bi bi-book me-2"></i>Información del Estudiante (Opcional)</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_codigo_estudiantil" class="form-label">Código Estudiantil</label>
+                                {{ form.codigo_estudiantil }}
+                                <small class="form-text text-muted">Si no especifica, se generará automáticamente</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_curso" class="form-label">Curso (opcional)</label>
+                            {{ form.curso }}
+                            <small class="form-text text-muted">Al seleccionar curso, se crea automáticamente la matrícula del estudiante en ese año lectivo.</small>
+                            {% if form.curso.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.curso.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_nombre_acudiente" class="form-label">Nombre del Acudiente</label>
+                                {{ form.nombre_acudiente }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_telefono_acudiente" class="form-label">Teléfono del Acudiente</label>
+                            {{ form.telefono_acudiente }}
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Campos opcionales para Docente -->
+                    <div id="docente-fields" style="display: none;">
+                        <div class="form-section">
+                        <h5 class="section-heading"><i class="bi bi-mortarboard me-2"></i>Información del Docente (Opcional)</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_especialidad" class="form-label">Especialidad</label>
+                                {{ form.especialidad }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_telefono_institucional" class="form-label">Teléfono Institucional</label>
+                                {{ form.telefono_institucional }}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-info credentials-box" role="alert">
+                        <strong>Credenciales iniciales:</strong>
+                        La contrasena temporal sera el numero de documento del usuario.
+                        Se enviara al correo registrado y al iniciar sesion por primera vez
+                        se pedira cambiarla.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Crear Usuario
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rolSelect = document.getElementById('id_rol');
+        const estudianteFields = document.getElementById('estudiante-fields');
+        const docenteFields = document.getElementById('docente-fields');
+        
+        function mostrarCampos() {
+            const rol = rolSelect.value;
+            estudianteFields.style.display = rol === 'estudiante' ? 'block' : 'none';
+            docenteFields.style.display = rol === 'docente' ? 'block' : 'none';
+        }
+        
+        rolSelect.addEventListener('change', mostrarCampos);
+        mostrarCampos(); // Ejecutar al cargar la página
+    });
+</script>
+{% endblock %}
