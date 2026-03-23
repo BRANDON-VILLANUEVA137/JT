@@ -17,9 +17,9 @@ class Usuario(AbstractUser):
     ]
     
     ROL_CHOICES = [
+        ('buyer', 'Comprador'),
+        ('seller', 'Vendedor'),
         ('admin', 'Administrador'),
-        ('docente', 'Docente'),
-        ('estudiante', 'Estudiante'),
     ]
     
     # Información Personal
@@ -171,172 +171,7 @@ class Usuario(AbstractUser):
             self.save(update_fields=['intentos_fallidos'])
 
 
-class Estudiante(models.Model):
-    """
-    Modelo extendido para perfiles de estudiantes.
-    Contiene información específica del estudiante y su desempeño académico.
-    """
-    
-    ESTADO_FINAL_CHOICES = [
-        ('pendiente', 'Pendiente'),
-        ('aprobado', 'Aprobado'),
-        ('reprobado', 'Reprobado'),
-    ]
-    
-    usuario = models.OneToOneField(
-        Usuario,
-        on_delete=models.CASCADE,
-        related_name='perfil_estudiante',
-        limit_choices_to={'rol': 'estudiante'},
-        help_text="Usuario asociado al perfil de estudiante"
-    )
-    
-    codigo_estudiantil = models.CharField(
-        max_length=20,
-        unique=True,
-        help_text="Código único del estudiante"
-    )
-    
-    fecha_nacimiento = models.DateField(
-        null=True,
-        blank=True,
-        help_text="Fecha de nacimiento del estudiante"
-    )
-    
-    # Información del Acudiente
-    nombre_acudiente = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text="Nombre del acudiente o tutor"
-    )
-    
-    telefono_acudiente = models.CharField(
-        max_length=20,
-        blank=True,
-        help_text="Teléfono de contacto del acudiente"
-    )
-    
-    # Información Académica
-    promedio_general = models.DecimalField(
-        max_digits=3,
-        decimal_places=2,
-        default=0.00,
-        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)],
-        help_text="Promedio general del estudiante (0.0 - 5.0)"
-    )
-    
-    estado_final = models.CharField(
-        max_length=10,
-        choices=ESTADO_FINAL_CHOICES,
-        default='pendiente',
-        help_text="Estado final del periodo académico"
-    )
-    
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = "Estudiante"
-        verbose_name_plural = "Estudiantes"
-        ordering = ['usuario__primer_apellido', 'usuario__primer_nombre']
-        indexes = [
-            models.Index(fields=['codigo_estudiantil']),
-        ]
-    
-    def __str__(self):
-        return f"{self.usuario.get_nombre_completo()} ({self.codigo_estudiantil})"
-    
-    def calcular_edad(self):
-        """Calcula la edad actual del estudiante."""
-        if not self.fecha_nacimiento:
-            return None
-        from datetime import date
-        hoy = date.today()
-        edad = hoy.year - self.fecha_nacimiento.year
-        if (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day):
-            edad -= 1
-        return edad
-    
-    def actualizar_promedio(self, nuevo_promedio):
-        """Actualiza el promedio general del estudiante."""
-        if 0.0 <= nuevo_promedio <= 5.0:
-            self.promedio_general = nuevo_promedio
-            self.save()
-    
-    def determinar_estado_final(self):
-        """Determina el estado final basado en el promedio."""
-        if self.promedio_general >= 3.0:
-            self.estado_final = 'aprobado'
-        else:
-            self.estado_final = 'reprobado'
-        self.save()
 
-
-class Docente(models.Model):
-    """
-    Modelo extendido para perfiles de docentes.
-    Contiene información específica del docente.
-    """
-    
-    usuario = models.OneToOneField(
-        Usuario,
-        on_delete=models.CASCADE,
-        related_name='perfil_docente',
-        limit_choices_to={'rol': 'docente'},
-        help_text="Usuario asociado al perfil de docente"
-    )
-    
-    especialidad = models.CharField(
-        max_length=200,
-        help_text="Especialidad o materia principal que enseña"
-    )
-    
-    telefono_institucional = models.CharField(
-        max_length=20,
-        blank=True,
-        help_text="Teléfono de contacto institucional"
-    )
-    
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = "Docente"
-        verbose_name_plural = "Docentes"
-        ordering = ['usuario__primer_apellido']
-    
-    def __str__(self):
-        return f"Prof. {self.usuario.get_nombre_completo()} - {self.especialidad}"
-
-
-class PasswordResetToken(models.Model):
-    """
-    Modelo para guardar tokens de recuperación de contraseña.
-    Los tokens expiran después de 24 horas.
-    """
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='reset_tokens')
-    token = models.CharField(max_length=100, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        verbose_name = "Token de Reset"
-        verbose_name_plural = "Tokens de Reset"
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return f"Reset token para {self.usuario.email}"
-    
-    def is_valid(self):
-        """Verifica si el token no ha expirado (24 horas)."""
-        from django.utils import timezone
-        from datetime import timedelta
-        return timezone.now() - self.created_at < timedelta(hours=24)
-    
-    @staticmethod
-    def generate_token():
-        """Genera un token único y seguro."""
-        import secrets
-        return secrets.token_urlsafe(32)
 
 
 # ==================== SEÑALES ====================
@@ -348,19 +183,11 @@ from django.dispatch import receiver
 def asegurar_rol_admin_superusuario(sender, instance, **kwargs):
     """
     Señal que asegura que todos los superusuarios tengan rol='admin'.
-    Se ejecuta antes de guardar cualquier usuario.
     """
     if instance.is_superuser:
-        # Si es superusuario, forzar rol='admin'
         instance.rol = 'admin'
-        
-        # Completar campos requeridos si están vacíos
         if not instance.primer_nombre:
             instance.primer_nombre = instance.username or 'Admin'
         if not instance.primer_apellido:
             instance.primer_apellido = 'Sistema'
-        if not instance.tipo_documento:
-            instance.tipo_documento = 'CC'
-        if not instance.numero_documento:
-            instance.numero_documento = instance.username or str(instance.id)
 

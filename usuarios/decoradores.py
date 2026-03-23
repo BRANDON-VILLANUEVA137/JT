@@ -24,11 +24,11 @@ def requiere_admin(view_func):
         
         if request.user.rol != 'admin':
             messages.error(request, 'No tiene permiso para acceder a esta página.')
-            # Redirigir según el rol del usuario
-            if request.user.rol == 'docente':
-                return redirect('usuarios:dashboard_docente')
-            elif request.user.rol == 'estudiante':
-                return redirect('usuarios:dashboard_estudiante')
+            # Redirigir según rol
+            if request.user.rol == 'buyer':
+                return redirect('usuarios:dashboard_buyer')
+            elif request.user.rol == 'seller':
+                return redirect('usuarios:dashboard_seller')
             else:
                 return redirect('usuarios:dashboard')
         
@@ -43,7 +43,7 @@ def requiere_rol(*roles):
     Si no los tiene, redirige a su dashboard correspondiente.
     
     Uso:
-        @requiere_rol('admin', 'docente')
+        @requiere_rol('admin', 'seller')
         def mi_vista(request):
             ...
     """
@@ -55,13 +55,13 @@ def requiere_rol(*roles):
             
             if request.user.rol not in roles:
                 messages.error(request, 'No tiene permiso para acceder a esta página.')
-                # Redirigir según el rol del usuario
+                # Redirigir según rol
                 if request.user.rol == 'admin':
                     return redirect('usuarios:dashboard_admin')
-                elif request.user.rol == 'docente':
-                    return redirect('usuarios:dashboard_docente')
+                elif request.user.rol == 'seller':
+                    return redirect('usuarios:dashboard_seller')
                 else:
-                    return redirect('usuarios:dashboard_estudiante')
+                    return redirect('usuarios:dashboard_buyer')
             
             return view_func(request, *args, **kwargs)
         
