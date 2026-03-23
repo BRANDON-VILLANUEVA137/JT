@@ -1,137 +1,50 @@
 from django import forms
-from .models import Usuario, Estudiante, Docente
-from administracion.models import Curso
+from django.contrib.auth.forms import UserCreationForm
+from .models import Usuario
 
-
-class UsuarioLoginForm(forms.Form):
+class LoginForm(forms.Form):
     """
-    Formulario de inicio de sesión personalizado.
-    Permite iniciar sesión con número de documento o correo electrónico.
+    Formulario login: permite numero_documento, email o username.
     """
-    numero_documento = forms.CharField(
-        max_length=100,
+    login_field = forms.CharField(
+        max_length=150,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Número de documento o correo electrónico',
-            'required': True,
-        }),
-        label='Documento o Correo'
+            'placeholder': 'Usuario, email o documento',
+        })
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'class': 'form-control',
             'placeholder': 'Contraseña',
-            'required': True,
         })
     )
 
-
-class UsuarioCreacionForm(forms.ModelForm):
+class RegisterForm(UserCreationForm):
     """
-    Formulario para crear nuevos usuarios (solo Admin).
-    Valida que el documento sea único en el sistema.
+    Registro simple.
     """
     primer_nombre = forms.CharField(
         max_length=100,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Primer nombre',
-        })
-    )
-    segundo_nombre = forms.CharField(
-        max_length=100,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Segundo nombre (opcional)',
-        })
-    )
-    primer_apellido = forms.CharField(
-        max_length=100,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Primer apellido',
-        })
-    )
-    segundo_apellido = forms.CharField(
-        max_length=100,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Segundo apellido (opcional)',
-        })
-    )
-    tipo_documento = forms.ChoiceField(
-        choices=Usuario.TIPO_DOCUMENTO_CHOICES,
-        required=True,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     numero_documento = forms.CharField(
         max_length=20,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Número de documento',
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Correo electrónico',
-        })
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
-    rol = forms.ChoiceField(
-        choices=Usuario.ROL_CHOICES,
-        required=True,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-        })
-    )
+    
     class Meta:
         model = Usuario
-        fields = (
-            'primer_nombre',
-            'segundo_nombre',
-            'primer_apellido',
-            'segundo_apellido',
-            'tipo_documento',
-            'numero_documento',
-            'email',
-            'rol',
-        )
-    
-    def clean_numero_documento(self):
-        numero_documento = self.cleaned_data.get('numero_documento')
-        if Usuario.objects.filter(numero_documento=numero_documento).exists():
-            raise forms.ValidationError('Este número de documento ya está registrado.')
-        return numero_documento
-    
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Usuario.objects.filter(email=email).exists():
-            raise forms.ValidationError('Este correo electrónico ya está registrado.')
-        return email
+        fields = ['username', 'primer_nombre', 'numero_documento', 'email', 'password1', 'password2']
     
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = self.cleaned_data['numero_documento']
-        user.primer_nombre = self.cleaned_data['primer_nombre']
-        user.segundo_nombre = self.cleaned_data['segundo_nombre']
-        user.primer_apellido = self.cleaned_data['primer_apellido']
-        user.segundo_apellido = self.cleaned_data['segundo_apellido']
-        user.tipo_documento = self.cleaned_data['tipo_documento']
         user.numero_documento = self.cleaned_data['numero_documento']
-        user.email = self.cleaned_data['email']
-        user.rol = self.cleaned_data['rol']
-        # Contraseña inicial = numero de documento
-        user.set_password(self.cleaned_data['numero_documento'])
-        user.must_change_password = True
-        
+        user.rol = 'buyer'  # default
         if commit:
             user.save()
         return user
+

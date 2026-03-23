@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="alert alert-info">
+  <h4>Bienvenido {{ user.get_nombre_completo }}!</h4>
+  <p><a href="/" class="btn btn-primary">Ir al Catálogo</a></p>
+</div>
+{% endblock %}
