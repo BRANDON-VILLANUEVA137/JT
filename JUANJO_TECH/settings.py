@@ -59,7 +59,7 @@ ROOT_URLCONF = 'JUANJO_TECH.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # 👈 AQUÍ ESTÁ TODO
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

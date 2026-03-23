@@ -1,7 +1,80 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ product.name }} - TECH-JUANJO{% endblock %}
 
 {% block content %}
 <div class="row">
+
+    <!-- IMAGEN -->
     <div class="col-md-6">
-        {% if product
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid rounded shadow-sm">
+        {% else %}
+            <img src="https://via.placeholder.com/500x400" class="img-fluid rounded">
+        {% endif %}
+    </div>
+
+    <!-- INFO -->
+    <div class="col-md-6">
+        <h2>{{ product.name }}</h2>
+
+        <p class="text-muted">
+            {{ product.brand.name }} | {{ product.condition|title }}
+        </p>
+
+        <h3 class="text-success">${{ product.price }}</h3>
+
+        <p>{{ product.description }}</p>
+
+        <p>
+            <strong>Stock:</strong> {{ product.stock }}
+        </p>
+
+        <!-- BOTONES -->
+        <div class="mt-3">
+            <button class="btn btn-success w-100 mb-2"
+                    hx-post="/cart/add/{{ product.id }}/"
+                    hx-target="#cart-count"
+                    hx-swap="innerHTML">
+                🛒 Añadir al carrito
+            </button>
+
+            <a href="/" class="btn btn-outline-secondary w-100">
+                ← Volver al catálogo
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<hr>
+
+<!-- PRODUCTOS RELACIONADOS -->
+<div class="mt-4">
+    <h4>Productos relacionados</h4>
+
+    <div class="row">
+        {% for item in related_products %}
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+
+                {% if item.image %}
+                <img src="{{ item.image.url }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                {% endif %}
+
+                <div class="card-body">
+                    <h6>{{ item.name }}</h6>
+                    <p class="mb-1">${{ item.price }}</p>
+
+                    <a href="{% url 'catalog:product_detail' item.slug %}" 
+                       class="btn btn-sm btn-outline-primary w-100">
+                        Ver
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

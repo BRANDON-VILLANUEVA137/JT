@@ -1,68 +1,126 @@
 {% extends 'base.html' %}
+
 {% block title %}Catálogo - TECH-JUANJO{% endblock %}
 
 {% block content %}
 <div class="row">
+
+    <!-- FILTROS -->
     <div class="col-md-3">
         <h5>Filtros</h5>
+
         <form method="get">
             <input type="text" name="q" value="{{ query|default:'' }}" class="form-control mb-2" placeholder="Buscar...">
+
             <select name="category" class="form-control mb-2">
                 <option value="">Todas categorías</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
             </select>
+
             <select name="brand" class="form-control mb-2">
                 <option value="">Todas marcas</option>
+                {% for brand in brands %}
+                    <option value="{{ brand.id }}">{{ brand.name }}</option>
+                {% endfor %}
             </select>
+
             <select name="condition" class="form-control mb-2">
                 <option value="">Todas condiciones</option>
                 <option value="new">Nuevo</option>
                 <option value="used">Usado</option>
             </select>
+
             <button type="submit" class="btn btn-primary w-100">Filtrar</button>
         </form>
     </div>
+
+    <!-- PRODUCTOS -->
     <div class="col-md-9">
-        <h2>Productos ({{ products.count }})</h2>
+        <h2>Productos ({{ products.paginator.count }})</h2>
+
         <div class="row">
+
             {% for product in products %}
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
+                <div class="card h-100 shadow-sm">
+
                     {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top">
+                    <img src="{{ product.image.url }}" class="card-img-top" style="height:200px;object-fit:cover;">
+                    {% else %}
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top">
                     {% endif %}
-                    <div class="card-body">
+
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.description|truncatewords:20 }}</p>
-                        <p><strong>${{ product.price }}</strong></p>
-                        <p><small class="text-muted">{{ product.condition|title }} | {{ product.brand }} | {{ product.stock }} und</small></p>
-                        <a href="{% url 'Catalogo:product_detail' product.slug %}" class="btn btn-outline-primary">Ver detalle</a>
-                        <a href="#" class="btn btn-success btn-sm mt-1" hx-post="/cart/add/{{ product.id }}/" hx-target="#cart-count">🛒 Añadir</a>
+
+                        <p class="card-text small">
+                            {{ product.description|truncatewords:15 }}
+                        </p>
+
+                        <p class="fw-bold mb-1">${{ product.price }}</p>
+
+                        <small class="text-muted mb-2">
+                            {{ product.condition|title }} |
+                            {{ product.brand.name }} |
+                            Stock: {{ product.stock }}
+                        </small>
+
+                        <div class="mt-auto">
+                            <a href="{% url 'catalog:product_detail' product.slug %}" 
+                               class="btn btn-outline-primary btn-sm w-100 mb-1">
+                               Ver detalle
+                            </a>
+
+                            <button class="btn btn-success btn-sm w-100"
+                                    hx-post="/cart/add/{{ product.id }}/"
+                                    hx-target="#cart-count"
+                                    hx-swap="innerHTML">
+                                🛒 Añadir
+                            </button>
+                        </div>
                     </div>
+
                 </div>
             </div>
             {% empty %}
             <div class="col-12">
-                <p>No hay productos disponibles. <a href="{% url 'admin:index' %}">Crea algunos en admin</a>.</p>
+                <p>No hay productos disponibles.</p>
+                <a href="/admin/" class="btn btn-dark">Crear productos</a>
             </div>
             {% endfor %}
+
         </div>
+
+        <!-- PAGINACIÓN -->
         {% if products.has_other_pages %}
         <nav>
-            <ul class="pagination">
+            <ul class="pagination justify-content-center">
+
                 {% if products.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}">Anterior</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}">Anterior</a>
+                </li>
                 {% endif %}
+
                 {% for num in products.paginator.page_range %}
                 <li class="page-item {% if products.number == num %}active{% endif %}">
                     <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                 </li>
                 {% endfor %}
+
                 {% if products.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}">Siguiente</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}">Siguiente</a>
+                </li>
                 {% endif %}
+
             </ul>
         </nav>
         {% endif %}
+
     </div>
 </div>
+
 {% endblock %}
