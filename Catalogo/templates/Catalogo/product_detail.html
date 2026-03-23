@@ -133,7 +133,7 @@
     {% endif %}
     
     <!-- Acciones vendedor -->
-    {% if user.is_authenticated and user == product.seller %}
+    {% if user.is_staff %}
     <div class="row mt-4">
         <div class="col-md-4">
             <a href="{% url 'Catalogo:product_update' product.slug %}" class="btn btn-warning w-100">
