@@ -136,12 +136,12 @@
     {% if user.is_staff %}
     <div class="row mt-4">
         <div class="col-md-4">
-            <a href="{% url 'Catalogo:product_update' product.slug %}" class="btn btn-warning w-100">
+            <a href="{% url 'catalogo:product_update' product.slug %}" class="btn btn-warning w-100">
                 <i class="bi bi-pencil"></i> Editar producto
             </a>
         </div>
         <div class="col-md-4">
-            <a href="{% url 'Catalogo:product_list' %}" class="btn btn-secondary w-100">
+            <a href="{% url 'catalogo:product_list' %}" class="btn btn-secondary w-100">
                 <i class="bi bi-list"></i> Mis productos
             </a>
         </div>
