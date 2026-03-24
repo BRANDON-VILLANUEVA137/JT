@@ -9,15 +9,50 @@ from .forms import ProductForm, CategoryForm, BrandForm
 
 # 1. LISTAR (PÚBLICO - cualquiera puede ver)
 def product_list(request):
-    products_list = Product.objects.all().order_by('-created_at')
+    CONDITION_CHOICES = [
+        ('new', 'Nuevo'),
+        ('used', 'Usado'),
+    ]
+    
+    # Base queryset - solo activos
+    products_list = Product.objects.filter(activo=True).order_by('-created_at')
+    
+    # Filtros GET
+    category_id = request.GET.get('category')
+    brand_id = request.GET.get('brand')
+    condition = request.GET.get('condition')
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
     query = request.GET.get('q')
+    
+    if category_id:
+        products_list = products_list.filter(category_id=category_id)
+    if brand_id:
+        products_list = products_list.filter(brand_id=brand_id)
+    if condition:
+        products_list = products_list.filter(condition=condition)
+    if min_price:
+        products_list = products_list.filter(price__gte=min_price)
+    if max_price:
+        products_list = products_list.filter(price__lte=max_price)
     if query:
         products_list = products_list.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         )
+    
+    # Context para sidebar
+    context = {
+        'products': products_list,
+        'categories': Category.objects.all(),
+        'brands': Brand.objects.all(),
+        'conditions': CONDITION_CHOICES,
+    }
+    
+    # Paginación
     paginator = Paginator(products_list, 12)
-    products = paginator.get_page(request.GET.get('page'))
-    return render(request, 'catalogo/product_list.html', {'products': products})
+    context['products'] = paginator.get_page(request.GET.get('page'))
+    
+    return render(request, 'catalogo/product_list.html', context)
 
 # 2. DETALLE (PÚBLICO)
 def product_detail(request, slug):

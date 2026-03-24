@@ -3,19 +3,94 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Catálogo de Productos</h2>
+        <h2>Catálogo de Productos <small class="text-muted">({{ products.paginator.count }} disponibles)</small></h2>
         {% if user.is_staff %}
             <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary">+ Publicar Producto</a>
         {% endif %}
     </div>
 
+    <!-- Sidebar Filtros -->
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header">
+                    <h5><i class="bi bi-funnel"></i> Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <!-- Categoría -->
+                        <div class="mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select name="category" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todas</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ cat.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Marca -->
+                        <div class="mb-3">
+                            <label class="form-label">Marca</label>
+                            <select name="brand" class="form-select" onchange="this.form.submit()">
+                                <option value="">Todas</option>
+                                {% for brand in brands %}
+                                    <option value="{{ brand.id }}" {% if request.GET.brand == brand.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ brand.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Condición -->
+                        <div class="mb-3">
+                            <label class="form-label">Condición</label>
+                            {% for value, label in conditions %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="condition" value="{{ value }}" id="cond{{ forloop.counter }}"
+                                        {% if request.GET.condition == value %}checked{% endif %} onchange="this.form.submit()">
+                                    <label class="form-check-label" for="cond{{ forloop.counter }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="mb-3">
+                            <label class="form-label">Precio</label>
+                            <div class="input-group">
+                                <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request.GET.min_price|default:'' }}" onchange="this.form.submit()">
+                                <span class="input-group-text"> - </span>
+                                <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request.GET.max_price|default:'' }}" onchange="this.form.submit()">
+                            </div>
+                        </div>
+
+                        <!-- Limpiar filtros -->
+                        {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
+                            <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='{% url 'catalogo:product_list' %}'">
+                                Limpiar filtros
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+
     <!-- Búsqueda simple -->
-    <form method="get" class="mb-4 row g-3">
-        <div class="col-md-8">
+    <form method="get" class="mb-3 row g-3">
+        <div class="col-md-5">
             <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ request.GET.q }}">
         </div>
         <div class="col-md-4">
-            <button type="submit" class="btn btn-outline-secondary w-100">Buscar</button>
+            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'catalogo:product_list' %}" class="btn btn-secondary w-100">Limpiar</a>
         </div>
     </form>
 
@@ -29,36 +104,39 @@
         {% endfor %}
     {% endif %}
 
-    <!-- Lista de productos -->
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                {% else %}
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">Sin Imagen</div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text text-muted">{{ product.category.name|default:"Sin categoría" }}</p>
-                    <h4 class="text-primary">${{ product.price }}</h4>
-                    <small class="text-muted">Vendedor: {{ product.seller.username }}</small>
-                </div>
-                <div class="card-footer bg-white border-top-0">
-                    <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-outline-dark w-100">Ver Detalles</a>
+        <!-- Lista de productos -->
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">Sin Imagen</div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name|default:"Sin categoría" }} • {{ product.brand.name|default:"Sin marca" }}</p>
+                        <h4 class="text-primary">${{ product.price }}</h4>
+                        <span class="badge bg-{% if product.condition == 'new' %}success{% else %}warning{% endif %}">{{ product.condition|title }}</span>
+                        <small class="text-muted d-block mt-1">Vendedor: {{ product.seller.username }}</small>
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-outline-dark w-100">Ver Detalles</a>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <h4>No hay productos que coincidan con tus filtros.</h4>
+                <p class="text-muted">Prueba otros filtros o <a href="{% url 'catalogo:product_list' %}">ver todos</a>.</p>
+                {% if user.is_staff %}
+                    <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary mt-3">Publicar producto</a>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <h4>No hay productos disponibles aún.</h4>
-            {% if user.is_staff %}
-                <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary mt-3">Sé el primero en publicar</a>
-            {% endif %}
         </div>
-        {% endfor %}
-    </div>
 
     <!-- Paginación SIMPLE (sin url_replace) -->
     {% if products.has_other_pages %}

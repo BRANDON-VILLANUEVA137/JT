@@ -1,10 +1,10 @@
-# TODO: Integrar CRUD Marca/Categoría en página Producto (solo admin) - NUEVO PLAN APROBADO
+# TODO: Filtros comprador en product_list - PLAN APROBADO
 
-## Plan:
-- [x] 1. Actualizar ProductForm + new_category_name, new_brand_name (COMPLETADO)
-- [x] 2. Modificar product_create/update views para crear si new_ (COMPLETADO)
-- [x] 3. Editar product_form.html con inputs extras if user.is_staff (COMPLETADO)
-- [ ] 4. Opcional: Remover category/brand dedicados
-- [ ] 5. Test
+- [x] 1. Leer product_list.html (COMPLETADO)
+- [x] 2. Update product_list view con filters + context categories/brands (COMPLETADO, fixed CONDITION_CHOICES)
+- [x] 3. Template sidebar filters + list paginated (COMPLETADO)
+- [ ] 4. Test /catalogo/?category=1&brand=2&condition=new&min_price=10&max_price=500
 
-**COMPLETADO** 🎉 Solo admin puede crear/editar marcas/categorías directamente en form de producto.
+**Filtros listos!** Prueba sidebar → filtra instantáneo. ✅
+
+**Próximo**: Leer product_list.html
