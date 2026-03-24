@@ -69,11 +69,12 @@
                         </div>
 
                         <!-- Limpiar filtros -->
-                        {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
-                            <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='{% url 'catalogo:product_list' %}'">
-                                Limpiar filtros
-                            </button>
-                        {% endif %}
+                    {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
+                        {% url 'catalogo:product_list' as clean_url %}
+                        <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='{{ clean_url }}'">
+                            Limpiar filtros
+                        </button>
+                    {% endif %}
                     </form>
                 </div>
             </div>

@@ -8,6 +8,8 @@ from .models import Product, Category, Brand
 from .forms import ProductForm, CategoryForm, BrandForm
 
 def home(request):
+    if request.user.is_staff:
+        return catalog_list(request)
     featured = Product.objects.filter(activo=True).order_by('-created_at')[:6]
     offers = Product.objects.filter(activo=True).order_by('price')[:8]
     categories = Category.objects.all().order_by('name')[:10]
@@ -18,6 +20,7 @@ def home(request):
         'categories': categories,
         'brands': brands,
     })
+
 
 # 1. LISTAR (PÚBLICO - cualquiera puede ver)
 def catalog_list(request):
