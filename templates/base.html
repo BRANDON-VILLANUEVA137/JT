@@ -13,7 +13,18 @@
         <div class="container">
             <a class="navbar-brand" href="/">🧠 TECH-JUANJO</a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/catalogo/">Catálogo</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="/catalogo/" role="button" data-bs-toggle="dropdown">Catálogo</a>
+                    <ul class="dropdown-menu">
+                        {% for cat in categories %}
+                            <li><a class="dropdown-item" href="/catalogo/?category={{ cat.id }}">{{ cat.name }}</a></li>
+                        {% empty %}
+                            <li><span class="dropdown-item-text text-muted">Cargando categorías...</span></li>
+                        {% endfor %}
+                    </ul>
+                    <li class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-center fw-bold" href="{% url 'catalogo:product_list' %}">Ver Todo</a></li>
+                </li>
                 {% if user.is_authenticated %}
                     <span class="nav-link disabled">👤 {{ user.get_nombre_completo|default:user.username }}</span>
                     <a class="nav-link" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a>

@@ -7,8 +7,20 @@ from django.utils.text import slugify
 from .models import Product, Category, Brand
 from .forms import ProductForm, CategoryForm, BrandForm
 
+def home(request):
+    featured = Product.objects.filter(activo=True).order_by('-created_at')[:6]
+    offers = Product.objects.filter(activo=True).order_by('price')[:8]
+    categories = Category.objects.all().order_by('name')[:10]
+    brands = Brand.objects.all().order_by('name')[:10]
+    return render(request, 'catalogo/home.html', {
+        'featured': featured,
+        'offers': offers,
+        'categories': categories,
+        'brands': brands,
+    })
+
 # 1. LISTAR (PÚBLICO - cualquiera puede ver)
-def product_list(request):
+def catalog_list(request):
     CONDITION_CHOICES = [
         ('new', 'Nuevo'),
         ('used', 'Usado'),
@@ -200,3 +212,4 @@ def brand_update(request, slug):
     else:
         form = BrandForm(instance=brand)
     return render(request, 'catalogo/brand_form.html', {'form': form, 'title': f'Editar {brand.name}'})
+

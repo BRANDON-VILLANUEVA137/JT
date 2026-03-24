@@ -1,10 +1,6 @@
-# TODO: Filtros comprador en product_list - PLAN APROBADO
+# TODO: Landing page home e-commerce UX/UI
 
-- [x] 1. Leer product_list.html (COMPLETADO)
-- [x] 2. Update product_list view con filters + context categories/brands (COMPLETADO, fixed CONDITION_CHOICES)
-- [x] 3. Template sidebar filters + list paginated (COMPLETADO)
-- [ ] 4. Test /catalogo/?category=1&brand=2&condition=new&min_price=10&max_price=500
-
-**Filtros listos!** Prueba sidebar → filtra instantáneo. ✅
-
-**Próximo**: Leer product_list.html
+- [ ] 1. Add home view
+- [ ] 2. Update urls path('', home)
+- [ ] 3. Create home.html hero + featured + carousel offers + trust
+- [ ] 4. Test / landing

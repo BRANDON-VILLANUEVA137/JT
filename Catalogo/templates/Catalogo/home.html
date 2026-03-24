@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% block title %}TECH-JUANJO Marketplace - Inicio{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Bienvenido a TECH-JUANJO</h1>
+                <p class="lead mb-4">Encuentra lo mejor en electrónica, gadgets y más. Envío rápido y garantía de devolución.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'catalogo:product_list' %}" class="btn btn-light btn-lg">Explorar Catálogo</a>
+                    <a href="#featured" class="btn btn-outline-light btn-lg">Ver Ofertas</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://images.unsplash.com/photo-1558494949-ef0d38d3e6ab?w=500&h=400&fit=crop" alt="Gadgets" class="img-fluid rounded shadow-lg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Productos Destacados -->
+<section id="featured" class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="bi bi-star-fill text-warning"></i> Productos Destacados
+        </h2>
+        <div class="row g-4">
+            {% for product in featured %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-lg border-0 overflow-hidden">
+                    <div class="position-relative">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x250?text={{ product.name|slice:':4' }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ product.name }}">
+                        {% endif %}
+                        <span class="position-absolute top-0 start-0 badge bg-success m-2 shadow">🔥 Más Vendidos</span>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name|truncatechars:40 }}</h5>
+                        <p class="text-muted">{{ product.category.name }} • {{ product.brand.name }}</p>
+                        <div class="d-flex align-items-center mb-3">
+                            <h3 class="text-primary mb-0 me-2">${{ product.price }}</h3>
+                            <span class="badge bg-warning fs-6">Nuevo</span>
+                        </div>
+                        <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-primary w-100 mt-auto">Ver Detalle</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <h4>No hay productos destacados aún</h4>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'catalogo:product_list' %}" class="btn btn-outline-primary btn-lg">Ver Todos los Productos</a>
+        </div>
+    </div>
+</section>
+
+<!-- Superofertas Carousel -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="bi bi-fire text-danger"></i> ¡Superofertas!
+        </h2>
+        <div id="offersCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for offer in offers|slice:":4" %}
+                    <button type="button" data-bs-target="#offersCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+                {% endfor %}
+            </div>
+            <div class="carousel-inner">
+                {% for offer in offers %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="card h-100 shadow">
+                                    {% if offer.image %}
+                                        <img src="{{ offer.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ offer.name }}">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/300x200?text=Oferta" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ offer.name }}">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ offer.name|truncatechars:30 }}</h6>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <h4 class="text-danger mb-0 me-2">${{ offer.price }}</h4>
+                                            <del class="text-muted">${{ offer.price|add:50.00 }}</del>
+                                            <span class="badge bg-danger ms-2">30% OFF</span>
+                                        </div>
+                                        <small class="text-success fw-bold">+ 5.000 vendidos</small>
+                                    </div>
+                                    <a href="{% url 'catalogo:product_detail' offer.slug %}" class="btn btn-danger w-100">Comprar Ahora</a>
+                                </div>
+                            </div>
+                            {% if forloop.counter|divisibleby:4 %}
+                        </div>
+                    </div>
+                    {% if not forloop.last %}
+                    <div class="carousel-item">
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#offersCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#offersCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div class="text-center mt-5">
+            <a href="{% url 'catalogo:product_list' %}" class="btn btn-danger btn-lg">Ver Más Ofertas</a>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Indicators -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <i class="bi bi-truck display-1 text-primary mb-3"></i>
+                <h5>Envío Gratis</h5>
+                <p class="text-muted">En pedidos > $50.000</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-lightning-charge display-1 text-warning mb-3"></i>
+                <h5>Entrega Rápida</h5>
+                <p class="text-muted">24-48 horas Bogotá</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-shield-check display-1 text-success mb-3"></i>
+                <h5>Garantía Total</h5>
+                <p class="text-muted">30 días devolución</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-people display-1 text-info mb-3"></i>
+                <h5>+10K Clientes</h5>
+                <p class="text-muted">Felices con nosotros</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Catálogo Completo -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2>Explora Nuestro Catálogo Completo</h2>
+            <p class="lead">Encuentra exactamente lo que necesitas</p>
+            <a href="{% url 'catalogo:product_list' %}" class="btn btn-primary btn-lg">Ir al Catálogo Completo</a>
+        </div>
+    </div>
+</section>
+{% endblock %} 
+
+{% block extra_css %}
+<style>
+.card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+.carousel-item img {
+    height: 300px;
+    object-fit: cover;
+}
+</style>
+{% endblock %}
