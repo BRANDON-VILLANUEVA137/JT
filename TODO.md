@@ -1,18 +1,10 @@
-# TODO: Redirecciones CRUDS productos - COMPLETADO ✅
+# TODO: Integrar CRUD Marca/Categoría en página Producto (solo admin) - NUEVO PLAN APROBADO
 
-## Resumen cambios:
-- **Views** (Catalogo/views.py): Ya protegidas con `@staff_member_required` → solo admins/staff (is_superuser/is_staff) acceden a crear/editar/eliminar productos. Non-admins redirigidos al login admin.
-- **Templates creados**: `product_form.html` y `product_confirm_delete.html` con Bootstrap matching.
-- **Templates actualizados**:
-  - `product_list.html`: Botón "Publicar Producto" solo para `user.is_staff`.
-  - `product_detail.html`: Acciones editar/lista solo para admins.
-- **Marketplace público**: Todos ven lista/detalles/carrito/compras (carrito/pedidos apps intactas).
-- **Funcional**: Usuarios normales solo marketplace, admins full CRUDS.
+## Plan:
+- [x] 1. Actualizar ProductForm + new_category_name, new_brand_name (COMPLETADO)
+- [x] 2. Modificar product_create/update views para crear si new_ (COMPLETADO)
+- [x] 3. Editar product_form.html con inputs extras if user.is_staff (COMPLETADO)
+- [ ] 4. Opcional: Remover category/brand dedicados
+- [ ] 5. Test
 
-## Pruebas recomendadas:
-1. `python manage.py runserver`
-2. Login usuario normal → solo ve productos, no botones CRUD.
-3. Login admin (is_staff=True) → ve botones, accede CRUDS.
-4. Intenta /crear/ sin admin → redirect.
-
-¡Listo para usar!
+**COMPLETADO** 🎉 Solo admin puede crear/editar marcas/categorías directamente en form de producto.

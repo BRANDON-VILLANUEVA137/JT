@@ -17,6 +17,18 @@
                             </div>
                         {% endfor %}
                     {% endif %}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-danger">
+                                {{ field.label }}: {{ error }}
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
 
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -26,14 +38,26 @@
                                 {{ form.name }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Categoría</label>
+                                <label class="form-label">Categoría {% if user.is_staff %}(Admin: puedes crear nueva){% endif %}</label>
                                 {{ form.category }}
+                                {% if user.is_staff %}
+                                    <div class="mt-1">
+                                        <small class="text-muted">O nueva:</small>
+                                        {{ form.new_category_name }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Marca</label>
+                                <label class="form-label">Marca {% if user.is_staff %}(Admin: puedes crear nueva){% endif %}</label>
                                 {{ form.brand }}
+                                {% if user.is_staff %}
+                                    <div class="mt-1">
+                                        <small class="text-muted">O nueva:</small>
+                                        {{ form.new_brand_name }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Precio ($)</label>
