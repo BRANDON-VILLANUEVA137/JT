@@ -208,21 +208,45 @@
         </div>
         {% endif %}
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
-            {% if es_admin_view %}
-                
-                <a href="{% url 'usuarios:editar_usuario' usuario.pk %}" class="btn btn-primary">
-                    <i class="bi bi-pencil"></i> Editar Usuario
+        <!-- Acciones del perfil -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'usuarios:editar_usuario' %}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-pencil-square"></i> Editar Perfil
                 </a>
-            {% else %}
-                <a href="{% url 'usuarios:dashboard' %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver al Dashboard
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'usuarios:cambiar_password' %}" class="btn btn-outline-warning w-100">
+                    <i class="bi bi-key"></i> Cambiar Contraseña
                 </a>
-                <a href="{% url 'usuarios:logout' %}" class="btn btn-danger">
-                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'usuarios:cambiar_email' %}" class="btn btn-outline-success w-100">
+                    <i class="bi bi-envelope"></i> Cambiar Email
                 </a>
-            {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="{% url 'usuarios:dashboard' %}" class="btn btn-secondary w-100">
+                    <i class="bi bi-house"></i> Dashboard
+                </a>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Mensajes -->
+{% if messages %}
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-8">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}

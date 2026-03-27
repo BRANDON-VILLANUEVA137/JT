@@ -3,8 +3,45 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="alert alert-info">
-  <h4>Bienvenido {{ user.get_nombre_completo }}!</h4>
-  <p><a href="/" class="btn btn-primary">Ir al Catálogo</a></p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-house-door"></i> Dashboard - Bienvenido {{ user.get_nombre_completo }}
+            </h2>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <a href="{% url 'usuarios:perfil' %}" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-circle display-1 text-primary mb-3"></i>
+                            <h5 class="card-title">Mi Perfil</h5>
+                            <p class="card-text">Editar datos personales, cambiar contraseña y email.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-md-4">
+                    <a href="/" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shop display-1 text-success mb-3"></i>
+                            <h5 class="card-title">Catálogo</h5>
+                            <p class="card-text">Explorar productos disponibles.</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-md-4">
+                    <a href="{% url 'usuarios:logout' %}" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-box-arrow-right display-1 text-danger mb-3"></i>
+                            <h5 class="card-title">Cerrar Sesión</h5>
+                            <p class="card-text">Finalizar sesión actual.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

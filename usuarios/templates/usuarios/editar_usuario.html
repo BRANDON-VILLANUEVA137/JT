@@ -32,45 +32,24 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
 
-                    <div class="section-box mt-0">
-                        <h5 class="section-title"><i class="bi bi-person-vcard me-2"></i>Información Personal</h5>
+                    {{ form.primer_nombre.label_tag }}
+                    {{ form.primer_nombre }}
+                    {% if form.primer_nombre.errors %}
+                        <div class="invalid-feedback d-block">{{ form.primer_nombre.errors.0 }}</div>
+                    {% endif %}
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="primer_nombre" class="form-label">Primer Nombre</label>
-                            <input type="text" class="form-control" id="primer_nombre" name="primer_nombre" value="{{ usuario.primer_nombre }}" required>
-                        </div>
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                    {% endif %}
 
-                        <div class="col-md-6 mb-3">
-                            <label for="segundo_nombre" class="form-label">Segundo Nombre</label>
-                            <input type="text" class="form-control" id="segundo_nombre" name="segundo_nombre" value="{{ usuario.segundo_nombre }}">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="primer_apellido" class="form-label">Primer Apellido</label>
-                            <input type="text" class="form-control" id="primer_apellido" name="primer_apellido" value="{{ usuario.primer_apellido }}" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="segundo_apellido" class="form-label">Segundo Apellido</label>
-                            <input type="text" class="form-control" id="segundo_apellido" name="segundo_apellido" value="{{ usuario.segundo_apellido }}">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Correo Electrónico</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ usuario.email }}" required>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
+                    <div class="row mt-3">
+                        <div class="col-md-6">
                             <label class="form-label">Documento</label>
-                            <input type="text" class="form-control" value="{{ usuario.tipo_documento }} - {{ usuario.numero_documento }}" disabled>
+                            <input type="text" class="form-control" value="{{ usuario.numero_documento }}" disabled readonly>
+                            <small class="text-muted">No editable</small>
                         </div>
-                    </div>
-
                     </div>
 
                     {% if estudiante %}
@@ -117,8 +96,8 @@
 
                     <hr class="my-4">
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="}" class="btn btn-secondary">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-secondary">
                             <i class="bi bi-arrow-left"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary">
