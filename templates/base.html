@@ -4,44 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TECH-JUANJO Marketplace{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --navbar-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            box-shadow: var(--navbar-shadow);
+            background: var(--primary-gradient) !important;
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            color: rgba(255,255,255,0.9) !important;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.75rem 1.5rem !important;
+        }
+        
+        .nav-link:hover {
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 1.5rem;
+            background: #fff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: calc(100% - 3rem);
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: var(--navbar-shadow);
+            border-radius: 15px;
+            padding: 1rem 0;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 2rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--primary-gradient);
+            color: white !important;
+            transform: translateX(10px);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .cart-icon {
+            position: relative;
+            font-size: 1.2rem;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 991px) {
+            .navbar-nav {
+                text-align: center;
+            }
+            .user-info {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">🧠 TECH-JUANJO</a>
-            <div class="navbar-nav ms-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="/catalogo/" role="button" data-bs-toggle="dropdown">Catálogo</a>
-                    <ul class="dropdown-menu">
-                        {% for cat in categories %}
-                            <li><a class="dropdown-item" href="/catalogo/?category={{ cat.id }}">{{ cat.name }}</a></li>
-                        {% empty %}
-                            <li><span class="dropdown-item-text text-muted">Cargando categorías...</span></li>
-                        {% endfor %}
-                    </ul>
-                    <li class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-center fw-bold" href="{% url 'catalogo:product_list' %}">Ver Todo</a></li>
-                </li>
-                {% if user.is_authenticated %}
-                    <span class="nav-link disabled">👤 {{ user.get_nombre_completo|default:user.username }}</span>
-                    <a class="nav-link" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a>
-                {% else %}
-                    <a class="nav-link" href="{% url 'usuarios:login' %}">Iniciar Sesión</a>
-                    <a class="nav-link" href="{% url 'usuarios:registro' %}">Registrarse</a>
-                {% endif %}
+            <!-- Brand -->
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-brain me-2"></i>TECH-JUANJO
+            </a>
+            
+            <!-- Toggle button for mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <!-- Navbar Collapse -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- Catálogo Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-store me-1"></i>Catálogo
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for cat in categories %}
+                                <li>
+                                    <a class="dropdown-item" href="/catalogo/?category={{ cat.id }}">
+                                        <i class="fas fa-tag me-2 text-primary"></i>{{ cat.name }}
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li><span class="dropdown-item-text text-muted px-4">Cargando categorías...</span></li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item fw-bold text-primary" href="{% url 'catalogo:product_list' %}">
+                                    <i class="fas fa-list me-2"></i>Ver Todo
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <!-- Right side navigation -->
+                <ul class="navbar-nav ms-auto">
+                    <!-- Carrito -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/carrito/">
+                            <span class="cart-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="cart-badge" style="display: {% if request.session.cart_items %}block{% else %}none{% endif %}">
+                                    {{ request.session.cart_items|default:0 }}
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- Usuario autenticado -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle user-info" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                {{ user.get_nombre_completo|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
+                                        <i class="fas fa-user me-2"></i>Mi Perfil
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/mis-pedidos/">
+                                        <i class="fas fa-box me-2"></i>Mis Pedidos
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'usuarios:logout' %}">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <!-- Usuario no autenticado -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'usuarios:login' %}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light ms-2" href="{% url 'usuarios:registro' %}">
+                                <i class="fas fa-user-plus me-1"></i>Registrarse
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </nav>
 
-    <main class="container mt-4">
+    <main class="container-fluid px-4 px-lg-5 mt-4 mb-5">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+                    <i class="fas fa-{{ message.extra_tags|default:'info-circle' }} me-2"></i>
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -51,4 +242,3 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-
