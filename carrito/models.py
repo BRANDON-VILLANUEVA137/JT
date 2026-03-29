@@ -23,4 +23,3 @@ class CartItem(models.Model):
     
     def subtotal(self):
         return self.quantity * self.product.price
-    product = models.ForeignKey
