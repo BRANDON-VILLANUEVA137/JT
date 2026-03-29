@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, UserUpdateForm, PasswordChangeCustomForm, EmailChangeForm
 from .models import Usuario
 
 def login_view(request):
@@ -82,6 +82,7 @@ def editar_usuario_view(request):
 
 @login_required(login_url='usuarios:login')
 def cambiar_password_view(request):
+    form = PasswordChangeCustomForm(request.user)
     if request.method == 'POST':
         form = PasswordChangeCustomForm(request.user, request.POST)
         if form.is_valid():
@@ -89,8 +90,6 @@ def cambiar_password_view(request):
             messages.success(request, 'Contraseña cambiada exitosamente.')
             logout(request)
             return redirect('usuarios:login')
-    else:
-        form = PasswordChangeCustomForm(request.user)
 
     return render(request, 'usuarios/cambiar_password.html', {
         'form': form,
@@ -99,14 +98,13 @@ def cambiar_password_view(request):
 
 @login_required(login_url='usuarios:login')
 def cambiar_email_view(request):
+    form = EmailChangeForm(request.user)
     if request.method == 'POST':
         form = EmailChangeForm(request.user, request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Email actualizado correctamente.')
             return redirect('usuarios:perfil')
-    else:
-        form = EmailChangeForm(request.user)
 
     return render(request, 'usuarios/cambiar_email.html', {
         'form': form,
