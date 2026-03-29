@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods, require_POST
+from django.conf import settings
+import stripe
+import os
 from .models import Cart, CartItem
 from Catalogo.models import Product
+from pedidos.models import Pedido, PedidoItem
 
 def cart_view(request):
     session_key = request.session.session_key
@@ -84,8 +89,49 @@ def checkout(request):
         messages.warning(request, 'Carrito vacío')
         return redirect('carrito:cart')
     
-    messages.info(request, 'Procediendo al pago...')
-    return redirect('pedidos:mis_pedidos')  # Integrate with pedidos
+    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+    
+    line_items = []
+    for item in cart.items.all():
+        line_items.append({
+            'price_data': {
+                'currency': 'cop',
+                'product_data': {
+                    'name': str(item.product),
+                },
+                'unit_amount': int(item.product.price * 100),  # cents
+            },
+            'quantity': item.quantity,
+        })
+    
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        metadata={
+            'user_id': str(request.user.id),
+            'cart_id': str(cart.id),
+        },
+        success_url=request.build_absolute_uri('/carrito/success/?session_id={CHECKOUT_SESSION_ID}'),
+        cancel_url=request.build_absolute_uri('/carrito/?cancelled=true'),
+    )
+    
+    return redirect(session.url, code=303)
+
+@login_required
+def checkout_success(request):
+    session_id = request.GET.get('session_id')
+    if session_id and '{{ CHECKOUT_SESSION_ID }}' not in session_id:
+        stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            if session.payment_status == 'paid':
+                messages.success(request, '¡Pago exitoso! Revisa tus pedidos.')
+        except:
+            pass
+    else:
+        messages.info(request, 'Proceso de pago completado. Revisa tus pedidos.')
+    return redirect('pedidos:mis_pedidos')
 
 @login_required
 def clear_cart(request):
@@ -95,3 +141,5 @@ def clear_cart(request):
         cart.delete()
     messages.success(request, 'Carrito limpiado')
     return redirect('carrito:cart')
+
+

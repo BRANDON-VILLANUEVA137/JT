@@ -18,6 +18,7 @@ class Pedido(models.Model):
     fecha_creacion = models.DateTimeField(default=timezone.now)
     direccion = models.TextField()
     telefono = models.CharField(max_length=20)
+    stripe_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     
     class Meta:
         ordering = ['-fecha_creacion']
