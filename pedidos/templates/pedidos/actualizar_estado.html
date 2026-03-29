@@ -1,0 +1,39 @@
+{% extends 'usuarios/base.html' %}
+{% block title %}Actualizar Estado Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5>Pedido #{{ pedido.id }} - {{ pedido.get_estado_display }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label">Nuevo Estado</label>
+                            <select name="estado" class="form-select">
+                                {% for value, label in Pedido.ESTADO_CHOICES %}
+                                <option value="{{ value }}" {% if value == pedido.estado %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'pedidos:admin_pedidos' %}" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Actualizar Estado
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

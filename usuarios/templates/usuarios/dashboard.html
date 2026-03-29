@@ -31,12 +31,39 @@
                     </a>
                 </div>
                 
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <a href="{% url 'usuarios:perfil' %}" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-circle display-1 text-primary mb-3"></i>
+                            <h5 class="card-title">Mi Perfil</h5>
+                            <p class="card-text">Editar datos personales</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'pedidos:mis_pedidos' %}" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-receipt display-1 text-info mb-3"></i>
+                            <h5 class="card-title">Mis Pedidos</h5>
+                            <p class="card-text">Ver y cancelar pedidos</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/" class="card h-100 text-decoration-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-shop display-1 text-success mb-3"></i>
+                            <h5 class="card-title">Catálogo</h5>
+                            <p class="card-text">Comprar productos</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3">
                     <a href="{% url 'usuarios:logout' %}" class="card h-100 text-decoration-none">
                         <div class="card-body text-center">
                             <i class="bi bi-box-arrow-right display-1 text-danger mb-3"></i>
                             <h5 class="card-title">Cerrar Sesión</h5>
-                            <p class="card-text">Finalizar sesión actual.</p>
+                            <p class="card-text">Finalizar sesión</p>
                         </div>
                     </a>
                 </div>

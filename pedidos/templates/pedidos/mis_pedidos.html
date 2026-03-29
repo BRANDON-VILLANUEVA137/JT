@@ -1,0 +1,95 @@
+{% extends 'usuarios/base.html' %}
+{% block title %}Mis Pedidos - PlaColégio{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="bi bi-receipt"></i> Mis Pedidos ({{ total_pedidos }})
+    </h2>
+
+    {% if total_pedidos == 0 %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-inbox display-4 mb-3"></i>
+        <h4>No tienes pedidos aún</h4>
+        <p>Realiza tu primera compra en el catálogo.</p>
+        <a href="/" class="btn btn-primary">Ir al Catálogo</a>
+    </div>
+    {% else %}
+    <!-- Tabs por estado -->
+    <ul class="nav nav-tabs mb-4" id="pedidosTabs" role="tablist">
+        {% for estado, lista in estados.items %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if forloop.first %}active{% endif %}" id="tab-{{ estado }}" data-bs-toggle="tab" data-bs-target="#panel-{{ estado }}" type="button" role="tab">
+                {{ lista.0.get_estado_display }} ({{ lista|length }})
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="pedidosTabContent">
+        {% for estado, lista in estados.items %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="panel-{{ estado }}" role="tabpanel">
+            <div class="row g-4">
+                {% for pedido in lista %}
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <strong>Pedido #{{ pedido.id }}</strong>
+                            <span class="badge bg-{{ pedido.get_estado_display|lower|slugify }}">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="text-muted">Fecha</small>
+                                    <p class="mb-2">{{ pedido.fecha_creacion|date:"d M Y H:i" }}</p>
+                                    
+                                    <small class="text-muted">Total</small>
+                                    <h5 class="text-primary mb-2">${{ pedido.total }}</h5>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">Envío a</small>
+                                    <p class="mb-2">{{ pedido.direccion|truncatewords:8 }}</p>
+                                    <p class="mb-0"><i class="bi bi-telephone"></i> {{ pedido.telefono }}</p>
+                                </div>
+                            </div>
+                            
+                            {% if pedido.items.exists %}
+                            <hr>
+                            <h6>Productos:</h6>
+                            <ul class="list-unstyled">
+                                {% for item in pedido.items.all %}
+                                <li class="mb-1">
+                                    {{ item.cantidad }}x {{ item.product.name }} 
+                                    <small class="text-muted">(${{ item.precio_unitario }} c/u)</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-light">
+                            {% if pedido.estado == 'preparacion' %}
+                            <a href="{% url 'pedidos:cancelar_pedido' pedido.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-x-circle"></i> Cancelar Pedido
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">No editable</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        No hay pedidos en {{ pedido.get_estado_display|lower }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

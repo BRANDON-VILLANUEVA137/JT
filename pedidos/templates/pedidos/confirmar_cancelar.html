@@ -1,0 +1,38 @@
+{% extends 'usuarios/base.html' %}
+{% block title %}Cancelar Pedido{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Cancelación</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Estás seguro de cancelar el Pedido #{{ pedido.id }}?</p>
+                    <div class="alert alert-warning">
+                        <h6>Detalles del pedido:</h6>
+                        <ul>
+                            <li><strong>Total:</strong> ${{ pedido.total }}</li>
+                            <li><strong>Estado actual:</strong> {{ pedido.get_estado_display }}</li>
+                            <li><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d M Y H:i" }}</li>
+                        </ul>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'pedidos:mis_pedidos' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> No, volver
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-check-lg"></i> Sí, cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

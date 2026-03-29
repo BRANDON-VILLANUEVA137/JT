@@ -15,10 +15,9 @@ def home(request):
     categories = Category.objects.all().order_by('name')[:10]
     brands = Brand.objects.all().order_by('name')[:10]
     return render(request, 'catalogo/home.html', {
+        'user': request.user,
         'featured': featured,
         'offers': offers,
-        'categories': categories,
-        'brands': brands,
     })
 
 
