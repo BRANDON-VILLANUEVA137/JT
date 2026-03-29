@@ -1,9 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.conf import settings
 from .forms import LoginForm, RegisterForm, UserUpdateForm, PasswordChangeCustomForm, EmailChangeForm
 from .models import Usuario
+from .tokens import EmailChangeToken
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -102,10 +107,43 @@ def cambiar_email_view(request):
     if request.method == 'POST':
         form = EmailChangeForm(request.user, request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Email actualizado correctamente.')
+            new_email = form.cleaned_data['new_email']
+            token = EmailChangeToken.generate_token(request.user, new_email)
+            
+            # Email verification link
+            verification_url = request.build_absolute_uri(f'/usuarios/confirm-email/{token}/')
+            
+            # Send email (console in dev)
+            send_mail(
+                'Confirmar cambio de email - TECH-JUANJO',
+                f'Hola {request.user.get_nombre_completo()},\n\n'
+                f'Para confirmar tu nuevo email {new_email}, click:\n{verification_url}\n\n'
+                f'Token expira en 1 hora.\n\nSaludos,\nTECH-JUANJO',
+                settings.DEFAULT_FROM_EMAIL,
+                [new_email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, f'Verificación enviada a {new_email}. Click link en 1h.')
             return redirect('usuarios:perfil')
-
+    
     return render(request, 'usuarios/cambiar_email.html', {
         'form': form,
     })
+
+
+@login_required(login_url='usuarios:login')
+def confirm_email_view(request, token):
+    try:
+        token_obj = EmailChangeToken.objects.get(token=token)
+        if token_obj.is_valid():
+            request.user.email = token_obj.new_email
+            request.user.save()
+            token_obj.delete()
+            messages.success(request, f'Email cambiado a {request.user.email} exitosamente.')
+        else:
+            messages.error(request, 'Token expirado o inválido.')
+    except EmailChangeToken.DoesNotExist:
+        messages.error(request, 'Token inválido.')
+    
+    return redirect('usuarios:perfil')
