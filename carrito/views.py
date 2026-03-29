@@ -7,7 +7,6 @@ from .models import Cart, CartItem
 from Catalogo.models import Product
 
 def cart_view(request):
-    # View cart for anon (session) and logged (user)
     session_key = request.session.session_key
     cart = None
     items = []
@@ -20,10 +19,12 @@ def cart_view(request):
     if cart:
         items = cart.items.all()
     
+    total = sum(item.subtotal() for item in items) if items else 0
+    
     context = {
         'cart': cart,
         'items': items,
-        'total': sum(item.quantity * item.product.price for item in items),
+        'total': total,
     }
     return render(request, 'carrito/cart.html', context)
 
@@ -42,31 +43,55 @@ def add_to_cart(request):
     )
     
     if not item_created:
-        item.quantity += quantity
-        item.save()
+        new_qty = item.quantity + quantity
+        if new_qty <= product.stock:
+            item.quantity = new_qty
+            item.save()
+            messages.success(request, f'{product.name} actualizado en carrito!')
+        else:
+            messages.warning(request, f'Solo {product.stock} disponibles.')
+    else:
+        messages.success(request, f'{product.name} añadido al carrito!')
     
-    messages.success(request, f'{product.name} añadido al carrito!')
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'status': 'success', 'total_items': cart.items.count()})
     return redirect('carrito:cart')
 
 @login_required
+@require_http_methods(["POST"])
+def update_cart_item(request):
+    item_id = request.POST.get('item_id')
+    quantity = int(request.POST.get('quantity'))
+    
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    
+    if quantity <= 0:
+        item.delete()
+        messages.success(request, 'Item eliminado del carrito.')
+    elif quantity <= item.product.stock:
+        item.quantity = quantity
+        item.save()
+        messages.success(request, 'Cantidad actualizada.')
+    else:
+        messages.warning(request, f'Solo {item.product.stock} disponibles.')
+    
+    return redirect('carrito:cart')
+
+@login_required
 def checkout(request):
-    # Checkout view - require login
     cart = Cart.objects.filter(user=request.user).first()
     if not cart or not cart.items.exists():
         messages.warning(request, 'Carrito vacío')
         return redirect('carrito:cart')
     
-    # Process checkout logic here (pedidos)
-    messages.info(request, 'Redirigiendo a checkout...')
-    return redirect('pedidos:mis_pedidos')  # Placeholder
+    messages.info(request, 'Procediendo al pago...')
+    return redirect('pedidos:mis_pedidos')  # Integrate with pedidos
 
+@login_required
 def clear_cart(request):
-    if request.user.is_authenticated:
-        cart = Cart.objects.filter(user=request.user).first()
-        if cart:
-            cart.items.all().delete()
-            cart.delete()
+    cart = Cart.objects.filter(user=request.user).first()
+    if cart:
+        cart.items.all().delete()
+        cart.delete()
     messages.success(request, 'Carrito limpiado')
     return redirect('carrito:cart')

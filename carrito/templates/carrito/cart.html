@@ -46,13 +46,13 @@
                                 </td>
                                 <td>${{ item.product.price|floatformat:0 }}</td>
                                 <td>
-                                    <form method="post" action="" class="d-inline">
+    <form method="post" action="{% url 'carrito:update_cart_item' %}" class="d-inline">
                                         {% csrf_token %}
                                         <input type="hidden" name="item_id" value="{{ item.id }}">
                                         <div class="input-group input-group-sm w-auto">
-                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="btn btn-outline-secondary">-</button>
-                                            <span class="form-control text-center bg-white">{{ item.quantity }}</span>
-                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="btn btn-outline-secondary">+</button>
+                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="btn btn-outline-secondary" {% if item.quantity <= 1 %}disabled{% endif %}>-</button>
+                                            <span class="form-control text-center bg-white px-3">{{ item.quantity }} / {{ item.product.stock }}</span>
+                                            <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="btn btn-outline-secondary" {% if item.quantity >= item.product.stock %}disabled{% endif %}>+</button>
                                         </div>
                                     </form>
                                 </td>
@@ -62,7 +62,7 @@
                                         {% csrf_token %}
                                         <input type="hidden" name="item_id" value="{{ item.id }}">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?')">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash">Eliminar</i>
                                         </button>
                                     </form>
                                 </td>
