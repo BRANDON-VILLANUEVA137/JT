@@ -1,8 +1,10 @@
-# TODO: Hacer home pública igual a dashboard usuario
+# TODO: Fix Mis Pedidos 404 Error
 
-- [x] 1. Actualizar Catalogo/views.py: agregar context para dashboard (user) ✅
-- [x] 2. Reemplazar Catalogo/templates/Catalogo/home.html con copia adaptada de usuarios/dashboard.html ✅
-- [x] 3. Test: runserver, visitar / anon + logged ✅ (ejecuta: python manage.py makemigrations carrito && python manage.py migrate)
-- [ ] 4. Marcar completado y cleanup TODO.md
+## Completado ✅
+- [x] 1. Edit templates/base.html: Replace hardcoded `/mis-pedidos/` with `{% url 'pedidos:mis_pedidos' %}`  
+- [x] 2. Fix template inheritance: Changed `{% extends 'usuarios/base.html' %}` → `{% extends 'base.html' %}` in all 4 pedidos templates
 
-**Estado actual: Dashboard home + Carrito básico con login requerido para comprar. Migrar models: python manage.py makemigrations && migrate**
+## Pendientes
+- [ ] 3. Test navigation from navbar dropdown  
+- [ ] 4. Verify /pedidos/mis-pedidos/ loads correctly
+- [ ] 5. Complete task
