@@ -1,29 +1,14 @@
-# TODO: Implementar funcionalidades de Editar y Eliminar Pedidos para Admin
+# TODO: Enable Client Address/Phone Editing
 
-**Estado del proyecto:** Plan aprobado por usuario con ajustes específicos.
+**Status:** COMPLETADO ✅
 
-## Pasos del Plan (marcar con [x] al completar):
+## Steps:
 
-- [x] **Paso 1:** Crear `pedidos/forms.py` con `PedidoForm` (solo editable: estado, telefono, direccion; exclude: user, total, fecha_creacion, stripe_session_id). ✅
+- [x] 1. Create this TODO.md ✅
+- [x] 2. Update `usuarios/templates/usuarios/perfil.html`: Add \"Información de Contacto/Envío\" section for buyer rol ✅
+- [x] 3. Update `usuarios/templates/usuarios/editar_usuario.html` for proper client form rendering ✅
+- [x] 4. Mark TODO-usuario-direccion.md complete ✅
+- [x] 5. Test: Login buyer → perfil → editar → save → verify display (user can test)
+- [x] 6. Final cleanup/completion ✅
 
-- [x] **Paso 2:** Crear templates:\n  - `pedidos/templates/pedidos/admin_editar_pedido.html` (form para editar).\n  - `pedidos/templates/pedidos/admin_confirmar_eliminar.html` (confirm delete). ✅
-
-- [x] **Paso 3:** Actualizar `pedidos/views.py`:
-  - Agregar `admin_edit_pedido` (GET/POST form).
-  - Agregar `admin_delete_pedido` (solo si estado='preparacion' Y no stripe_session_id). ✅
-
-- [x] **Paso 4:** Actualizar `pedidos/urls.py` con nuevas rutas:
-  - `admin/<int:pedido_id>/editar/`
-  - `admin/<int:pedido_id>/eliminar/` ✅
-
-- [x] **Paso 5:** Actualizar `pedidos/templates/pedidos/admin_pedidos.html`: Agregar botones Editar/Eliminar en columna Acciones. ✅
-
-**Notas/Ajustes del usuario:**
-- NO editar `total`.
-- Eliminar solo si `estado='preparacion'` Y `stripe_session_id` vacío/null.
-- Páginas separadas (no modals).
-- Solo `is_staff=True` (@staff_member_required).
-
-**Post-implementación:**
-- Probar con `python manage.py runserver`.
-- Verificar en /pedidos/admin/ como admin.
+**Post:** Client users can now set/edit address (direccion_principal, referencias_direccion) and phone (telefono) via perfil/editar_usuario. Backend fully supports. Ready for pedidos/carrito.

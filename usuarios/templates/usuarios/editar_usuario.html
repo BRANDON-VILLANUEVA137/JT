@@ -52,7 +52,34 @@
                         </div>
                     </div>
 
-                    {% if estudiante %}
+                    {% if usuario.rol == 'buyer' %}
+                    <div class="section-box">
+                        <h5 class="section-title"><i class="bi bi-geo-alt me-2"></i>Información de Contacto y Envío (Cliente)</h5>
+                        
+                        {{ form.direccion_principal.label_tag }}
+                        {{ form.direccion_principal }}
+                        {% if form.direccion_principal.errors %}
+                            <div class="invalid-feedback d-block">{{ form.direccion_principal.errors.0 }}</div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.telefono.label_tag }}
+                                {{ form.telefono }}
+                                {% if form.telefono.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.telefono.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {{ form.referencias_direccion.label_tag }}
+                        {{ form.referencias_direccion }}
+                        {% if form.referencias_direccion.errors %}
+                            <div class="invalid-feedback d-block">{{ form.referencias_direccion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% elif estudiante %}
+                    <!-- existing estudiante section unchanged -->
                     <div class="section-box">
                     <h5 class="section-title"><i class="bi bi-mortarboard me-2"></i>Información de Estudiante</h5>
                     
@@ -77,6 +104,7 @@
                     </div>
 
                     {% elif docente %}
+                    <!-- existing docente section -->
                     <div class="section-box">
                     <h5 class="section-title"><i class="bi bi-person-badge me-2"></i>Información de Docente</h5>
                     
