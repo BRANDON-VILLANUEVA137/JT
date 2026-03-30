@@ -12,7 +12,7 @@ from .tokens import EmailChangeToken
 
 def login_view(request):
     if request.user.is_authenticated:
-        if request.user.is_staff:
+        if request.user.rol == 'admin':
             return redirect('usuarios:dashboard')
         return redirect('/')
 
@@ -32,7 +32,7 @@ def login_view(request):
             
             if user:
                 login(request, user)
-                if user.is_staff:
+                if user.rol == 'admin':
                     return redirect('usuarios:dashboard')
                 return redirect('/')
             else:
@@ -62,7 +62,7 @@ def registro_view(request):
 
 @login_required(login_url='usuarios:login')
 def dashboard_view(request):
-    if request.user.is_staff:
+    if request.user.rol == 'admin':
         return redirect('usuarios:dashboard_admin')
     return render(request, 'usuarios/dashboard.html')
 
@@ -154,12 +154,12 @@ def confirm_email_view(request, token):
     
     return redirect('usuarios:perfil')
 
-from django.contrib.admin.views.decorators import staff_member_required
+from usuarios.decoradores import requiere_admin
 from django.db.models import Sum
 from pedidos.models import Pedido
 from .models import Usuario
 
-@staff_member_required
+@requiere_admin
 def dashboard_admin_view(request):
     total_usuarios = Usuario.objects.count()
     total_pedidos = Pedido.objects.count()
@@ -182,7 +182,7 @@ from django.db.models import Q
 from .forms import AdminUserForm, RegisterForm
 
 
-@staff_member_required
+@requiere_admin
 def lista_usuarios_view(request):
     query = request.GET.get('q', '')
     rol_filter = request.GET.get('rol', '')
@@ -223,7 +223,7 @@ def lista_usuarios_view(request):
     return render(request, 'usuarios/lista_usuarios.html', context)
 
 
-@staff_member_required
+@requiere_admin
 def crear_usuario_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -237,7 +237,7 @@ def crear_usuario_view(request):
     return render(request, 'usuarios/crear_usuario.html', {'form': form})
 
 
-@staff_member_required
+@requiere_admin
 def editar_usuario_admin_view(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
 
@@ -256,7 +256,7 @@ def editar_usuario_admin_view(request, pk):
     })
 
 
-@staff_member_required
+@requiere_admin
 def eliminar_usuario_view(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
 

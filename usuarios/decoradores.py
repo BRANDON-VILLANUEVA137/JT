@@ -24,13 +24,7 @@ def requiere_admin(view_func):
         
         if request.user.rol != 'admin':
             messages.error(request, 'No tiene permiso para acceder a esta página.')
-            # Redirigir según rol
-            if request.user.rol == 'buyer':
-                return redirect('usuarios:dashboard_buyer')
-            elif request.user.rol == 'seller':
-                return redirect('usuarios:dashboard_seller')
-            else:
-                return redirect('usuarios:dashboard')
+            return redirect('usuarios:dashboard')
         
         return view_func(request, *args, **kwargs)
     
@@ -55,13 +49,10 @@ def requiere_rol(*roles):
             
             if request.user.rol not in roles:
                 messages.error(request, 'No tiene permiso para acceder a esta página.')
-                # Redirigir según rol
                 if request.user.rol == 'admin':
                     return redirect('usuarios:dashboard_admin')
-                elif request.user.rol == 'seller':
-                    return redirect('usuarios:dashboard_seller')
                 else:
-                    return redirect('usuarios:dashboard_buyer')
+                    return redirect('usuarios:dashboard')
             
             return view_func(request, *args, **kwargs)
         
@@ -85,13 +76,9 @@ def requiere_docente(view_func):
         if not request.user.is_authenticated:
             return redirect('usuarios:login')
         
-        if request.user.rol not in ['docente', 'admin']:
+        if request.user.rol != 'admin':
             messages.error(request, 'No tiene permiso para acceder a esta página.')
-            # Redirigir según el rol del usuario
-            if request.user.rol == 'estudiante':
-                return redirect('usuarios:dashboard_estudiante')
-            else:
-                return redirect('usuarios:dashboard')
+            return redirect('usuarios:dashboard')
         
         return view_func(request, *args, **kwargs)
     
@@ -113,15 +100,9 @@ def requiere_estudiante(view_func):
         if not request.user.is_authenticated:
             return redirect('usuarios:login')
         
-        if request.user.rol != 'estudiante':
+        if request.user.rol != 'admin':
             messages.error(request, 'No tiene permiso para acceder a esta página.')
-            # Redirigir según el rol del usuario
-            if request.user.rol == 'admin':
-                return redirect('usuarios:dashboard_admin')
-            elif request.user.rol == 'docente':
-                return redirect('usuarios:dashboard_docente')
-            else:
-                return redirect('usuarios:dashboard_estudiante')
+            return redirect('usuarios:dashboard')
         
         return view_func(request, *args, **kwargs)
     

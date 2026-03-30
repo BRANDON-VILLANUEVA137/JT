@@ -3,6 +3,9 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
 
 class LoginForm(forms.Form):
+    """
+    Formulario login: permite numero_documento, email o username.
+    """
     login_field = forms.CharField(
         max_length=150,
         widget=forms.TextInput(attrs={
@@ -18,6 +21,9 @@ class LoginForm(forms.Form):
     )
 
 class RegisterForm(UserCreationForm):
+    """
+    Registro simple.
+    """
     primer_nombre = forms.CharField(
         max_length=100,
         widget=forms.TextInput(attrs={'class': 'form-control'})
@@ -37,12 +43,16 @@ class RegisterForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.numero_documento = self.cleaned_data['numero_documento']
-        user.rol = 'buyer'  # default
+        user.rol = 'comprador'  # default
         if commit:
             user.save()
         return user
 
+
 class UserUpdateForm(forms.ModelForm):
+    """
+    Form para editar perfil usuario: nombre, email, direccion, telefono, referencias.
+    """
     class Meta:
         model = Usuario
         fields = ['primer_nombre', 'email', 'direccion_principal', 'telefono', 'referencias_direccion']
@@ -71,7 +81,11 @@ class UserUpdateForm(forms.ModelForm):
             }),
         }
 
+
 class PasswordChangeCustomForm(forms.Form):
+    """
+    Cambio de contraseña con contraseña actual (no usa PasswordChangeForm para custom auth).
+    """
     old_password = forms.CharField(
         label='Contraseña actual',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -113,7 +127,11 @@ class PasswordChangeCustomForm(forms.Form):
             self.request_user.save()
         return self.request_user
 
+
 class EmailChangeForm(forms.Form):
+    """
+    Cambio de email con autenticación de contraseña actual.
+    """
     old_password = forms.CharField(
         label='Contraseña actual (para confirmar)',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
@@ -157,10 +175,14 @@ class EmailChangeForm(forms.Form):
             self.request_user.save()
         return self.request_user
 
+
 class AdminUserForm(forms.ModelForm):
+    """
+    Form para admin editar usuario: + rol, is_active, is_staff, is_superuser.
+    """
     class Meta:
         model = Usuario
-        fields = ['primer_nombre', 'email', 'rol', 'direccion_principal', 'telefono', 'referencias_direccion', 'is_active']
+        fields = ['primer_nombre', 'email', 'rol', 'direccion_principal', 'telefono', 'referencias_direccion', 'is_active', 'is_staff', 'is_superuser']
         widgets = {
             'primer_nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
@@ -169,5 +191,7 @@ class AdminUserForm(forms.ModelForm):
             'direccion_principal': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'referencias_direccion': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

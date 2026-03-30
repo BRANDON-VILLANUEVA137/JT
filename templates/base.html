@@ -197,9 +197,26 @@
                                 <li>
                                     <a class="dropdown-item" href="{% url 'pedidos:mis_pedidos' %}">
                                         <i class="fas fa-box me-2"></i>Mis Pedidos
-
                                     </a>
                                 </li>
+                                {% if user.rol == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-warning" href="{% url 'usuarios:dashboard_admin' %}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'usuarios:lista_usuarios' %}">
+                                        <i class="fas fa-users me-2"></i>Gestionar Usuarios
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'pedidos:admin_pedidos' %}">
+                                        <i class="fas fa-clipboard-list me-2"></i>Pedidos Admin
+                                    </a>
+                                </li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{% url 'usuarios:logout' %}">
