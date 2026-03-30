@@ -58,6 +58,8 @@ def registro_view(request):
 
 @login_required(login_url='usuarios:login')
 def dashboard_view(request):
+    if request.user.is_staff:
+        return redirect('usuarios:dashboard_admin')
     return render(request, 'usuarios/dashboard.html')
 
 
@@ -147,3 +149,25 @@ def confirm_email_view(request, token):
         messages.error(request, 'Token inválido.')
     
     return redirect('usuarios:perfil')
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Sum
+from pedidos.models import Pedido
+from .models import Usuario
+
+@staff_member_required
+def dashboard_admin_view(request):
+    total_usuarios = Usuario.objects.count()
+    total_pedidos = Pedido.objects.count()
+    pedidos_pendientes = Pedido.objects.filter(estado='preparacion').count()
+    ventas_totales = Pedido.objects.aggregate(total=Sum('total'))['total'] or 0
+    pedidos_recientes = Pedido.objects.select_related('user').order_by('-fecha_creacion')[:5]
+    
+    context = {
+        'total_usuarios': total_usuarios,
+        'total_pedidos': total_pedidos,
+        'pedidos_pendientes': pedidos_pendientes,
+        'ventas_totales': ventas_totales,
+        'pedidos_recientes': pedidos_recientes,
+    }
+    return render(request, 'usuarios/dashboard_admin.html', context)
