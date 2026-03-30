@@ -12,6 +12,8 @@ from .tokens import EmailChangeToken
 
 def login_view(request):
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('usuarios:dashboard')
         return redirect('/')
 
     if request.method == 'POST':
@@ -30,6 +32,8 @@ def login_view(request):
             
             if user:
                 login(request, user)
+                if user.is_staff:
+                    return redirect('usuarios:dashboard')
                 return redirect('/')
             else:
                 messages.error(request, 'Credenciales inválidas')
