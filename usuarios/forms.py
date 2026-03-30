@@ -51,11 +51,11 @@ class RegisterForm(UserCreationForm):
 
 class UserUpdateForm(forms.ModelForm):
     """
-    Form para editar perfil: nombre y email.
+    Form para editar perfil usuario: nombre, email, direccion, telefono, referencias.
     """
     class Meta:
         model = Usuario
-        fields = ['primer_nombre', 'email']
+        fields = ['primer_nombre', 'email', 'direccion_principal', 'telefono', 'referencias_direccion']
         widgets = {
             'primer_nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -64,6 +64,20 @@ class UserUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'tu@email.com'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Teléfono para contacto'
+            }),
+            'direccion_principal': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Calle, número, barrio...'
+            }),
+            'referencias_direccion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Cerca del supermercado, esquina azul, etc. (opcional)'
             }),
         }
 

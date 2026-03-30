@@ -16,7 +16,12 @@ class Usuario(AbstractUser):
     numero_documento = models.CharField(max_length=20, unique=True)
     rol = models.CharField(max_length=10, choices=ROL_CHOICES, default='buyer')
     
+    direccion_principal = models.TextField(blank=True, null=True, verbose_name="Dirección Principal")
+    referencias_direccion = models.TextField(blank=True, null=True, verbose_name="Referencias/Indicaciones")
+    telefono = models.CharField(max_length=20, blank=True, verbose_name="Teléfono Personal")
+    
     class Meta:
+
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
     
