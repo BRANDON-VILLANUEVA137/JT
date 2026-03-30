@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-danger">
+        <i class="bi bi-trash"></i> Confirmar Eliminación - Pedido #{{ pedido.id }}
+    </h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <strong>¡Cuidado! Esta acción eliminará permanentemente el pedido.</strong>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>ID:</strong> #{{ pedido.id }}</p>
+                    <p><strong>Cliente:</strong> {{ pedido.user.get_nombre_completo }}</p>
+                    <p><strong>Total:</strong> ${{ pedido.total }}</p>
+                    <p><strong>Estado:</strong> <span class="badge bg-secondary">{{ pedido.get_estado_display }}</span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Items:</strong> {{ pedido.items.count }}</p>
+                    <p><strong>Teléfono:</strong> {{ pedido.telefono }}</p>
+                    <p><strong>Dirección:</strong> {{ pedido.direccion|truncatewords:8 }}</p>
+                </div>
+            </div>
+            
+            {% if not puede_eliminar %}
+            <div class="alert alert-warning">
+                <strong>No se puede eliminar:</strong><br>
+                {% if pedido.estado != 'preparacion' %}El estado debe ser "En preparación".{% endif %}
+                {% if pedido.stripe_session_id %}Ya tiene pago procesado (Stripe ID: {{ pedido.stripe_session_id }}).{% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-footer d-flex gap-2 justify-content-between">
+            {% if puede_eliminar %}
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro? Esto eliminará el pedido y todos sus items.')">
+                    <i class="bi bi-trash"></i> Eliminar Definitivamente
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'pedidos:admin_pedidos' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a Pedidos
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

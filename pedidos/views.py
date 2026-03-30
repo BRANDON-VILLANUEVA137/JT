@@ -4,6 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Sum
 from .models import Pedido, PedidoItem
+from .forms import PedidoForm
 from django.utils import timezone
 from decimal import Decimal
 
@@ -71,3 +72,46 @@ def actualizar_estado_pedido(request, pedido_id):
         return redirect('pedidos:admin_pedidos')
     
     return render(request, 'pedidos/actualizar_estado.html', {'pedido': pedido})
+
+@staff_member_required
+def admin_edit_pedido(request, pedido_id):
+    """
+    Admin edita telefono, direccion, estado del pedido.
+    """
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    form = PedidoForm(instance=pedido)
+    
+    if request.method == 'POST':
+        form = PedidoForm(request.POST, instance=pedido)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Pedido #{pedido.id} actualizado exitosamente.')
+            return redirect('pedidos:admin_pedidos')
+    
+    context = {
+        'pedido': pedido,
+        'form': form,
+    }
+    return render(request, 'pedidos/admin_editar_pedido.html', context)
+
+@staff_member_required
+def admin_delete_pedido(request, pedido_id):
+    """
+    Admin elimina pedido (solo si preparacion y sin pago Stripe).
+    """
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    puede_eliminar = (pedido.estado == 'preparacion' and not pedido.stripe_session_id)
+    
+    if request.method == 'POST' and puede_eliminar:
+        pedido_id = pedido.id
+        pedido.delete()  # Cascade a items
+        messages.success(request, f'Pedido #{pedido_id} eliminado permanentemente.')
+        return redirect('pedidos:admin_pedidos')
+    elif request.method == 'POST':
+        messages.error(request, 'No se puede eliminar este pedido: debe estar en preparación y sin pago Stripe.')
+    
+    context = {
+        'pedido': pedido,
+        'puede_eliminar': puede_eliminar,
+    }
+    return render(request, 'pedidos/admin_confirmar_eliminar.html', context)

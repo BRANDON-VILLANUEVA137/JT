@@ -54,9 +54,18 @@
                     </td>
                     <td>{{ pedido.fecha_creacion|date:"d M Y H:i" }}</td>
                     <td>
-                        <a href="{% url 'pedidos:actualizar_estado_pedido' pedido.id %}" class="btn btn-sm btn-outline-primary">
-                            Cambiar Estado
-                        </a>
+                        <div class="btn-group-vertical btn-group-sm" role="group">
+                            <a href="{% url 'pedidos:actualizar_estado_pedido' pedido.id %}" class="btn btn-outline-primary">
+                                Cambiar Estado
+                            </a>
+                            <a href="{% url 'pedidos:admin_edit_pedido' pedido.id %}" class="btn btn-outline-success">
+                                Editar
+                            </a>
+                            <a href="{% url 'pedidos:admin_delete_pedido' pedido.id %}" class="btn btn-outline-danger" 
+                               onclick="return confirm('¿Ir a confirmar eliminación del pedido #{{ pedido.id }}?')">
+                                Eliminar
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

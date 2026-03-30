@@ -1,14 +1,29 @@
-# TODO Progress for Environment Variables Recovery
+# TODO: Implementar funcionalidades de Editar y Eliminar Pedidos para Admin
 
-**Status**: Implementing approved plan...
+**Estado del proyecto:** Plan aprobado por usuario con ajustes específicos.
 
-## Steps from Plan:
-- [x] Confirm user values for missing env vars (Cloudinary + confirm Stripe)
-- [x] Update .env with complete vars (STRIPE_*, CLOUDINARY_*, SECRET_KEY)\n- [x] Update JUANJO_TECH/settings.py (SECRET_KEY to env, remove Cloudinary fallback)
-- [ ] Test: python manage.py check && python manage.py runserver
-- [ ] Verify Cloudinary upload (admin)
-- [ ] Complete TODO-cloudinary.md & TODO-stripe.md
-- [ ] Optional: Externalize DB creds to env
+## Pasos del Plan (marcar con [x] al completar):
 
-**Status**: ✅ TASK COMPLETE! Todas las variables de entorno restauradas y funcionales (Stripe + Cloudinary). Tests confirmados OK por usuario. settings.py seguro con .env. DB opcional pendiente.
+- [x] **Paso 1:** Crear `pedidos/forms.py` con `PedidoForm` (solo editable: estado, telefono, direccion; exclude: user, total, fecha_creacion, stripe_session_id). ✅
 
+- [x] **Paso 2:** Crear templates:\n  - `pedidos/templates/pedidos/admin_editar_pedido.html` (form para editar).\n  - `pedidos/templates/pedidos/admin_confirmar_eliminar.html` (confirm delete). ✅
+
+- [x] **Paso 3:** Actualizar `pedidos/views.py`:
+  - Agregar `admin_edit_pedido` (GET/POST form).
+  - Agregar `admin_delete_pedido` (solo si estado='preparacion' Y no stripe_session_id). ✅
+
+- [x] **Paso 4:** Actualizar `pedidos/urls.py` con nuevas rutas:
+  - `admin/<int:pedido_id>/editar/`
+  - `admin/<int:pedido_id>/eliminar/` ✅
+
+- [x] **Paso 5:** Actualizar `pedidos/templates/pedidos/admin_pedidos.html`: Agregar botones Editar/Eliminar en columna Acciones. ✅
+
+**Notas/Ajustes del usuario:**
+- NO editar `total`.
+- Eliminar solo si `estado='preparacion'` Y `stripe_session_id` vacío/null.
+- Páginas separadas (no modals).
+- Solo `is_staff=True` (@staff_member_required).
+
+**Post-implementación:**
+- Probar con `python manage.py runserver`.
+- Verificar en /pedidos/admin/ como admin.
