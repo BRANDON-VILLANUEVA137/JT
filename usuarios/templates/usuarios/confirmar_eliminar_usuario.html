@@ -1,1 +1,72 @@
-{% extends 'base.html' %}\n\n{% block title %}Confirmar Eliminar Usuario{% endblock %}\n\n{% block content %}\n<div class=\"container mt-5\">\n    <div class=\"row justify-content-center\">\n        <div class=\"col-md-6\">\n            <div class=\"card border-danger shadow\">\n                <div class=\"card-header bg-danger text-white text-center\">\n                    <h4 class=\"mb-0\"><i class=\"bi bi-exclamation-triangle-fill me-3\"></i>Confirmar Desactivación</h4>\n                </div>\n                <div class=\"card-body p-4 text-center\">\n                    <i class=\"bi bi-person-x display-1 text-danger mb-4 opacity-75\"></i>\n                    <h5>¿Desactivar usuario?</h5>\n                    <p class=\"text-muted mb-4\">\n                        <strong>{{ usuario.get_nombre_completo }}</strong><br>\n                        Usuario: {{ usuario.username }} | Doc: {{ usuario.numero_documento }}<br>\n                        Email: {{ usuario.email|default:'N/A' }}\n                    </p>\n                    <p class=\"text-warning\">Esta acción desactivará la cuenta (no borra datos).</p>\n                    <form method=\"post\" class=\"d-inline\">\n                        {% csrf_token %}\n                        <button type=\"submit\" class=\"btn btn-danger me-3\">Sí, Desactivar</button>\n                    </form>\n                    <a href=\"{% url 'usuarios:lista_usuarios' %}\" class=\"btn btn-secondary\">Cancelar</a>\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n{% endblock %}
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Eliminar Usuario{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-danger shadow-lg">
+
+                <!-- Header -->
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                        ¡PELIGRO! Eliminar Usuario
+                    </h4>
+                    <small class="opacity-75">Esta acción NO se puede deshacer</small>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4 text-center">
+
+                    <!-- Icono -->
+                    <i class="bi bi-trash3 display-1 text-danger mb-3 opacity-75"></i>
+
+                    <!-- Texto -->
+                    <h5 class="fw-bold text-danger mb-4">¿Eliminar usuario definitivamente?</h5>
+
+                    <div class="text-muted mb-4">
+                        <p class="mb-2">
+                            <strong class="text-danger">{{ usuario.get_nombre_completo }}</strong>
+                        </p>
+                        <small class="text-danger-emphasis">
+                            Usuario: {{ usuario.username }}<br>
+                            Documento: {{ usuario.numero_documento }}<br>
+                            Email: {{ usuario.email|default:'N/A' }}
+                        </small>
+                    </div>
+
+                    <!-- Advertencia fuerte -->
+                    <div class="alert alert-danger py-4 mb-4 shadow-sm">
+                        <h6 class="fw-bold mb-2"><i class="bi bi-skull me-2"></i>⚠️ ADVERTENCIA CRÍTICA</h6>
+                        <ul class="mb-0 list-unstyled text-start">
+                            <li>🗑️ <strong>Todos los datos se eliminarán PERMANENTEMENTE</strong></li>
+                            <li>📋 Pedidos, historial y perfil borrados</li>
+                            <li>🔒 Usuario no recuperable</li>
+                            <li>⏰ Esta acción es <strong>IRREVERSIBLE</strong></li>
+                        </ul>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg px-4">
+                                <i class="bi bi-trash3-fill me-2"></i>
+                                <strong>Eliminar Definitivamente</strong>
+                            </button>
+                        </form>
+
+                        <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary btn-lg px-4">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

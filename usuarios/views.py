@@ -257,6 +257,23 @@ def editar_usuario_admin_view(request, pk):
 
 
 @requiere_admin
+def desactivar_usuario_view(request, pk):
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    if request.user.pk == pk:
+        messages.error(request, 'No puedes desactivar tu propia cuenta.')
+        return redirect('usuarios:lista_usuarios')
+
+    if request.method == 'POST':
+        # Soft delete
+        usuario.is_active = False
+        usuario.save()
+        messages.success(request, f'Usuario {usuario.get_nombre_completo()} desactivado exitosamente.')
+        return redirect('usuarios:lista_usuarios')
+
+    return render(request, 'usuarios/confirmar_desactivar_usuario.html', {'usuario': usuario})
+
+@requiere_admin
 def eliminar_usuario_view(request, pk):
     usuario = get_object_or_404(Usuario, pk=pk)
 
@@ -265,10 +282,10 @@ def eliminar_usuario_view(request, pk):
         return redirect('usuarios:lista_usuarios')
 
     if request.method == 'POST':
-        # Soft delete
-        usuario.is_active = False
-        usuario.save()
-        messages.success(request, f'Usuario {usuario.get_nombre_completo()} desactivado.')
+        # Hard delete
+        nombre = usuario.get_nombre_completo()
+        usuario.delete()
+        messages.success(request, f'Usuario {nombre} eliminado permanentemente.')
         return redirect('usuarios:lista_usuarios')
 
     return render(request, 'usuarios/confirmar_eliminar_usuario.html', {'usuario': usuario})

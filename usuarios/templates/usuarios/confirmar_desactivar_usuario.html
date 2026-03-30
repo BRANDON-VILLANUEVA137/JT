@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Desactivar Usuario{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-warning shadow-lg">
+
+                <!-- Header -->
+                <div class="card-header bg-warning text-dark text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Confirmar Desactivación
+                    </h4>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4 text-center">
+
+                    <!-- Icono -->
+                    <i class="bi bi-person-x display-1 text-warning mb-3 opacity-75"></i>
+
+                    <!-- Texto -->
+                    <h5 class="fw-bold text-dark">¿Desactivar usuario?</h5>
+
+                    <div class="text-muted mb-4">
+                        <p class="mb-1">
+                            <strong>{{ usuario.get_nombre_completo }}</strong>
+                        </p>
+                        <small>
+                            Usuario: {{ usuario.username }}<br>
+                            Documento: {{ usuario.numero_documento }}<br>
+                            Email: {{ usuario.email|default:'N/A' }}
+                        </small>
+                    </div>
+
+                    <!-- Advertencia -->
+                    <div class="alert alert-warning py-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Esta acción <strong>desactivará</strong> la cuenta permanentemente.<br>
+                        El usuario no podrá iniciar sesión, pero los datos se preservan.
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-center gap-2 mt-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning text-dark fw-bold">
+                                <i class="bi bi-pause-circle me-1"></i>Sí, desactivar
+                            </button>
+                        </form>
+
+                        <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancelar
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

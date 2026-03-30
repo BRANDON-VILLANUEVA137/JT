@@ -69,7 +69,14 @@
                     <td>
                         <a href="{% url 'usuarios:editar_usuario_admin' usuario.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
                         {% if usuario.is_active %}
-                        <a href="{% url 'usuarios:eliminar_usuario' usuario.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'usuarios:desactivar_usuario' usuario.pk %}" class="btn btn-sm btn-warning" title="Desactivar cuenta (soft delete)">
+                                <i class="bi bi-pause-circle"></i> Desactivar
+                            </a>
+                            <a href="{% url 'usuarios:eliminar_usuario' usuario.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar permanentemente">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </a>
+                        </div>
                         {% endif %}
                     </td>
                 </tr>
