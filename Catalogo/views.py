@@ -1,4 +1,4 @@
-from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
@@ -8,7 +8,7 @@ from .models import Product, Category, Brand
 from .forms import ProductForm, CategoryForm, BrandForm
 
 def home(request):
-    if request.user.is_staff:
+    if request.user.is_authenticated and request.user.rol == 'admin':
         return catalog_list(request)
     featured = Product.objects.filter(activo=True).order_by('-created_at')[:6]
     offers = Product.objects.filter(activo=True).order_by('price')[:8]
@@ -19,7 +19,6 @@ def home(request):
         'featured': featured,
         'offers': offers,
     })
-
 
 # 1. LISTAR (PÚBLICO - cualquiera puede ver)
 def catalog_list(request):
@@ -73,9 +72,13 @@ def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
     return render(request, 'catalogo/product_detail.html', {'product': product})
 
-# 3. CREAR (SOLO ADMIN/STAFF)
-@staff_member_required
+# 3. CREAR (SOLO ADMIN)
+@login_required
 def product_create(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -110,8 +113,12 @@ def product_create(request):
     return render(request, 'catalogo/product_form.html', {'form': form})
 
 # 4. EDITAR (SOLO ADMIN)
-@staff_member_required
+@login_required
 def product_update(request, slug):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     product = get_object_or_404(Product, slug=slug)
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
@@ -144,8 +151,12 @@ def product_update(request, slug):
     return render(request, 'catalogo/product_form.html', {'form': form})
 
 # 5. ELIMINAR (SOLO ADMIN)
-@staff_member_required
+@login_required
 def product_delete(request, slug):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     product = get_object_or_404(Product, slug=slug)
     if request.method == 'POST':
         product.delete()
@@ -154,13 +165,21 @@ def product_delete(request, slug):
     return render(request, 'catalogo/product_confirm_delete.html', {'product': product})
 
 # ========== CATEGORÍAS ==========
-@staff_member_required
+@login_required
 def category_list(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     categories = Category.objects.all().order_by('name')
     return render(request, 'catalogo/category_list.html', {'categories': categories, 'title': 'Categorías'})
 
-@staff_member_required
+@login_required
 def category_create(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():
@@ -171,8 +190,12 @@ def category_create(request):
         form = CategoryForm()
     return render(request, 'catalogo/category_form.html', {'form': form, 'title': 'Nueva Categoría'})
 
-@staff_member_required
+@login_required
 def category_update(request, slug):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     category = get_object_or_404(Category, slug=slug)
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
@@ -185,13 +208,21 @@ def category_update(request, slug):
     return render(request, 'catalogo/category_form.html', {'form': form, 'title': f'Editar {category.name}'})
 
 # ========== MARCAS ==========
-@staff_member_required
+@login_required
 def brand_list(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     brands = Brand.objects.all().order_by('name')
     return render(request, 'catalogo/brand_list.html', {'brands': brands, 'title': 'Marcas'})
 
-@staff_member_required
+@login_required
 def brand_create(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     if request.method == 'POST':
         form = BrandForm(request.POST)
         if form.is_valid():
@@ -202,8 +233,12 @@ def brand_create(request):
         form = BrandForm()
     return render(request, 'catalogo/brand_form.html', {'form': form, 'title': 'Nueva Marca'})
 
-@staff_member_required
+@login_required
 def brand_update(request, slug):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
+        
     brand = get_object_or_404(Brand, slug=slug)
     if request.method == 'POST':
         form = BrandForm(request.POST, instance=brand)
@@ -214,4 +249,3 @@ def brand_update(request, slug):
     else:
         form = BrandForm(instance=brand)
     return render(request, 'catalogo/brand_form.html', {'form': form, 'title': f'Editar {brand.name}'})
-
