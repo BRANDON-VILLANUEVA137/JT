@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Sum
 from .models import Pedido, PedidoItem
@@ -44,8 +43,11 @@ def cancelar_pedido(request, pedido_id):
     
     return render(request, 'pedidos/confirmar_cancelar.html', {'pedido': pedido})
 
-@staff_member_required
+@login_required
 def admin_pedidos(request):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
     """
     Admin ve todos los pedidos con info comprador.
     """
@@ -56,8 +58,11 @@ def admin_pedidos(request):
     }
     return render(request, 'pedidos/admin_pedidos.html', context)
 
-@staff_member_required
+@login_required
 def actualizar_estado_pedido(request, pedido_id):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
     """
     Admin cambia estado pedido.
     """
@@ -73,8 +78,11 @@ def actualizar_estado_pedido(request, pedido_id):
     
     return render(request, 'pedidos/actualizar_estado.html', {'pedido': pedido})
 
-@staff_member_required
+@login_required
 def admin_edit_pedido(request, pedido_id):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
     """
     Admin edita telefono, direccion, estado del pedido.
     """
@@ -94,8 +102,11 @@ def admin_edit_pedido(request, pedido_id):
     }
     return render(request, 'pedidos/admin_editar_pedido.html', context)
 
-@staff_member_required
+@login_required
 def admin_delete_pedido(request, pedido_id):
+    if request.user.rol != 'admin':
+        messages.error(request, 'No tienes permiso para acceder a esta página.')
+        return redirect('usuarios:dashboard')
     """
     Admin elimina pedido (solo si preparacion y sin pago Stripe).
     """
