@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods, require_POST
 from django.conf import settings
@@ -89,48 +89,71 @@ def checkout(request):
         messages.warning(request, 'Carrito vacío')
         return redirect('carrito:cart')
     
-    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+    total = sum(item.subtotal() for item in cart.items.all())
     
-    line_items = []
-    for item in cart.items.all():
-        line_items.append({
-            'price_data': {
-                'currency': 'cop',
-                'product_data': {
-                    'name': str(item.product),
+    if request.method == 'POST':
+        # Validate checkout form
+        telefono = request.POST.get('telefono', '').strip()
+        direccion_principal = request.POST.get('direccion_principal', '').strip()
+        referencias_direccion = request.POST.get('referencias_direccion', '').strip()
+        
+        if not telefono or not direccion_principal:
+            messages.error(request, 'Teléfono y dirección son obligatorios.')
+            context = {'cart': cart, 'total': total, 'user': request.user}
+            return render(request, 'carrito/checkout.html', context)
+        
+        # Store checkout data in session for webhook
+        request.session['checkout_data'] = {
+            'telefono': telefono,
+            'direccion_principal': direccion_principal,
+            'referencias_direccion': referencias_direccion,
+        }
+        
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        line_items = []
+        for item in cart.items.all():
+            line_items.append({
+                'price_data': {
+                    'currency': 'cop',
+                    'product_data': {
+                        'name': str(item.product),
+                    },
+                    'unit_amount': int(item.product.price * 100),  # cents
                 },
-                'unit_amount': int(item.product.price * 100),  # cents
+                'quantity': item.quantity,
+            })
+        
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            metadata={
+                'user_id': str(request.user.id),
+                'cart_id': str(cart.id),
+                'telefono': telefono,
+                'direccion': direccion_principal[:255],  # Truncate for metadata
+                'referencias': referencias_direccion[:255],
             },
-            'quantity': item.quantity,
-        })
+            success_url=request.build_absolute_uri(f'/carrito/success/?session_id={{CHECKOUT_SESSION_ID}}'),
+            cancel_url=request.build_absolute_uri('/carrito/?cancelled=true'),
+        )
+        
+        return redirect(session.url, code=303)
     
-    session = stripe.checkout.Session.create(
-        payment_method_types=['card'],
-        line_items=line_items,
-        mode='payment',
-        metadata={
-            'user_id': str(request.user.id),
-            'cart_id': str(cart.id),
-        },
-        success_url=request.build_absolute_uri('/carrito/success/?session_id={CHECKOUT_SESSION_ID}'),
-        cancel_url=request.build_absolute_uri('/carrito/?cancelled=true'),
-    )
-    
-    return redirect(session.url, code=303)
+    # GET: Show form prefilled from user profile
+    context = {
+        'cart': cart,
+        'total': total,
+        'user': request.user,
+    }
+    return render(request, 'carrito/checkout.html', context)
 
 @login_required
 def checkout_success(request):
     session_id = request.GET.get('session_id')
-    if session_id and '{{ CHECKOUT_SESSION_ID }}' not in session_id:
-        stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-        try:
-            session = stripe.checkout.Session.retrieve(session_id)
-            if session.payment_status == 'paid':
-                messages.success(request, '¡Pago exitoso! Revisa tus pedidos.')
-        except:
-            pass
-    else:
-        messages.info(request, 'Proceso de pago completado. Revisa tus pedidos.')
+    if session_id:
+        messages.success(request, '¡Pago exitoso! Pedido creado.')
     return redirect('pedidos:mis_pedidos')
 
 @login_required
@@ -141,5 +164,3 @@ def clear_cart(request):
         cart.delete()
     messages.success(request, 'Carrito limpiado')
     return redirect('carrito:cart')
-
-

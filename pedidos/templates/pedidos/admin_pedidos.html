@@ -31,9 +31,11 @@
                         <strong>{{ pedido.user.get_nombre_completo }}</strong><br>
                         <small>{{ pedido.user.email }}</small>
                     </td>
-                    <td>{{ pedido.telefono }}</td>
                     <td>
-                        {{ pedido.direccion|truncatewords:6 }}
+                        {{ pedido.telefono|default:pedido.user.telefono|default:"—" }}
+                    </td>
+                    <td>
+                        {{ pedido.direccion|default:pedido.user.direccion_principal|default:"—"|truncatewords:6 }}
                     </td>
                     <td>
                         {{ pedido.items.count }} producto{{ pedido.items.count|pluralize }}

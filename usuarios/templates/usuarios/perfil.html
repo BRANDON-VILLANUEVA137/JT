@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{% if es_admin_view %}Perfil de Usuario{% else %}Mi Perfil{% endif %} - PlaColégio{% endblock %}
+{% block title %}Mi Perfil - PlaColégio{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -32,7 +32,7 @@
 <div class="row justify-content-center mt-4">
     <div class="col-lg-8">
         <h2 class="mb-4">
-            <i class="bi bi-person-circle"></i> {% if es_admin_view %}Perfil de {{ usuario.get_nombre_completo }}{% else %}Mi Perfil{% endif %}
+            <i class="bi bi-person-circle"></i> Mi Perfil
         </h2>
 
         <div class="card shadow mb-4">
@@ -53,11 +53,7 @@
                         <div class="profile-info-item">
                             <div class="profile-label">Rol</div>
                             <p class="profile-value">
-                            {% if usuario.rol == 'buyer' %}
                                 <span class="badge bg-success">Cliente/Comprador</span>
-                            {% elif usuario.rol == 'seller' %}
-                                <span class="badge bg-warning">Vendedor</span>
-                            {% endif %}
                             </p>
                         </div>
                     </div>
@@ -83,11 +79,7 @@
                         <div class="profile-info-item">
                             <div class="profile-label">Estado de Cuenta</div>
                             <p class="profile-value">
-                            {% if usuario.is_active %}
                                 <span class="badge bg-success">✓ Activa</span>
-                            {% else %}
-                                <span class="badge bg-danger">✗ Bloqueada</span>
-                            {% endif %}
                             </p>
                         </div>
                     </div>
@@ -101,8 +93,6 @@
             </div>
         </div>
 
-        <!-- Nueva sección para clientes/buyer -->
-        {% if usuario.rol == 'buyer' %}
         <div class="card shadow mb-4">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
@@ -134,148 +124,43 @@
                 </div>
             </div>
         </div>
-        {% endif %}
 
-        {% if estudiante %}
-        <div class="card shadow mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-mortarboard"></i> Información de Estudiante
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Código Estudiantil</div>
-                            <p class="profile-value">{{ estudiante.codigo_estudiantil }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Fecha de Nacimiento</div>
-                            <p class="profile-value">{{ estudiante.fecha_nacimiento|date:"d/m/Y"|default:"No registrada" }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Edad</div>
-                            <p class="profile-value">{{ estudiante.calcular_edad|default:"No disponible" }} años</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Nombre del Acudiente</div>
-                            <p class="profile-value">{{ estudiante.nombre_acudiente|default:"No registrado" }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Teléfono del Acudiente</div>
-                            <p class="profile-value">{{ estudiante.telefono_acudiente|default:"No registrado" }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Promedio General</div>
-                            <p class="profile-value">
-                            <strong class="text-primary">{{ estudiante.promedio_general|default:"N/A" }}/5.0</strong>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Estado Final</div>
-                            <p class="profile-value">
-                            {% if estudiante.estado_final == 'aprobado' %}
-                                <span class="badge bg-success">Aprobado</span>
-                            {% elif estudiante.estado_final == 'reprobado' %}
-                                <span class="badge bg-danger">Reprobado</span>
-                            {% else %}
-                                <span class="badge bg-warning">Pendiente</span>
-                            {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if docente %}
-        <div class="card shadow mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-person-badge"></i> Información de Docente
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Especialidad</div>
-                            <p class="profile-value">{{ docente.especialidad|default:"No registrada" }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="profile-info-item">
-                            <div class="profile-label">Teléfono Institucional</div>
-                            <p class="profile-value">{{ docente.telefono_institucional|default:"No registrado" }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Acciones del perfil -->
         <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <a href="{% url 'usuarios:editar' %}" class="btn btn-outline-primary w-100">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'usuarios:editar' %}" class="btn btn-primary w-100">
                     <i class="bi bi-pencil-square"></i> Editar Perfil
                 </a>
             </div>
-            <div class="col-md-6 mb-3">
-                <a href="{% url 'usuarios:cambiar-password' %}" class="btn btn-outline-warning w-100">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'usuarios:cambiar-password' %}" class="btn btn-warning w-100">
                     <i class="bi bi-key"></i> Cambiar Contraseña
                 </a>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <a href="{% url 'usuarios:cambiar_email' %}" class="btn btn-outline-success w-100">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'usuarios:cambiar_email' %}" class="btn btn-success w-100">
                     <i class="bi bi-envelope"></i> Cambiar Email
                 </a>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-3 mb-3">
                 <a href="{% url 'usuarios:dashboard' %}" class="btn btn-secondary w-100">
                     <i class="bi bi-house"></i> Dashboard
                 </a>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Mensajes -->
-{% if messages %}
-<div class="row justify-content-center mt-3">
-    <div class="col-lg-8">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        {% if messages %}
+        <div class="row justify-content-center mt-3">
+            <div class="col-lg-8">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
         </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
-{% endif %}
 {% endblock %}
+
