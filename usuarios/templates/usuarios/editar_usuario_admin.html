@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Usuario Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card shadow-lg border-0">
+
+                <!-- Header -->
+                <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Editar Usuario: {{ usuario.get_nombre_completo }}
+                    </h4>
+                    <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-dark btn-sm">
+                        ← Volver
+                    </a>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+
+                            <!-- Nombre -->
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.primer_nombre.label }}</label>
+                                {{ form.primer_nombre }}
+                            </div>
+
+                            <!-- Documento -->
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.numero_documento.label }}</label>
+                                {{ form.numero_documento }}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label class="form-label">{{ form.email.label }}</label>
+                                {{ form.email }}
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.rol.label }}</label>
+                                {{ form.rol }}
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.telefono.label }}</label>
+                                {{ form.telefono }}
+                            </div>
+
+                            <!-- Dirección -->
+                            <div class="col-12">
+                                <label class="form-label">{{ form.direccion_principal.label }}</label>
+                                {{ form.direccion_principal }}
+                            </div>
+
+                            <!-- Referencias -->
+                            <div class="col-12">
+                                <label class="form-label">{{ form.referencias_direccion.label }}</label>
+                                {{ form.referencias_direccion }}
+                            </div>
+
+                            <!-- Activo -->
+                            <div class="col-12 form-check mt-3">
+                                {{ form.is_active }}
+                                <label class="form-check-label ms-2">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <!-- Errores -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            <strong>Errores:</strong>
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-success flex-grow-1">
+                                Guardar Cambios
+                            </button>
+                            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

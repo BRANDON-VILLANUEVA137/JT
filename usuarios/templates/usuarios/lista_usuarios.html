@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar Usuarios - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people me-2"></i>Usuarios ({{ total_usuarios }} total, {{ total_activos }} activos)</h2>
+        <a href="{% url 'usuarios:crear_usuario' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Usuario
+        </a>
+    </div>
+
+    <!-- Filtros/Búsqueda -->
+    <form method="get" class="card p-4 mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar nombre, usuario, doc, email...">
+            </div>
+            <div class="col-md-2">
+                <select name="rol" class="form-control">
+                    <option value="">Todos roles</option>
+                    <option value="buyer" {% if rol_filter == 'buyer' %}selected{% endif %}>Comprador</option>
+                    <option value="seller" {% if rol_filter == 'seller' %}selected{% endif %}>Vendedor</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="is_active" class="form-control">
+                    <option value="">Todos estados</option>
+                    <option value="true" {% if is_active_filter == 'true' %}selected{% endif %}>Activos</option>
+                    <option value="false" {% if is_active_filter == 'false' %}selected{% endif %}>Inactivos</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-outline-secondary w-100">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Documento</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in page_obj %}
+                <tr>
+                    <td><strong>{{ usuario.get_nombre_completo }}</strong></td>
+                    <td>{{ usuario.username }}</td>
+                    <td>{{ usuario.numero_documento }}</td>
+                    <td>{{ usuario.email|default:"N/A" }}</td>
+                    <td><span class="badge bg-{{ usuario.rol|lower }}">{{ usuario.get_rol_display }}</span></td>
+                    <td>
+                        <span class="badge {% if usuario.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if usuario.is_active %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ usuario.date_joined|date:"d M Y" }}</td>
+                    <td>
+                        <a href="{% url 'usuarios:editar_usuario_admin' usuario.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                        {% if usuario.is_active %}
+                        <a href="{% url 'usuarios:eliminar_usuario' usuario.pk %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No hay usuarios que coincidan. <a href="{% url 'usuarios:crear_usuario' %}">Crear el primero</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_other_pages %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}">Anterior</a>
+            </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if is_active_filter %}&is_active={{ is_active_filter }}{% endif %}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

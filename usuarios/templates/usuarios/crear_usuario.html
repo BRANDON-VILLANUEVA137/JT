@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Usuario - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Crear Nuevo Usuario
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+
+                            <!-- Username -->
+                            <div class="col-12">
+                                <label class="form-label">{{ form.username.label }}</label>
+                                {{ form.username }}
+                            </div>
+
+                            <!-- Nombre -->
+                            <div class="col-12">
+                                <label class="form-label">Nombre</label>
+                                {{ form.primer_nombre }}
+                            </div>
+
+                            <!-- Documento -->
+                            <div class="col-12">
+                                <label class="form-label">Número de documento</label>
+                                {{ form.numero_documento }}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label class="form-label">{{ form.email.label }}</label>
+                                {{ form.email }}
+                            </div>
+
+                            <!-- Password -->
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.password1.label }}</label>
+                                {{ form.password1 }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">{{ form.password2.label }}</label>
+                                {{ form.password2 }}
+                            </div>
+
+                        </div>
+
+                        <!-- Errores -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Botones -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                Crear Usuario
+                            </button>
+                            <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

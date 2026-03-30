@@ -175,3 +175,100 @@ def dashboard_admin_view(request):
         'pedidos_recientes': pedidos_recientes,
     }
     return render(request, 'usuarios/dashboard_admin.html', context)
+
+
+from django.core.paginator import Paginator
+from django.db.models import Q
+from .forms import AdminUserForm, RegisterForm
+
+
+@staff_member_required
+def lista_usuarios_view(request):
+    query = request.GET.get('q', '')
+    rol_filter = request.GET.get('rol', '')
+    is_active_filter = request.GET.get('is_active', '')
+
+    usuarios = Usuario.objects.all()
+
+    if query:
+        usuarios = usuarios.filter(
+            Q(primer_nombre__icontains=query) |
+            Q(username__icontains=query) |
+            Q(numero_documento__icontains=query) |
+            Q(email__icontains=query)
+        )
+
+    if rol_filter:
+        usuarios = usuarios.filter(rol=rol_filter)
+
+    if is_active_filter:
+        usuarios = usuarios.filter(is_active=(is_active_filter == 'true'))
+
+    total_usuarios = usuarios.count()
+    total_activos = usuarios.filter(is_active=True).count()
+
+    paginator = Paginator(usuarios, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'query': query,
+        'rol_filter': rol_filter,
+        'is_active_filter': is_active_filter,
+        'total_usuarios': total_usuarios,
+        'total_activos': total_activos,
+    }
+
+    return render(request, 'usuarios/lista_usuarios.html', context)
+
+
+@staff_member_required
+def crear_usuario_view(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuario creado exitosamente.')
+            return redirect('usuarios:lista_usuarios')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'usuarios/crear_usuario.html', {'form': form})
+
+
+@staff_member_required
+def editar_usuario_admin_view(request, pk):
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    if request.method == 'POST':
+        form = AdminUserForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuario actualizado.')
+            return redirect('usuarios:lista_usuarios')
+    else:
+        form = AdminUserForm(instance=usuario)
+
+    return render(request, 'usuarios/editar_usuario_admin.html', {
+        'form': form,
+        'usuario': usuario,
+    })
+
+
+@staff_member_required
+def eliminar_usuario_view(request, pk):
+    usuario = get_object_or_404(Usuario, pk=pk)
+
+    if request.user.pk == pk:
+        messages.error(request, 'No puedes eliminar tu propia cuenta.')
+        return redirect('usuarios:lista_usuarios')
+
+    if request.method == 'POST':
+        # Soft delete
+        usuario.is_active = False
+        usuario.save()
+        messages.success(request, f'Usuario {usuario.get_nombre_completo()} desactivado.')
+        return redirect('usuarios:lista_usuarios')
+
+    return render(request, 'usuarios/confirmar_eliminar_usuario.html', {'usuario': usuario})
