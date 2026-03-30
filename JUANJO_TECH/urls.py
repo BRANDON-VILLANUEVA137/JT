@@ -21,7 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),  # Deshabilitado - usar dashboard custom
     path('', include('Catalogo.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('pedidos/', include('pedidos.urls')),
