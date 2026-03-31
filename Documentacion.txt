@@ -1,0 +1,539 @@
+DOCUMENTACIÓN FUNCIONAL DEL PROYECTO TECH-JUANJO
+===============================================
+
+Objetivo del documento
+----------------------
+Este documento resume las funcionalidades visibles del proyecto, historias de usuario y una guía de pruebas manuales para validar el sistema punto por punto.
+
+Resumen del proyecto
+--------------------
+TECH-JUANJO es una aplicación web desarrollada en Django para la gestión y venta de productos tecnológicos. El sistema está dividido por módulos principales:
+
+1. Gestión de usuarios
+2. Catálogo de productos
+3. Carrito de compras
+4. Pedidos
+5. Panel administrativo propio
+
+Rutas principales del sistema
+-----------------------------
+Rutas base identificadas en el proyecto:
+
+- `/` → Inicio / Home
+- `/catalogo/` → Listado de productos
+- `/usuarios/login/` → Inicio de sesión
+- `/usuarios/registro/` → Registro de usuarios
+- `/usuarios/dashboard/` → Dashboard de usuario
+- `/usuarios/dashboard-admin/` → Dashboard administrativo
+- `/carrito/` → Carrito
+- `/carrito/checkout/` → Checkout
+- `/pedidos/mis-pedidos/` → Historial de pedidos del usuario
+
+MÓDULO 1: USUARIOS
+==================
+
+Funcionalidades identificadas
+-----------------------------
+Según las vistas, formularios, modelos y rutas del módulo `usuarios`, el sistema soporta:
+
+1. Inicio de sesión
+   - Ruta: `/usuarios/login/`
+   - Permite autenticar usuarios del sistema.
+
+2. Registro de usuarios
+   - Ruta: `/usuarios/registro/`
+   - Permite crear nuevas cuentas.
+
+3. Cierre de sesión
+   - Ruta: `/usuarios/logout/`
+
+4. Dashboard por usuario
+   - Ruta: `/usuarios/dashboard/`
+   - Redirección o experiencia según rol del usuario.
+
+5. Dashboard administrativo
+   - Ruta: `/usuarios/dashboard-admin/`
+   - Vista administrativa personalizada diferente al admin nativo de Django.
+
+6. Perfil de usuario
+   - Ruta: `/usuarios/perfil/`
+
+7. Edición de datos del usuario autenticado
+   - Ruta: `/usuarios/editar/`
+
+8. Cambio de contraseña
+   - Ruta: `/usuarios/cambiar-password/`
+
+9. Cambio de correo electrónico
+   - Ruta: `/usuarios/cambiar-email/`
+
+10. Confirmación de cambio de correo por token
+    - Ruta: `/usuarios/confirm-email/<token>/`
+
+11. Listado administrativo de usuarios
+    - Ruta: `/usuarios/lista-usuarios/`
+
+12. Creación administrativa de usuarios
+    - Ruta: `/usuarios/crear-usuario/`
+
+13. Edición administrativa de usuarios
+    - Ruta: `/usuarios/editar-usuario/<pk>/`
+
+14. Desactivación administrativa de usuarios
+    - Ruta: `/usuarios/desactivar-usuario/<pk>/`
+
+15. Eliminación administrativa de usuarios
+    - Ruta: `/usuarios/eliminar-usuario/<pk>/`
+
+16. Control de acceso por rol
+    - Existen decoradores para:
+      - admin
+      - usuario normal
+      - múltiples roles
+
+17. Seguridad de acceso
+    - Existe evidencia de:
+      - validación de contraseña anterior
+      - tokens para procesos sensibles
+
+18. Roles de usuario
+    - Se evidencian al menos estos roles:
+      - admin
+      - cliente /comprador
+
+
+Historias de usuario del módulo usuarios
+----------------------------------------
+HU-U01:
+Como visitante,
+Quiero visulaizar los productos,
+registrarme en la plataforma,
+para poder acceder a sus funcionalidades.
+
+HU-U02:
+Como usuario registrado,
+quiero iniciar sesión,
+para acceder a mi cuenta y a mis funciones según mi rol.
+
+HU-U03:
+Como usuario autenticado,
+quiero ver mi perfil,
+para consultar mis datos personales.
+
+HU-U04:
+Como usuario autenticado,
+quiero editar mi información,
+para mantener mis datos actualizados.
+
+HU-U05:
+Como usuario autenticado,
+quiero cambiar mi contraseña,
+para mejorar la seguridad de mi cuenta.
+
+HU-U06:
+Como usuario autenticado,
+quiero cambiar mi correo electrónico con confirmación,
+para usar un email actualizado de forma segura.
+
+HU-U07:
+Como administrador,
+quiero ver un dashboard administrativo,
+para gestionar el sistema desde una interfaz propia.
+
+HU-U08:
+Como administrador,
+quiero listar usuarios,
+para revisar las cuentas registradas.
+
+HU-U09:
+Como administrador,
+quiero crear usuarios manualmente,
+para registrar cuentas desde el panel administrativo.
+
+HU-U10:
+Como administrador,
+quiero editar usuarios,
+para corregir o actualizar su información.
+
+HU-U11:
+Como administrador,
+quiero desactivar usuarios,
+para bloquear temporalmente su acceso sin borrar sus datos.
+
+HU-U12:
+Como administrador,
+quiero eliminar usuarios,
+para depurar cuentas que ya no deban existir.
+
+Checklist de pruebas del módulo usuarios
+----------------------------------------
+[ ] Registrar un usuario nuevo correctamente.
+[ ] Validar que el login funcione con credenciales correctas.
+[ ] Validar que el login falle con credenciales incorrectas.
+[ ] Verificar que cada rol vea su dashboard correspondiente.
+[ ] Verificar acceso al perfil del usuario autenticado.
+[ ] Editar datos del usuario y confirmar persistencia.
+[ ] Cambiar contraseña con contraseña actual válida.
+[ ] Intentar cambiar contraseña con contraseña actual incorrecta.
+[ ] Cambiar email y validar flujo de confirmación por token.
+[ ] Entrar como admin y abrir el dashboard administrativo.
+[ ] Listar usuarios desde admin.
+[ ] Crear usuario desde admin.
+[ ] Editar usuario desde admin.
+[ ] Desactivar usuario desde admin.
+[ ] Eliminar usuario desde admin.
+[ ] Verificar que usuarios sin permisos no entren a vistas administrativas.
+
+MÓDULO 2: CATÁLOGO
+==================
+
+Funcionalidades identificadas
+-----------------------------
+Según las rutas, modelos, formularios, vistas y plantillas revisadas, el módulo de catálogo soporta:
+
+1. Home pública
+   - Ruta: `/`
+   - Muestra productos destacados.
+   - Muestra productos del catálogo.
+   - Tiene secciones promocionales e indicadores de confianza.
+
+2. Listado público de productos
+   - Ruta: `/catalogo/`
+
+3. Filtros de productos en catálogo
+   - Por categoría
+   - Por marca
+   - Por condición
+   - Por precio mínimo
+   - Por precio máximo
+   - Por búsqueda de texto
+
+4. Detalle de producto
+   - Ruta: `/catalogo/<slug>/`
+
+5. Creación de productos por admin
+   - Ruta: `/catalogo/crear/`
+
+6. Edición de productos por admin
+   - Ruta: `/catalogo/<slug>/editar/`
+
+7. Eliminación de productos por admin
+   - Ruta: `/catalogo/<slug>/eliminar/`
+
+8. Gestión de categorías
+   - Listado: `/category/`
+   - Crear: `/category/crear/`
+   - Editar: `/category/<slug>/editar/`
+
+9. Gestión de marcas
+   - Listado: `/brand/`
+   - Crear: `/brand/crear/`
+   - Editar: `/brand/<slug>/editar/`
+
+10. Creación rápida de categoría desde el formulario de producto
+    - El admin puede escribir una nueva categoría si no existe.
+
+11. Creación rápida de marca desde el formulario de producto
+    - El admin puede escribir una nueva marca si no existe.
+
+12. Productos destacados
+    - Existe el campo `destacado`.
+    - El admin puede marcar productos para la sección de destacados.
+
+13. Control de visibilidad por estado
+    - Existe el campo `activo`.
+    - El catálogo público trabaja sobre productos activos.
+
+14. Slug automático por nombre
+    - El sistema genera slug automáticamente desde el nombre del producto.
+
+15. Formato visual mejorado en home
+    - Se hicieron ajustes responsive.
+    - Los precios en home están formateados con separadores de miles.
+
+Historias de usuario del módulo catálogo
+----------------------------------------
+HU-C01:
+Como visitante,
+quiero entrar a la home,
+para ver productos destacados y explorar el catálogo.
+
+HU-C02:
+Como visitante,
+quiero ver todos los productos disponibles,
+para encontrar artículos de interés.
+
+HU-C03:
+Como visitante,
+quiero filtrar productos,
+para encontrar más rápido lo que necesito.
+
+HU-C04:
+Como visitante,
+quiero abrir el detalle de un producto,
+para revisar su información antes de comprar.
+
+HU-C05:
+Como administrador,
+quiero crear productos,
+para publicar nuevos artículos en la tienda.
+
+HU-C06:
+Como administrador,
+quiero editar productos,
+para corregir información, precio, imagen o stock.
+
+HU-C07:
+Como administrador,
+quiero eliminar productos,
+para retirar artículos del catálogo.
+
+HU-C08:
+Como administrador,
+quiero gestionar categorías,
+para organizar correctamente los productos.
+
+HU-C09:
+Como administrador,
+quiero gestionar marcas,
+para mantener el catálogo ordenado.
+
+HU-C10:
+Como administrador,
+quiero crear categorías y marcas desde el mismo formulario de producto,
+para agilizar la carga administrativa.
+
+HU-C11:
+Como administrador,
+quiero marcar productos como destacados,
+para controlar qué se muestra en la sección principal de la home.
+
+Checklist de pruebas del módulo catálogo
+----------------------------------------
+[ ] Abrir la home y verificar que cargue correctamente.
+[ ] Verificar que la sección de destacados muestre productos marcados.
+[ ] Verificar que la sección del catálogo muestre productos activos.
+[ ] Verificar que los precios se muestren con separadores de miles.
+[ ] Revisar comportamiento responsive en móvil y tablet.
+[ ] Abrir el listado general de productos.
+[ ] Filtrar por categoría.
+[ ] Filtrar por marca.
+[ ] Filtrar por condición.
+[ ] Filtrar por rango de precios.
+[ ] Buscar por nombre o descripción.
+[ ] Abrir un detalle de producto.
+[ ] Crear producto siendo admin.
+[ ] Editar producto siendo admin.
+[ ] Eliminar producto siendo admin.
+[ ] Crear producto con nombre largo y validar que no falle el slug.
+[ ] Crear una categoría nueva desde el formulario de producto.
+[ ] Crear una marca nueva desde el formulario de producto.
+[ ] Marcar un producto como destacado y validar que aparezca en home.
+[ ] Verificar que un usuario no admin no pueda acceder a crear/editar/eliminar productos.
+
+MÓDULO 3: CARRITO
+=================
+
+Funcionalidades identificadas
+-----------------------------
+Rutas identificadas del módulo `carrito`:
+
+1. Ver carrito
+   - Ruta: `/carrito/`
+
+2. Agregar producto al carrito
+   - Ruta: `/carrito/add/`
+
+3. Actualizar cantidad de ítems del carrito
+   - Ruta: `/carrito/update/`
+
+4. Vaciar carrito
+   - Ruta: `/carrito/clear/`
+
+5. Checkout
+   - Ruta: `/carrito/checkout/`
+
+6. Resultado exitoso del checkout
+   - Ruta: `/carrito/success/`
+
+7. Webhook de Stripe
+   - Ruta: `/carrito/stripe/webhook/`
+
+Historias de usuario del módulo carrito
+---------------------------------------
+HU-K01:
+Como comprador,
+quiero agregar productos al carrito,
+para reunir varios artículos antes de pagar.
+
+HU-K02:
+Como comprador,
+quiero ver el carrito,
+para revisar lo que voy a comprar.
+
+HU-K03:
+Como comprador,
+quiero modificar cantidades,
+para ajustar mi pedido.
+
+HU-K04:
+Como comprador,
+quiero vaciar el carrito,
+para comenzar de nuevo mi compra.
+
+HU-K05:
+Como comprador,
+quiero pasar al checkout,
+para pagar los productos seleccionados.
+
+HU-K06:
+Como sistema,
+quiero procesar confirmaciones mediante webhook,
+para sincronizar pagos externos con el estado interno del pedido.
+
+Checklist de pruebas del módulo carrito
+---------------------------------------
+[ ] Agregar un producto al carrito.
+[ ] Agregar varios productos al carrito.
+[ ] Actualizar la cantidad de un producto.
+[ ] Validar que el subtotal cambie correctamente.
+[ ] Eliminar productos vaciando el carrito.
+[ ] Entrar al checkout desde el carrito.
+[ ] Validar el comportamiento del checkout con carrito vacío.
+[ ] Verificar la pantalla de éxito después de una compra.
+[ ] Validar recepción del webhook de Stripe en entorno de prueba.
+
+MÓDULO 4: PEDIDOS
+=================
+
+Funcionalidades identificadas
+-----------------------------
+Rutas identificadas del módulo `pedidos`:
+
+1. Mis pedidos
+   - Ruta: `/pedidos/mis-pedidos/`
+
+2. Cancelar pedido
+   - Ruta: `/pedidos/cancelar/<pedido_id>/`
+
+3. Administración de pedidos
+   - Ruta: `/pedidos/admin/`
+
+4. Actualización de estado del pedido
+   - Ruta: `/pedidos/admin/<pedido_id>/estado/`
+
+5. Edición administrativa del pedido
+   - Ruta: `/pedidos/admin/<pedido_id>/editar/`
+
+6. Eliminación administrativa del pedido
+   - Ruta: `/pedidos/admin/<pedido_id>/eliminar/`
+
+Historias de usuario del módulo pedidos
+---------------------------------------
+HU-P01:
+Como comprador,
+quiero consultar mis pedidos,
+para ver el historial de compras realizadas.
+
+HU-P02:
+Como comprador,
+quiero cancelar un pedido,
+para detener una compra cuando aún sea permitido.
+
+HU-P03:
+Como administrador,
+quiero listar pedidos,
+para controlar las compras del sistema.
+
+HU-P04:
+Como administrador,
+quiero cambiar el estado de un pedido,
+para reflejar su avance operativo.
+
+HU-P05:
+Como administrador,
+quiero editar un pedido,
+para corregir información si es necesario.
+
+HU-P06:
+Como administrador,
+quiero eliminar un pedido,
+para limpiar registros cuando proceda.
+
+Checklist de pruebas del módulo pedidos
+---------------------------------------
+[ ] Crear una compra y validar que se genere un pedido.
+[ ] Ver el pedido en "Mis pedidos".
+[ ] Intentar cancelar un pedido permitido.
+[ ] Verificar que un pedido cancelado cambie de estado correctamente.
+[ ] Entrar al panel admin de pedidos.
+[ ] Actualizar el estado de un pedido desde admin.
+[ ] Editar un pedido desde admin.
+[ ] Eliminar un pedido desde admin.
+[ ] Validar que un usuario común no acceda al panel admin de pedidos.
+
+MÓDULO 5: PANEL ADMINISTRATIVO PROPIO
+=====================================
+
+Funcionalidades identificadas
+-----------------------------
+El proyecto usa paneles propios en lugar de depender únicamente del admin clásico de Django.
+
+Funciones visibles:
+- dashboard administrativo personalizado
+- gestión de usuarios
+- gestión de productos
+- gestión de categorías
+- gestión de marcas
+- gestión de pedidos
+
+Historias de usuario del panel administrativo
+---------------------------------------------
+HU-A01:
+Como administrador,
+quiero entrar a un dashboard propio,
+para centralizar la operación del sistema.
+
+HU-A02:
+Como administrador,
+quiero gestionar usuarios, catálogo y pedidos desde paneles personalizados,
+para trabajar en una interfaz más adaptada al negocio.
+
+Checklist general de pruebas integrales
+=======================================
+[ ] Crear usuarios con distintos roles.
+[ ] Iniciar sesión con cada rol.
+[ ] Verificar permisos por rol.
+[ ] Crear categorías y marcas.
+[ ] Crear productos.
+[ ] Marcar productos destacados.
+[ ] Visualizar home con contenido dinámico.
+[ ] Agregar productos al carrito.
+[ ] Realizar checkout.
+[ ] Confirmar generación de pedido.
+[ ] Consultar pedido desde usuario.
+[ ] Gestionar pedido desde admin.
+[ ] Validar cierre de sesión.
+[ ] Validar respuestas del sistema ante accesos no autorizados.
+
+Casos especiales y validaciones recomendadas
+============================================
+[ ] Nombre de producto extremadamente largo.
+[ ] Producto sin imagen.
+[ ] Producto sin categoría inicial pero con creación rápida.
+[ ] Producto sin marca inicial pero con creación rápida.
+[ ] Usuario bloqueado intentando iniciar sesión.
+[ ] Cambio de email con token inválido.
+[ ] Checkout con carrito vacío.
+[ ] Usuario no admin intentando abrir rutas administrativas.
+[ ] Pruebas responsive en 320px, 768px y escritorio.
+
+Observaciones
+=============
+1. Este documento fue construido con base en rutas, nombres de vistas, modelos, formularios y partes visibles del proyecto.
+2. Sirve como guía funcional y checklist de QA manual.
+3. Si quieres, en una siguiente iteración se puede ampliar con:
+   - casos de prueba detallados con pasos y resultado esperado
+   - criterios de aceptación por historia de usuario
+   - matriz rol vs permisos
+   - plan de pruebas completo
