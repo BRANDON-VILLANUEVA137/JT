@@ -44,7 +44,7 @@ CONDITION_CHOICES = [
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     condition = models.CharField(max_length=10, choices=CONDITION_CHOICES)

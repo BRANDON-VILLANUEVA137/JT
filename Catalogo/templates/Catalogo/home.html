@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block title %}TECH-JUANJO Marketplace - Inicio{% endblock %}
 
 {% block content %}
@@ -9,7 +10,7 @@
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Bienvenido a TECH-JUANJO</h1>
                 <p class="lead mb-4">Encuentra lo mejor en electrónica, gadgets y más. Envío rápido y garantía de devolución.</p>
-                <div class="d-flex gap-3">
+                <div class="d-flex flex-column flex-sm-row gap-3 hero-actions">
                     <a href="{% url 'catalogo:product_list' %}" class="btn btn-light btn-lg">Explorar Catálogo</a>
                     <a href="#featured" class="btn btn-outline-light btn-lg">Ver Ofertas</a>
                 </div>
@@ -43,7 +44,7 @@
                         <h5 class="card-title">{{ product.name|truncatechars:40 }}</h5>
                         <p class="text-muted">{{ product.category.name }} • {{ product.brand.name }}</p>
                         <div class="d-flex align-items-center mb-3">
-                            <h3 class="text-primary mb-0 me-2">${{ product.price }}</h3>
+                            <h3 class="text-primary mb-0 me-2">$ {{ product.price|floatformat:0|intcomma }}</h3>
                             <span class="badge bg-warning fs-6">Nuevo</span>
                         </div>
                         <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-primary w-100 mt-auto">Ver Detalle</a>
@@ -80,7 +81,7 @@
                     <div class="card-body d-flex flex-column">
                         <h6 class="card-title">{{ offer.name|truncatechars:30 }}</h6>
                         <p class="text-muted mb-2">{{ offer.category.name }} • {{ offer.brand.name }}</p>
-                        <h4 class="text-danger mb-3">${{ offer.price }}</h4>
+                        <h4 class="text-danger mb-3">$ {{ offer.price|floatformat:0|intcomma }}</h4>
                         <a href="{% url 'catalogo:product_detail' offer.slug %}" class="btn btn-danger w-100 mt-auto">Ver producto</a>
                     </div>
                 </div>
@@ -144,9 +145,63 @@
     transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 }
-.carousel-item img {
-    height: 300px;
-    object-fit: cover;
+
+.hero-actions .btn {
+    width: 100%;
+}
+
+@media (min-width: 576px) {
+    .hero-actions .btn {
+        width: auto;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .display-4 {
+        font-size: 2.4rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .lead {
+        font-size: 1rem;
+    }
+
+    .card-img-top {
+        height: 220px !important;
+    }
+
+    #featured .card-title,
+    .bg-light .card-title {
+        min-height: auto;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .display-4 {
+        font-size: 1.8rem;
+    }
+
+    h2.text-center {
+        font-size: 1.5rem;
+    }
+
+    .card-img-top {
+        height: 200px !important;
+    }
+
+    .btn-lg {
+        width: 100%;
+    }
 }
 </style>
 {% endblock %}
