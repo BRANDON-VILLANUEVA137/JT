@@ -38,9 +38,9 @@
                                 {{ form.name }}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Categoría {% if user.is_staff %}(Admin: puedes crear nueva){% endif %}</label>
+                                <label class="form-label">Categoría {% if user.rol == 'admin' %}(Admin: puedes crear nueva){% endif %}</label>
                                 {{ form.category }}
-                                {% if user.is_staff %}
+                                {% if user.rol == 'admin' %}
                                     <div class="mt-1">
                                         <small class="text-muted">O nueva:</small>
                                         {{ form.new_category_name }}
@@ -50,9 +50,9 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Marca {% if user.is_staff %}(Admin: puedes crear nueva){% endif %}</label>
+                                <label class="form-label">Marca {% if user.rol == 'admin' %}(Admin: puedes crear nueva){% endif %}</label>
                                 {{ form.brand }}
-                                {% if user.is_staff %}
+                                {% if user.rol == 'admin' %}
                                     <div class="mt-1">
                                         <small class="text-muted">O nueva:</small>
                                         {{ form.new_brand_name }}

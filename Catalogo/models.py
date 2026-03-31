@@ -55,7 +55,8 @@ class Product(models.Model):
     
     stock = models.PositiveIntegerField(default=1)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
-    
+    destacado = models.BooleanField(default=False)
+
     activo = models.BooleanField(default=True)  # 🔥 CLAVE
     created_at = models.DateTimeField(auto_now_add=True)
 
