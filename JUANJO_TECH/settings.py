@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-lp9#&x@q*w3z!p7k_5n0m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['jt-qegm.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
