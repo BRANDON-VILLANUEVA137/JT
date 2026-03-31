@@ -12,12 +12,10 @@ def home(request):
         return catalog_list(request)
 
     featured = Product.objects.filter(activo=True, destacado=True).order_by('-created_at')[:6]
-    offers = Product.objects.filter(activo=True, destacado=True).order_by('-created_at')[:8]
+    offers = Product.objects.filter(activo=True).order_by('-created_at')[:8]
 
     if not featured:
         featured = Product.objects.filter(activo=True).order_by('-created_at')[:6]
-    if not offers:
-        offers = Product.objects.filter(activo=True).order_by('price')[:8]
 
     categories = Category.objects.all().order_by('name')[:10]
     brands = Brand.objects.all().order_by('name')[:10]
