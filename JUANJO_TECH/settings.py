@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'JUANJO_TECH.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'JT_SERVICES',
-        'USER': 'postgres',
-        'PASSWORD': '123456789',
-        'HOST': 'localhost',
+        'NAME': 'jt_services',
+        'USER': 'jt_services_user',
+        'PASSWORD': 'LzWkWTXeVs9mgP0ZIgnyD6wV1W3zGYmr',
+        'HOST': 'dpg-d75kil15pdvs73aas4ig-a',
         'PORT': '5432',
     }
 }
