@@ -13,7 +13,7 @@ class Usuario(AbstractUser):
     ]
     
     primer_nombre = models.CharField(max_length=100, blank=False)
-    numero_documento = models.CharField(max_length=20, unique=True)
+    numero_documento = models.CharField(max_length=20,unique=True,null=True,blank=True)
     rol = models.CharField(max_length=10, choices=ROL_CHOICES, default='comprador')
     
     direccion_principal = models.TextField(blank=True, null=True, verbose_name="Dirección Principal")
