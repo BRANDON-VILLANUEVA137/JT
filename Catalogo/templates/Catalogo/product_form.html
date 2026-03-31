@@ -80,6 +80,14 @@
                             <label class="form-label">Imagen del Producto</label>
                             {{ form.image }}
                         </div>
+                        {% if user.rol == 'admin' %}
+                        <div class="mb-3 form-check">
+                            {{ form.destacado }}
+                            <label class="form-check-label" for="{{ form.destacado.id_for_label }}">
+                                Mostrar en Superofertas / destacados
+                            </label>
+                        </div>
+                        {% endif %}
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">Guardar Producto</button>
                             <a href="{% url 'catalogo:product_list' %}" class="btn btn-secondary">Cancelar</a>

@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Catálogo de Productos <small class="text-muted">({{ products.paginator.count }} disponibles)</small></h2>
-        {% if user.rol == 'admin' %}
+        {% if user.is_staff %}
             <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary">+ Publicar Producto</a>
         {% endif %}
     </div>
@@ -137,7 +137,7 @@
             <div class="col-12 text-center py-5">
                 <h4>No hay productos que coincidan con tus filtros.</h4>
                 <p class="text-muted">Prueba otros filtros o <a href="{% url 'catalogo:product_list' %}">ver todos</a>.</p>
-                {% if user.rol == 'admin' %}
+                {% if user.is_staff %}
                     <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary mt-3">Publicar producto</a>
                 {% endif %}
             </div>

@@ -8,7 +8,7 @@ class ProductForm(forms.ModelForm):
     
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'condition', 'category', 'brand', 'stock', 'image']
+        fields = ['name', 'description', 'price', 'condition', 'category', 'brand', 'stock', 'image', 'destacado']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
@@ -18,6 +18,7 @@ class ProductForm(forms.ModelForm):
             'brand': forms.Select(attrs={'class': 'form-select'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
             'image': forms.FileInput(attrs={'class': 'form-control'}),
+            'destacado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
