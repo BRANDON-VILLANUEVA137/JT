@@ -1,7 +1,8 @@
-# Cloudinary Fix - Checklist
-- [x] **Edit settings.py** (agregar 'cloudinary' app + STATICFILES_STORAGE) ✅
-- [ ] `git add . && git commit -m "Fix cloudinary config" && git push`
-- [ ] Render Build Command: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
-- [ ] **Re-upload images:** `python manage.py shell` + script
-- [ ] Test homepage imágenes
-- [ ] Update .gitignore permanent
+f# TODO: Mostrar todos los estados de pedidos en mis_pedidos para clientes
+
+## Pendientes:
+- [x] 1. Actualizar view mis_pedidos en views.py para incluir todos los estados (incluso vacíos)
+- [x] 2. Corregir template mis_pedidos.html para mensaje en tab vacío sin variable 'pedido' undefined
+- [x] 3. Verificar en browser que aparecen todas las pestañas
+
+## Completado: Ninguno

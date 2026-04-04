@@ -6,24 +6,30 @@ from .models import Pedido, PedidoItem
 from .forms import PedidoForm
 from django.utils import timezone
 from decimal import Decimal
+from collections import defaultdict
 
 @login_required
 def mis_pedidos(request):
     """
     Pedidos del usuario logueado, agrupados por estado con opción cancelar.
     """
-    pedidos = Pedido.objects.filter(user=request.user).select_related().order_by('-fecha_creacion')
+    pedidos = Pedido.objects.filter(user=request.user).prefetch_related('items__product').order_by('-fecha_creacion')
     
-    # Agrupar por estado
-    estados = {}
+    pedidos_by_state = defaultdict(list)
     for pedido in pedidos:
-        estado = pedido.estado
-        if estado not in estados:
-            estados[estado] = []
-        estados[estado].append(pedido)
+        pedidos_by_state[pedido.estado].append(pedido)
+    
+    estados_data = [
+        {
+            'key': key,
+            'label': label,
+            'pedidos': pedidos_by_state[key]
+        }
+        for key, label in Pedido.ESTADO_CHOICES
+    ]
     
     context = {
-        'estados': estados,
+        'estados_data': estados_data,
         'total_pedidos': pedidos.count(),
     }
     return render(request, 'pedidos/mis_pedidos.html', context)
