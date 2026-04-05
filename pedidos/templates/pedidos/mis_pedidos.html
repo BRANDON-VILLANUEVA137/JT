@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Mis Pedidos - PlaColégio{% endblock %}
+{% block title %}Mis Pedidos{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
@@ -59,8 +59,23 @@
                                     <small class="text-muted">Envío a</small>
                                     <p class="mb-2">{{ pedido.direccion|truncatewords:8 }}</p>
                                     <p class="mb-0"><i class="bi bi-telephone"></i> {{ pedido.telefono }}</p>
-                                </div>
                             </div>
+                            </div>
+                            
+                            {% if pedido.numero_guia or pedido.orden_flete_pdf %}
+                            <hr class="my-3">
+                            <h6><i class="bi bi-truck"></i> Seguimiento de Envío</h6>
+                            <div class="alert alert-success" role="alert">
+                                {% if pedido.numero_guia %}
+                                <strong>Nº Guía:</strong> {{ pedido.numero_guia }}<br>
+                                {% endif %}
+                                {% if pedido.orden_flete_pdf %}
+                                <a href="{{ pedido.orden_flete_pdf.url }}" target="_blank" class="btn btn-sm btn-outline-success mt-1">
+                                    <i class="bi bi-file-earmark-pdf"></i> Ver PDF Flete
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                             
                             {% if pedido.items.exists %}
                             <hr>

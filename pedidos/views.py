@@ -89,6 +89,7 @@ def admin_edit_pedido(request, pedido_id):
     if request.user.rol != 'admin':
         messages.error(request, 'No tienes permiso para acceder a esta página.')
         return redirect('usuarios:dashboard')
+
     """
     Admin edita telefono, direccion, estado del pedido.
     """
@@ -96,7 +97,7 @@ def admin_edit_pedido(request, pedido_id):
     form = PedidoForm(instance=pedido)
     
     if request.method == 'POST':
-        form = PedidoForm(request.POST, instance=pedido)
+        form = PedidoForm(request.POST, request.FILES, instance=pedido)
         if form.is_valid():
             form.save()
             messages.success(request, f'Pedido #{pedido.id} actualizado exitosamente.')
@@ -106,6 +107,7 @@ def admin_edit_pedido(request, pedido_id):
         'pedido': pedido,
         'form': form,
     }
+
     return render(request, 'pedidos/admin_editar_pedido.html', context)
 
 @login_required
