@@ -17,7 +17,7 @@ User = get_user_model()
 def stripe_webhook(request):
     print("🔥 WEBHOOK EJECUTADO")
     payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
     
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
     
@@ -36,31 +36,31 @@ def stripe_webhook(request):
         logger.error("Webhook signature verification failed")
         return HttpResponse(status=400)
     except Exception as e:
-        logger.error(f"Webhook error: {str(e)}")
+        logger.error("Webhook error: {}".format(str(e)))
         return HttpResponse(status=400)
 
-    logger.info(f"✅ Webhook recibido: {event['type']}")
+    logger.info("✅ Webhook recibido: {}".format(event["type"]))
 
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
         session_id = session.id
         
         # Idempotency check
         if Pedido.objects.filter(stripe_session_id=session_id).exists():
-            logger.info(f"✅ Webhook idempotent for {session_id}")
+            logger.info("✅ Webhook idempotent for {}".format(session_id))
             return HttpResponse(status=200)
         
-        metadata = getattr(session, 'metadata', {})
-        user_id_str = metadata.get('user_id')
+        metadata = getattr(session, "metadata", {})
+        user_id_str = metadata.get("user_id")
         
         if not user_id_str:
-            logger.warning(f"No user_id in metadata: {session_id}")
+            logger.warning("No user_id in metadata: {}".format(session_id))
             return HttpResponse(status=200)
         
         try:
             user_id = int(user_id_str)
         except ValueError:
-            logger.error(f"Invalid user_id: {user_id_str}")
+            logger.error("Invalid user_id: {}".format(user_id_str))
             return HttpResponse(status=200)
         
         try:
@@ -68,20 +68,20 @@ def stripe_webhook(request):
             cart = Cart.objects.filter(user=user).first()
             
             if not cart or not cart.items.exists():
-                logger.warning(f"No cart for user {user_id}")
+                logger.warning("No cart for user {}".format(user_id))
                 return HttpResponse(status=200)
             
             total = sum(item.subtotal() for item in cart.items.all())
             
             # Get address/phone from metadata
-            telefono = metadata.get('telefono', 'No proporcionado')
-            direccion = metadata.get('direccion', 'No proporcionada')
+            telefono = metadata.get("telefono", "No proporcionado")
+            direccion = metadata.get("direccion", "No proporcionada")
             
             # Create Pedido with checkout data
             pedido = Pedido.objects.create(
                 user=user,
                 total=total,
-                estado='pagado',
+estado="preparacion",
                 direccion=direccion,
                 telefono=telefono,
                 fecha_creacion=timezone.now(),
@@ -100,12 +100,11 @@ def stripe_webhook(request):
             # Clear cart
             cart.items.all().delete()
             
-            logger.info(f"✅ Pedido #{pedido.id} created with address/phone for user {user_id}")
+            logger.info("✅ Pedido #{} created with address/phone for user {}".format(pedido.id, user_id))
             
         except User.DoesNotExist:
-            logger.error(f"User {user_id} not found")
+            logger.error("User {} not found".format(user_id))
         except Exception as e:
-            logger.error(f"Error creating pedido: {str(e)}")
+            logger.error("Error creating pedido: {}".format(str(e)))
     
     return HttpResponse(status=200)
-

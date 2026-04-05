@@ -45,7 +45,13 @@
                         <strong>Marca:</strong> {{ product.brand.name }}
                     </li>
                     <li class="list-group-item px-0 border-0">
-                        <span class="badge bg-info fs-6">Stock: {{ product.stock }}</span>
+                        {% if product.stock == 0 %}
+                            <span class="badge bg-danger fs-6">Agotado</span>
+                        {% elif product.stock < 5 %}
+                            <span class="badge bg-warning fs-6">¡Últimos {{ product.stock }} unidades!</span>
+                        {% else %}
+                            <span class="badge bg-success fs-6">Stock: {{ product.stock }}</span>
+                        {% endif %}
                     </li>
                 </ul>
             </div>

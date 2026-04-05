@@ -120,6 +120,11 @@
                         <p class="card-text text-muted">{{ product.category.name|default:"Sin categoría" }} • {{ product.brand.name|default:"Sin marca" }}</p>
                         <h4 class="text-primary">${{ product.price }}</h4>
                         <span class="badge bg-{% if product.condition == 'new' %}success{% else %}warning{% endif %}">{{ product.condition|title }}</span>
+                        {% if product.stock == 0 %}
+                            <span class="badge bg-danger ms-1">Agotado</span>
+                        {% elif product.stock < 5 %}
+                            <span class="badge bg-warning ms-1">¡Últimos {{ product.stock }}!</span>
+                        {% endif %}
                         <small class="text-muted d-block mt-1">Vendedor: {{ product.seller.username }}</small>
                     </div>
                     <div class="card-footer bg-white border-top-0">
