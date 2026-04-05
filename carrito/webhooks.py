@@ -71,24 +71,26 @@ def stripe_webhook(request):
                 logger.warning("No cart for user {}".format(user_id))
                 return HttpResponse(status=200)
             
+            # Verify stock (warn but continue)
+            for item in cart.items.all():
+                if item.quantity > item.product.stock:
+                    logger.error("⚠️ Stock insuficiente for {}: {} < {} - overselling".format(item.product.name, item.product.stock, item.quantity))
+            
             total = sum(item.subtotal() for item in cart.items.all())
             
-            # Get address/phone from metadata
             telefono = metadata.get("telefono", "No proporcionado")
             direccion = metadata.get("direccion", "No proporcionada")
             
-            # Create Pedido with checkout data
             pedido = Pedido.objects.create(
                 user=user,
                 total=total,
-estado="preparacion",
+                estado="preparacion",
                 direccion=direccion,
                 telefono=telefono,
-                fecha_creacion=timezone.now(),
                 stripe_session_id=session_id,
             )
             
-            # Create items
+            # Create items and update stock
             for item in cart.items.all():
                 PedidoItem.objects.create(
                     pedido=pedido,
@@ -96,12 +98,15 @@ estado="preparacion",
                     cantidad=item.quantity,
                     precio_unitario=item.product.price,
                 )
+                
+                item.product.stock -= item.quantity
+                item.product.save()
+                logger.info("✅ Stock updated for {}: -{}".format(item.product.name, item.quantity))
             
             # Clear cart
             cart.items.all().delete()
             
-            logger.info("✅ Pedido #{} created with address/phone for user {}".format(pedido.id, user_id))
-            
+            logger.info("✅ Pedido #{} created, stock updated, cart cleared for user {}".format(pedido.id, user_id))
         except User.DoesNotExist:
             logger.error("User {} not found".format(user_id))
         except Exception as e:
