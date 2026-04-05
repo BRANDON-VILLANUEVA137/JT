@@ -21,7 +21,7 @@
             <strong>Información del Cliente:</strong> {{ pedido.user.get_nombre_completo }} ({{ pedido.user.email }})
         </div>
         <div class="card-body">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-md-6">
@@ -34,16 +34,40 @@
                         <div class="mb-3">
                             {{ form.estado.label_tag }}
                             {{ form.estado }}
+                            {% if form.estado.errors %}
+                                <div class="text-danger">{{ form.estado.errors }}</div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-                <div class="mb-3">
-                    {{ form.telefono.label_tag }}
-                    {{ form.telefono }}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.telefono.label_tag }}
+                            {{ form.telefono }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.numero_guia.label_tag }}
+                            {{ form.numero_guia }}
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
+                <div class="mb-4">
                     {{ form.direccion.label_tag }}
                     {{ form.direccion }}
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.orden_flete_pdf.label_tag }}
+                            {{ form.orden_flete_pdf }}
+                            {% if pedido.orden_flete_pdf %}
+                                <small class="text-muted">Actual: {{ pedido.orden_flete_pdf.url }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="d-flex gap-2">

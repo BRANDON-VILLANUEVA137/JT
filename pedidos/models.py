@@ -19,6 +19,8 @@ class Pedido(models.Model):
     direccion = models.TextField()
     telefono = models.CharField(max_length=20)
     stripe_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    numero_guia = models.CharField(max_length=100, blank=True)
+    orden_flete_pdf = models.FileField(upload_to='pedidos/flete/%Y/%m/%d/', blank=True, null=True)
     
     class Meta:
         ordering = ['-fecha_creacion']
@@ -37,3 +39,16 @@ class PedidoItem(models.Model):
     
     def __str__(self):
         return f"{self.cantidad}x {self.product.name}"
+
+class PedidoDocument(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='documents')
+    description = models.CharField(max_length=255, blank=True)
+    file = models.FileField(upload_to='pedidos/documents/%Y/%m/%d/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.description or 'Documento'} - Pedido {self.pedido.id}"
+
