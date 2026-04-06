@@ -131,7 +131,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 # Session security: 2 min inactivity
-SESSION_COOKIE_AGE = 120
+SESSION_COOKIE_AGE = 300
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Static files (local)
