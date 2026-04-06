@@ -156,7 +156,7 @@ class PasswordChangeCustomForm(forms.Form):
         label='Nueva contraseña',
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
         strip=False,
-        help_text='Mínimo 8 caracteres.'
+        help_text='Mín 12 chars, 1 mayús, 1 minús, 1 núm, 1 especial'
     )
     new_password2 = forms.CharField(
         label='Confirmar nueva contraseña',
@@ -173,6 +173,22 @@ class PasswordChangeCustomForm(forms.Form):
         if old_password and not self.request_user.check_password(old_password):
             raise forms.ValidationError('Contraseña actual incorrecta.')
         return old_password
+
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        if len(password) < 12:
+            raise forms.ValidationError('La contraseña debe tener al menos 12 caracteres.')
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 mayúscula.')
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 minúscula.')
+        if not re.search(r'\d', password):
+            raise forms.ValidationError('Debe incluir al menos 1 número.')
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 carácter especial (!@#$%^&*(),.?":{}|<>).')
+        if re.search(r'(.)\1{2,}', password):
+            raise forms.ValidationError('No uses la misma carácter 3+ veces seguidas.')
+        return password
 
     def clean_new_password2(self):
         password1 = self.cleaned_data.get('new_password1')
