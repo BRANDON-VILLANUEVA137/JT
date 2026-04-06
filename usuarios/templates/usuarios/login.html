@@ -2,38 +2,271 @@
 
 {% block title %}Iniciar Sesión - TECH-JUANJO{% endblock %}
 
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-glass: rgba(255,255,255,.85);
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --accent:        #2563eb;
+    --success:       #16a34a;
+    --radius:        16px;
+    --shadow:        0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --shadow-glass:  0 20px 60px rgba(0,0,0,.15);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #a6eb25 0%, #ffffff 50%, #7a87aa 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  .login-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      radial-gradient(rgba(37,99,235,.03) 1px, transparent 1px);
+    background-size: 40px 40px, 80px 80px;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .login-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .4rem 1rem;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 99px;
+    font-size: .75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.9);
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+
+  .login-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin: 0 0 1.75rem;
+    letter-spacing: -.02em;
+  }
+
+  .login-field-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .login-field-label {
+    position: absolute;
+    left: 1rem;
+    top: .9rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all var(--transition);
+    letter-spacing: .025em;
+    text-transform: uppercase;
+  }
+  .login-field-group.focus .login-field-label,
+  .login-field-group:not(.empty) .login-field-label {
+    top: -.4rem;
+    left: .75rem;
+    font-size: .65rem;
+    background: var(--surface-glass);
+    padding: 0 .4rem;
+    color: var(--accent);
+  }
+
+  .login-field-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .95rem;
+    color: var(--text-muted);
+    transition: color var(--transition);
+  }
+  .login-field-group.focus .login-field-icon { color: var(--accent); }
+
+  .login-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text);
+    transition: border-color var(--transition), box-shadow var(--transition);
+    height: 3.25rem;
+  }
+  .login-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+  }
+  .login-input::placeholder { color: transparent; }
+  .login-input.error { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(220,38,38,.1); }
+
+  .login-btn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, #222 100%);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .025em;
+    transition: transform var(--transition), box-shadow var(--transition);
+    box-shadow: var(--shadow);
+    text-transform: uppercase;
+  }
+  .login-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px rgba(17,17,16,.4);
+  }
+  .login-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .login-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.75rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid rgba(255,255,255,.15);
+    justify-content: center;
+  }
+  .login-link {
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    font-size: .875rem;
+    font-weight: 500;
+    transition: color var(--transition);
+  }
+  .login-link:hover { color: #fff; }
+
+  .login-error {
+    background: rgba(220,38,38,.15);
+    border: 1px solid rgba(220,38,38,.3);
+    color: #fee2e2;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: .9rem;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-10px) rotate(1deg); }
+    66% { transform: translateY(-5px) rotate(-1deg); }
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .login-card { animation: slideInUp .6s cubic-bezier(.22,1,.36,1); }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4">Iniciar Sesión</h3>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Usuario, Email o Documento</label>
-                        {{ form.login_field }}
-                        {% if form.login_field.errors %}
-                            <div class="text-danger small">{{ form.login_field.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contraseña</label>
-                        {{ form.password }}
-                        {% if form.password.errors %}
-                            <div class="text-danger small">{{ form.password.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p class="mb-0">¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate</a></p>
-                </div>
-            </div>
-        </div>
+<div class="login-hero">
+  <div class="login-card">
+    <div class="login-tag">
+      <i class="bi bi-lightning-charge-fill"></i>
+      Únete a +10K clientes
     </div>
+    <h1 class="login-title">Bienvenido de nuevo</h1>
+    
+    {% if form.non_field_errors %}
+      <div class="login-error">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ form.non_field_errors.0 }}
+      </div>
+    {% endif %}
+    
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="login-field-group {% if form.login_field.errors %}error{% endif %}{% if form.login_field.value %}not-empty{% endif %}">
+        <label class="login-field-label" for="{{ form.login_field.id_for_label }}">Usuario / Email / Documento</label>
+        <div class="login-field-icon">
+          <i class="bi bi-person-circle"></i>
+        </div>
+        {{ form.login_field }}
+        {% if form.login_field.errors %}
+          <div class="text-danger small mt-1">{{ form.login_field.errors.0 }}</div>
+        {% endif %}
+      </div>
+      
+      <div class="login-field-group {% if form.password.errors %}error{% endif %}">
+        <label class="login-field-label" for="{{ form.password.id_for_label }}">Contraseña</label>
+        <div class="login-field-icon">
+          <i class="bi bi-lock-fill"></i>
+        </div>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+        {% endif %}
+      </div>
+      
+      <button type="submit" class="login-btn">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        Ingresar a tu cuenta
+      </button>
+    </form>
+
+    <div class="login-links">
+      <a href="#" class="login-link">¿Olvidaste tu contraseña?</a>
+      <a href="{% url 'usuarios:registro' %}" class="login-link">Crear nueva cuenta</a>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

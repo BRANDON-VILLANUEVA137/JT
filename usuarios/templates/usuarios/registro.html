@@ -2,36 +2,395 @@
 
 {% block title %}Registro - TECH-JUANJO{% endblock %}
 
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-glass: rgba(255,255,255,.85);
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --:             #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --accent:        #000000;
+    --success:       #16a34a;
+    --danger:        #dc2626;
+    --radius:        16px;
+    --shadow:        0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --shadow-glass:  0 20px 60px rgba(0,0,0,.15);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, #2563eb 0%, #ffffff 50%, #7a87aa 100%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+
+  .reg-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .reg-card {
+    background: var(--surface-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: var(--radius);
+    padding: 2.75rem 2.25rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--shadow-glass);
+    position: relative;
+    z-index: 1;
+  }
+
+  .reg-stepper {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+  }
+  .reg-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.7);
+  }
+  .reg-step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: rgba(255,255,255,.8);
+    border: 2px solid rgba(255, 255, 255, 0.755);
+    transition: all var(--transition);
+  }
+  .reg-step.active .reg-step-num {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.3);
+  }
+
+  .reg-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 4.5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin: 0 0 .5rem;
+    text-align: center;
+    letter-spacing: -.02em;
+  }
+  .reg-subtitle {
+    color: rgba(0, 0, 0, 0.8);
+    text-align: center;
+    font-size: 1rem;
+    margin-bottom: 2.25rem;
+    line-height: 1.6;
+  }
+
+  .reg-field-group {
+    position: relative;
+    margin-bottom: 1.75rem;
+  }
+  .reg-field-group.full-width { grid-column: 1 / -1; }
+  .reg-field-label {
+    position: absolute;
+    left: 1.25rem;
+    top: 1rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all var(--transition);
+    letter-spacing: .025em;
+    text-transform: uppercase;
+  }
+  .reg-field-group.focus .reg-field-label,
+  .reg-field-group.filled .reg-field-label {
+    top: -.5rem;
+    left: 1rem;
+    font-size: .65rem;
+    background: var(--surface-glass);
+    padding: 0 .5rem;
+    color: var(--accent);
+  }
+
+  .reg-field-icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .95rem;
+    color: var(--text-muted);
+    transition: color var(--transition);
+    cursor: pointer;
+  }
+  .reg-field-group.focus .reg-field-icon { color: var(--accent); }
+
+  .reg-input {
+    width: 100%;
+    padding: 1.25rem 1.25rem 1.25rem 1.25rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text);
+    height: 3.5rem;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .reg-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+  }
+  .reg-input::placeholder { color: transparent; }
+  .reg-input.error { border-color: var(--danger); box-shadow: 0 0 0 4px rgba(220,38,38,.15); }
+
+  .reg-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  @media (max-width: 480px) { .reg-grid { grid-template-columns: 1fr; gap: 1rem; } }
+
+  .reg-btn {
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--accent) 0%, #5b5f6b 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    transition: transform var(--transition), box-shadow var(--transition);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .reg-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+  .reg-btn:hover:not(:disabled)::before { opacity: 1; }
+  .reg-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 25px 60px rgba(37,99,235,.4);
+  }
+  .reg-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .reg-links {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,.2);
+  }
+  .reg-link {
+    color: rgba(255,255,255,.8);
+    text-decoration: none;
+    font-size: .9375rem;
+    font-weight: 500;
+  }
+  .reg-link:hover { color: #fff; }
+  .reg-link strong { font-weight: 700; }
+
+  .reg-error {
+    grid-column: 1 / -1;
+    background: rgba(220,38,38,.2);
+    border: 1px solid rgba(220,38,38,.4);
+    color: rgba(254,226,226,.95);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  @keyframes slideInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reg-card { animation: slideInUp .7s cubic-bezier(.22,1,.36,1); }
+
+  .password-toggle { cursor: pointer; }
+  .password-toggle:hover { color: var(--accent) !important; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h3 class="card-title text-center mb-4">Crear Cuenta</h3>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-6 mb-3">{{ form.primer_nombre.label_tag }} {{ form.primer_nombre }} {% if form.primer_nombre.errors %}<div class="text-danger small">{{ form.primer_nombre.errors.0 }}</div>{% endif %}</div>
-                        <div class="col-md-6 mb-3">{{ form.username.label_tag }} {{ form.username }} {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">{{ form.numero_documento.label_tag }} {{ form.numero_documento }} {% if form.numero_documento.errors %}<div class="text-danger small">{{ form.numero_documento.errors.0 }}</div>{% endif %}</div>
-                        <div class="col-md-6 mb-3">{{ form.email.label_tag }} {{ form.email }} {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">{{ form.password1.label_tag }} {{ form.password1 }} {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors.0 }}</div>{% endif %}</div>
-                        <div class="col-md-6 mb-3">{{ form.password2.label_tag }} {{ form.password2 }} {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors.0 }}</div>{% endif %}</div>
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">Registrarse</button>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <p>¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}">Inicia sesión</a></p>
-                </div>
-            </div>
-        </div>
+<div class="reg-hero">
+  <div class="reg-card">
+    <div class="reg-stepper">
+      <div class="reg-step active">
+        <div class="reg-step-num">1</div>
+        <span>Datos personales</span>
+      </div>
+      <div class="reg-step">
+        <div class="reg-step-num">2</div>
+        <span>Confirmación</span>
+      </div>
     </div>
+
+    <h1 class="reg-title">Crea tu cuenta</h1>
+    <p class="reg-subtitle ">
+      Únete a TECH-JUANJO y empieza a comprar lo mejor en tecnología.
+    </p>
+    
+    {% if form.non_field_errors %}
+      <div class="reg-error">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {{ form.non_field_errors.0 }}
+      </div>
+    {% endif %}
+    
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="reg-grid">
+        <div class="reg-field-group filled">
+          <label class="reg-field-label" for="{{ form.primer_nombre.id_for_label }}">Nombre</label>
+          <div class="reg-field-icon">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          {{ form.primer_nombre }}
+          {% if form.primer_nombre.errors %}
+            <div class="text-danger small mt-1">{{ form.primer_nombre.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="reg-field-group">
+          <label class="reg-field-label" for="{{ form.username.id_for_label }}">Usuario</label>
+          <div class="reg-field-icon">
+            <i class="bi bi-at"></i>
+          </div>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="reg-field-group">
+          <label class="reg-field-label" for="{{ form.numero_documento.id_for_label }}">Documento</label>
+          <div class="reg-field-icon">
+            <i class="bi bi-credit-card"></i>
+          </div>
+          {{ form.numero_documento }}
+          {% if form.numero_documento.errors %}
+            <div class="text-danger small mt-1">{{ form.numero_documento.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="reg-field-group">
+          <label class="reg-field-label" for="{{ form.email.id_for_label }}">Email</label>
+          <div class="reg-field-icon">
+            <i class="bi bi-envelope"></i>
+          </div>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="reg-grid">
+        <div class="reg-field-group">
+          <label class="reg-field-label" for="{{ form.password1.id_for_label }}">Contraseña</label>
+          <div class="reg-field-icon password-toggle" onclick="togglePassword('{{ form.password1.id_for_label }}')">
+            <i class="bi bi-eye-fill" id="toggle1-icon"></i>
+          </div>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="reg-field-group">
+          <label class="reg-field-label" for="{{ form.password2.id_for_label }}">Confirmar</label>
+          <div class="reg-field-icon password-toggle" onclick="togglePassword('{{ form.password2.id_for_label }}')">
+            <i class="bi bi-eye-slash-fill" id="toggle2-icon"></i>
+          </div>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <button type="submit" class="reg-btn">
+        <i class="bi bi-person-plus me-2"></i>
+        Crear mi cuenta gratis
+      </button>
+    </form>
+
+    <div class="reg-links">
+      <a href="{% url 'usuarios:login' %}" class="reg-link">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        <strong>Ya tengo cuenta</strong> - Inicia sesión
+      </a>
+    </div>
+  </div>
 </div>
+
+<script>
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  const icon = input.parentElement.querySelector('.reg-field-icon i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('eye-fill', 'eye-slash-fill');
+    icon.classList.replace('eye-slash-fill', 'eye-fill');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('eye-fill', 'eye-slash-fill');
+    icon.classList.replace('eye-slash-fill', 'eye-fill');
+  }
+}
+
+document.querySelectorAll('.reg-field-group input').forEach(input => {
+  input.addEventListener('focus', () => input.parentElement.classList.add('focus'));
+  input.addEventListener('blur', () => {
+    if (input.value) {
+      input.parentElement.classList.add('filled');
+    } else {
+      input.parentElement.classList.remove('filled');
+    }
+    input.parentElement.classList.remove('focus');
+  });
+});
+</script>
 {% endblock %}
 
