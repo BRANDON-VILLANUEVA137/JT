@@ -1,182 +1,819 @@
 {% extends 'base.html' %}
 
+{% block title %}Catálogo de Productos - TECH-JUANJO{% endblock %}
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --primary-fg:    #ffffff;
+    --accent:        #2563eb;
+    --success:       #16a34a;
+    --warning:       #ca8a04;
+    --danger:        #dc2626;
+    --radius-sm:     6px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+    --shadow:        0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page wrapper ─────────────────────────────────────── */
+  .cl-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  /* ── Page header ──────────────────────────────────────── */
+  .cl-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .cl-header-left h1 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    margin: 0 0 .25rem;
+  }
+  .cl-count {
+    font-size: .875rem;
+    color: var(--text-muted);
+  }
+  .cl-btn-publish {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem 1.125rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-radius: var(--radius);
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition), transform var(--transition);
+    white-space: nowrap;
+  }
+  .cl-btn-publish:hover {
+    background: #333;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* ── Layout: sidebar + grid ───────────────────────────── */
+  .cl-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  @media (min-width: 992px) {
+    .cl-layout { grid-template-columns: 260px 1fr; }
+  }
+
+  /* ── Sidebar ──────────────────────────────────────────── */
+  .cl-sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    position: sticky;
+    top: 72px; /* nav height + gap */
+  }
+  .cl-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    padding: 1rem 1.125rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: .9375rem;
+    font-weight: 700;
+  }
+  .cl-sidebar-header i { color: var(--text-muted); }
+  .cl-sidebar-body { padding: 1.125rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .cl-field label {
+    display: block;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+  }
+  .cl-select {
+    width: 100%;
+    padding: .55rem .875rem;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: .875rem;
+    color: var(--text);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b68' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    padding-right: 2rem;
+    cursor: pointer;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .cl-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(17,17,16,.08);
+  }
+
+  /* Radio pills */
+  .cl-radio-group { display: flex; flex-direction: column; gap: .375rem; }
+  .cl-radio-label {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    padding: .5rem .75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    font-size: .875rem;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+    background: var(--surface-muted);
+  }
+  .cl-radio-label:has(input:checked) {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-color: var(--primary);
+  }
+  .cl-radio-label input { display: none; }
+
+  /* Price range */
+  .cl-price-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: .5rem;
+  }
+  .cl-price-sep { font-size: .75rem; color: var(--text-muted); text-align: center; }
+  .cl-input {
+    width: 100%;
+    padding: .55rem .75rem;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: .875rem;
+    color: var(--text);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .cl-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(17,17,16,.08);
+  }
+  .cl-input::placeholder { color: var(--text-muted); }
+
+  /* Sidebar buttons */
+  .cl-btn-apply {
+    width: 100%;
+    padding: .6rem 1rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition);
+  }
+  .cl-btn-apply:hover { background: #333; }
+  .cl-btn-clear {
+    display: block;
+    width: 100%;
+    padding: .55rem 1rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+    cursor: pointer;
+  }
+  .cl-btn-clear:hover { background: var(--surface-muted); color: var(--text); }
+
+  /* ── Main column ──────────────────────────────────────── */
+  .cl-main { min-width: 0; }
+
+  /* Search bar */
+  .cl-search-bar {
+    display: flex;
+    gap: .625rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .cl-search-input-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+  .cl-search-input-wrap i {
+    position: absolute;
+    left: .875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: .9rem;
+    pointer-events: none;
+  }
+  .cl-search-input {
+    width: 100%;
+    padding: .65rem .875rem .65rem 2.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: .875rem;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .cl-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(17,17,16,.08);
+  }
+  .cl-search-input::placeholder { color: var(--text-muted); }
+  .cl-btn-search {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .65rem 1.125rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background var(--transition);
+    white-space: nowrap;
+  }
+  .cl-btn-search:hover { background: #333; }
+
+  /* Active filters chips */
+  .cl-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1.25rem;
+  }
+  .cl-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .3rem .75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: .775rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  /* ── Products grid ────────────────────────────────────── */
+  .cl-products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.125rem;
+  }
+  @media (min-width: 768px) {
+    .cl-products-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Product card */
+  .cl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .cl-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cl-card-img {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--surface-muted);
+    flex-shrink: 0;
+  }
+  .cl-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 360ms ease;
+  }
+  .cl-card:hover .cl-card-img img { transform: scale(1.06); }
+  .cl-card-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: .8rem;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .cl-card-img-placeholder i { font-size: 2rem; opacity: .3; }
+
+  /* Condition badge over image */
+  .cl-cond-badge {
+    position: absolute;
+    top: .625rem; left: .625rem;
+    padding: .25rem .6rem;
+    border-radius: 99px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .cl-cond-badge.new  { background: rgba(17,17,16,.82); color: #fff; }
+  .cl-cond-badge.used { background: rgba(242,242,240,.92); color: var(--text); border: 1px solid var(--border); }
+
+  /* Stock badge */
+  .cl-stock-badge {
+    position: absolute;
+    top: .625rem; right: .625rem;
+    padding: .25rem .6rem;
+    border-radius: 99px;
+    font-size: .7rem;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+  }
+  .cl-stock-badge.out  { background: rgba(220,38,38,.9); color: #fff; }
+  .cl-stock-badge.low  { background: rgba(202,138,4,.9);  color: #fff; }
+
+  .cl-card-body {
+    padding: .875rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .cl-card-meta {
+    font-size: .72rem;
+    color: var(--text-muted);
+    margin-bottom: .375rem;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    flex-wrap: wrap;
+  }
+  .cl-card-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .5; flex-shrink: 0; }
+  .cl-card-title {
+    font-family: var(--font-display);
+    font-size: .9375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 .5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .cl-card-seller {
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+  }
+  .cl-card-price {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: .875rem;
+    margin-top: auto;
+  }
+
+  /* Card footer */
+  .cl-card-footer {
+    padding: .75rem .875rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface-muted);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .cl-btn-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .375rem;
+    padding: .55rem .875rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-radius: var(--radius-sm);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition);
+  }
+  .cl-btn-view:hover { background: #333; color: #fff; }
+
+  .cl-admin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+  .cl-btn-edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    padding: .45rem .5rem;
+    background: #fefce8;
+    color: var(--warning);
+    border: 1px solid #fef08a;
+    border-radius: var(--radius-sm);
+    font-size: .775rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition);
+  }
+  .cl-btn-edit:hover { background: #fef9c3; color: var(--warning); }
+  .cl-btn-delete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .3rem;
+    padding: .45rem .5rem;
+    background: #fff1f2;
+    color: var(--danger);
+    border: 1px solid #fecdd3;
+    border-radius: var(--radius-sm);
+    font-size: .775rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition);
+  }
+  .cl-btn-delete:hover { background: #fee2e2; color: var(--danger); }
+
+  /* ── Empty state ──────────────────────────────────────── */
+  .cl-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+  }
+  .cl-empty i { font-size: 3rem; display: block; margin-bottom: 1rem; opacity: .25; }
+  .cl-empty h4 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: .5rem;
+  }
+  .cl-empty p { font-size: .875rem; margin-bottom: 1.25rem; }
+  .cl-empty a { color: var(--accent); text-decoration: underline; }
+
+  /* ── Pagination ───────────────────────────────────────── */
+  .cl-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .375rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .cl-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 .625rem;
+    border-radius: var(--radius-sm);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+  .cl-page-btn:hover { background: var(--surface-muted); color: var(--text); }
+  .cl-page-btn.active {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-color: var(--primary);
+  }
+  .cl-page-btn.disabled {
+    opacity: .4;
+    pointer-events: none;
+  }
+
+  /* ── Page-load animation ──────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .cl-card {
+    animation: fadeUp .35s cubic-bezier(.22,1,.36,1) both;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Catálogo de Productos <small class="text-muted">({{ products.paginator.count }} disponibles)</small></h2>
-        {% if user.is_staff %}
-            <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary">+ Publicar Producto</a>
-        {% endif %}
+<div class="cl-wrap">
+
+  <!-- ── Page header ── -->
+  <div class="cl-header">
+    <div class="cl-header-left">
+      <h1>Catálogo de Productos</h1>
+      <span class="cl-count">
+        <i class="bi bi-box-seam me-1"></i>
+        {{ products.paginator.count }} producto{{ products.paginator.count|pluralize }} disponible{{ products.paginator.count|pluralize }}
+      </span>
     </div>
+    {% if user.is_staff %}
+      <a href="{% url 'catalogo:product_create' %}" class="cl-btn-publish">
+        <i class="bi bi-plus-lg"></i> Publicar Producto
+      </a>
+    {% endif %}
+  </div>
 
-    <!-- Sidebar Filtros -->
-    <div class="row">
-        <div class="col-lg-3">
-            <div class="card sticky-top" style="top: 20px;">
-                <div class="card-header">
-                    <h5><i class="bi bi-funnel"></i> Filtros</h5>
-                </div>
-                <div class="card-body">
-                    <form method="get">
-                        <!-- Categoría -->
-                        <div class="mb-3">
-                            <label class="form-label">Categoría</label>
-                            <select name="category" class="form-select" onchange="this.form.submit()">
-                                <option value="">Todas</option>
-                                {% for cat in categories %}
-                                    <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ cat.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+  <!-- ── Layout ── -->
+  <div class="cl-layout">
 
-                        <!-- Marca -->
-                        <div class="mb-3">
-                            <label class="form-label">Marca</label>
-                            <select name="brand" class="form-select" onchange="this.form.submit()">
-                                <option value="">Todas</option>
-                                {% for brand in brands %}
-                                    <option value="{{ brand.id }}" {% if request.GET.brand == brand.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ brand.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+    <!-- ────────── SIDEBAR ────────── -->
+    <aside class="cl-sidebar">
+      <div class="cl-sidebar-header">
+        <i class="bi bi-sliders"></i>
+        Filtros
+      </div>
+      <div class="cl-sidebar-body">
+        <form method="get" id="filter-form">
 
-                        <!-- Condición -->
-                        <div class="mb-3">
-                            <label class="form-label">Condición</label>
-                            {% for value, label in conditions %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="condition" value="{{ value }}" id="cond{{ forloop.counter }}"
-                                        {% if request.GET.condition == value %}checked{% endif %} onchange="this.form.submit()">
-                                    <label class="form-check-label" for="cond{{ forloop.counter }}">
-                                        {{ label }}
-                                    </label>
-                                </div>
-                            {% endfor %}
-                        </div>
+          <!-- Categoría -->
+          <div class="cl-field">
+            <label>Categoría</label>
+            <select name="category" class="cl-select" onchange="this.form.submit()">
+              <option value="">Todas las categorías</option>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+                  {{ cat.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                        <!-- Precio -->
-                        <div class="mb-3">
-                            <label class="form-label">Precio</label>
-                            <div class="input-group">
-                                <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request.GET.min_price|default:'' }}" onchange="this.form.submit()">
-                                <span class="input-group-text"> - </span>
-                                <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request.GET.max_price|default:'' }}" onchange="this.form.submit()">
-                            </div>
-                        </div>
+          <!-- Marca -->
+          <div class="cl-field">
+            <label>Marca</label>
+            <select name="brand" class="cl-select" onchange="this.form.submit()">
+              <option value="">Todas las marcas</option>
+              {% for brand in brands %}
+                <option value="{{ brand.id }}" {% if request.GET.brand == brand.id|stringformat:"s" %}selected{% endif %}>
+                  {{ brand.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
 
-                        <!-- Limpiar filtros -->
-                    {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
-                        {% url 'catalogo:product_list' as clean_url %}
-                        <button type="button" class="btn btn-outline-secondary w-100" onclick="window.location.href='{{ clean_url }}'">
-                            Limpiar filtros
-                        </button>
-                    {% endif %}
-                    </form>
-                </div>
+          <!-- Condición -->
+          <div class="cl-field">
+            <label>Condición</label>
+            <div class="cl-radio-group">
+              <label class="cl-radio-label">
+                <input type="radio" name="condition" value=""
+                  {% if not request.GET.condition %}checked{% endif %}
+                  onchange="this.form.submit()">
+                <i class="bi bi-grid"></i> Todas
+              </label>
+              {% for value, label in conditions %}
+                <label class="cl-radio-label">
+                  <input type="radio" name="condition" value="{{ value }}"
+                    {% if request.GET.condition == value %}checked{% endif %}
+                    onchange="this.form.submit()">
+                  <i class="bi bi-{% if value == 'new' %}stars{% else %}arrow-repeat{% endif %}"></i>
+                  {{ label }}
+                </label>
+              {% endfor %}
             </div>
-        </div>
+          </div>
 
-        <div class="col-lg-9">
-
-    <!-- Búsqueda simple -->
-    <form method="get" class="mb-3 row g-3">
-        <div class="col-md-5">
-            <input type="text" name="q" class="form-control" placeholder="Buscar productos..." value="{{ request.GET.q }}">
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-outline-secondary">Buscar</button>
-        </div>
-        <div class="col-md-3">
-            <a href="{% url 'catalogo:product_list' %}" class="btn btn-secondary w-100">Limpiar</a>
-        </div>
-    </form>
-
-    <!-- Mensajes -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          <!-- Precio -->
+          <div class="cl-field">
+            <label>Rango de Precio</label>
+            <div class="cl-price-row">
+              <input type="number" name="min_price" class="cl-input"
+                placeholder="Mín" value="{{ request.GET.min_price|default:'' }}"
+                min="0">
+              <span class="cl-price-sep">—</span>
+              <input type="number" name="max_price" class="cl-input"
+                placeholder="Máx" value="{{ request.GET.max_price|default:'' }}"
+                min="0">
             </div>
+          </div>
+
+          <!-- Preservar búsqueda al filtrar -->
+          {% if request.GET.q %}
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+          {% endif %}
+
+          <button type="submit" class="cl-btn-apply">
+            <i class="bi bi-check-lg me-1"></i> Aplicar filtros
+          </button>
+
+          {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
+            <a href="{% url 'catalogo:product_list' %}" class="cl-btn-clear">
+              <i class="bi bi-x-lg me-1"></i> Limpiar filtros
+            </a>
+          {% endif %}
+
+        </form>
+      </div>
+    </aside>
+
+    <!-- ────────── MAIN ────────── -->
+    <div class="cl-main">
+
+      <!-- Search bar -->
+      <form method="get" class="cl-search-bar">
+        <!-- Preservar filtros activos al buscar -->
+        {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
+        {% if request.GET.brand    %}<input type="hidden" name="brand"    value="{{ request.GET.brand }}">{% endif %}
+        {% if request.GET.condition%}<input type="hidden" name="condition" value="{{ request.GET.condition }}">{% endif %}
+        {% if request.GET.min_price%}<input type="hidden" name="min_price" value="{{ request.GET.min_price }}">{% endif %}
+        {% if request.GET.max_price%}<input type="hidden" name="max_price" value="{{ request.GET.max_price }}">{% endif %}
+
+        <div class="cl-search-input-wrap">
+          <i class="bi bi-search"></i>
+          <input type="text" name="q" class="cl-search-input"
+            placeholder="Buscar productos por nombre, marca…"
+            value="{{ request.GET.q|default:'' }}">
+        </div>
+        <button type="submit" class="cl-btn-search">
+          <i class="bi bi-search"></i> Buscar
+        </button>
+      </form>
+
+      <!-- Active filters chips -->
+      {% if request.GET.q or request.GET.category or request.GET.brand or request.GET.condition or request.GET.min_price or request.GET.max_price %}
+      <div class="cl-active-filters">
+        {% if request.GET.q %}
+          <span class="cl-filter-chip"><i class="bi bi-search"></i> "{{ request.GET.q }}"</span>
+        {% endif %}
+        {% if request.GET.condition %}
+          <span class="cl-filter-chip"><i class="bi bi-box-seam"></i> {{ request.GET.condition|title }}</span>
+        {% endif %}
+        {% if request.GET.min_price or request.GET.max_price %}
+          <span class="cl-filter-chip">
+            <i class="bi bi-tag"></i>
+            ${{ request.GET.min_price|default:"0" }} — ${{ request.GET.max_price|default:"∞" }}
+          </span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Products grid -->
+      <div class="cl-products-grid">
+        {% for product in products %}
+        <div class="cl-card" style="animation-delay: {{ forloop.counter0 }}0ms">
+          <div class="cl-card-img">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <div class="cl-card-img-placeholder">
+                <i class="bi bi-image"></i>
+                Sin imagen
+              </div>
+            {% endif %}
+
+            <span class="cl-cond-badge {% if product.condition == 'new' %}new{% else %}used{% endif %}">
+              {{ product.condition|title }}
+            </span>
+
+            {% if product.stock == 0 %}
+              <span class="cl-stock-badge out">Agotado</span>
+            {% elif product.stock < 5 %}
+              <span class="cl-stock-badge low">¡Últimos {{ product.stock }}!</span>
+            {% endif %}
+          </div>
+
+          <div class="cl-card-body">
+            <div class="cl-card-meta">
+              {{ product.category.name|default:"Sin categoría" }}
+              <span class="dot"></span>
+              {{ product.brand.name|default:"Sin marca" }}
+            </div>
+            <h5 class="cl-card-title">{{ product.name }}</h5>
+            <div class="cl-card-seller">
+              <i class="bi bi-person"></i>
+              {{ product.seller.username }}
+            </div>
+            <div class="cl-card-price">${{ product.price }}</div>
+          </div>
+
+          <div class="cl-card-footer">
+            <a href="{% url 'catalogo:product_detail' product.slug %}" class="cl-btn-view">
+              <i class="bi bi-eye"></i> Ver detalles
+            </a>
+            {% if user.rol == 'admin' %}
+            <div class="cl-admin-actions">
+              <a href="{% url 'catalogo:product_update' product.slug %}" class="cl-btn-edit">
+                <i class="bi bi-pencil"></i> Editar
+              </a>
+              <a href="{% url 'catalogo:product_delete' product.slug %}" class="cl-btn-delete">
+                <i class="bi bi-trash"></i> Eliminar
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="cl-empty">
+          <i class="bi bi-inbox"></i>
+          <h4>No hay productos que coincidan</h4>
+          <p>Prueba con otros filtros o <a href="{% url 'catalogo:product_list' %}">ver todos los productos</a>.</p>
+          {% if user.is_staff %}
+            <a href="{% url 'catalogo:product_create' %}" class="cl-btn-publish" style="display:inline-flex; margin:0 auto;">
+              <i class="bi bi-plus-lg"></i> Publicar producto
+            </a>
+          {% endif %}
+        </div>
         {% endfor %}
-    {% endif %}
+      </div>
 
-        <!-- Lista de productos -->
-        <div class="row">
-            {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 200px;">Sin Imagen</div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text text-muted">{{ product.category.name|default:"Sin categoría" }} • {{ product.brand.name|default:"Sin marca" }}</p>
-                        <h4 class="text-primary">${{ product.price }}</h4>
-                        <span class="badge bg-{% if product.condition == 'new' %}success{% else %}warning{% endif %}">{{ product.condition|title }}</span>
-                        {% if product.stock == 0 %}
-                            <span class="badge bg-danger ms-1">Agotado</span>
-                        {% elif product.stock < 5 %}
-                            <span class="badge bg-warning ms-1">¡Últimos {{ product.stock }}!</span>
-                        {% endif %}
-                        <small class="text-muted d-block mt-1">Vendedor: {{ product.seller.username }}</small>
-                    </div>
-                    <div class="card-footer bg-white border-top-0">
-                        <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-outline-dark w-100 mb-2">Ver Detalles</a>
-                        {% if user.rol == 'admin' %}
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'catalogo:product_update' product.slug %}" class="btn btn-warning">Editar producto</a>
-                                <a href="{% url 'catalogo:product_delete' product.slug %}" class="btn btn-outline-danger">Eliminar producto</a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center py-5">
-                <h4>No hay productos que coincidan con tus filtros.</h4>
-                <p class="text-muted">Prueba otros filtros o <a href="{% url 'catalogo:product_list' %}">ver todos</a>.</p>
-                {% if user.is_staff %}
-                    <a href="{% url 'catalogo:product_create' %}" class="btn btn-primary mt-3">Publicar producto</a>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        </div>
+      <!-- Pagination -->
+      {% if products.has_other_pages %}
+      <nav class="cl-pagination" aria-label="Paginación">
+        {% if products.has_previous %}
+          <a class="cl-page-btn" href="?page={{ products.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        {% else %}
+          <span class="cl-page-btn disabled"><i class="bi bi-chevron-left"></i></span>
+        {% endif %}
 
-    <!-- Paginación SIMPLE (sin url_replace) -->
-    {% if products.has_other_pages %}
-    <nav class="mt-5" aria-label="Paginación">
-        <ul class="pagination justify-content-center">
-            {% if products.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Anterior</a>
-                </li>
-            {% endif %}
+        {% for num in products.paginator.page_range %}
+          {% if products.number == num %}
+            <span class="cl-page-btn active">{{ num }}</span>
+          {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+            <a class="cl-page-btn" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
 
-            {% for num in products.paginator.page_range %}
-                {% if products.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ num }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
+        {% if products.has_next %}
+          <a class="cl-page-btn" href="?page={{ products.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if request.GET.condition %}&condition={{ request.GET.condition }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        {% else %}
+          <span class="cl-page-btn disabled"><i class="bi bi-chevron-right"></i></span>
+        {% endif %}
+      </nav>
+      {% endif %}
 
-            {% if products.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Siguiente</a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
-</div>
+    </div><!-- /cl-main -->
+  </div><!-- /cl-layout -->
+</div><!-- /cl-wrap -->
 {% endblock %}

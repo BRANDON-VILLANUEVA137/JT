@@ -2,206 +2,718 @@
 {% load humanize %}
 {% block title %}TECH-JUANJO Marketplace - Inicio{% endblock %}
 
-{% block content %}
-<!-- Hero Banner -->
-<section class="bg-primary text-white py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Bienvenido a TECH-JUANJO</h1>
-                <p class="lead mb-4">Encuentra lo mejor en electrónica, gadgets y más. Envío rápido y garantía de devolución.</p>
-                <div class="d-flex flex-column flex-sm-row gap-3 hero-actions">
-                    <a href="{% url 'catalogo:product_list' %}" class="btn btn-light btn-lg">Explorar Catálogo</a>
-                    <a href="#featured" class="btn btn-outline-light btn-lg">Ver Ofertas</a>
-                </div>
-            </div>
-            <div class="col-lg-6 text-center">
-                <img src="https://images.unsplash.com/photo-1558494949-ef0d38d3e6ab?w=500&h=400&fit=crop" alt="Gadgets" class="img-fluid rounded shadow-lg">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Productos Destacados -->
-<section id="featured" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-5">
-            <i class="bi bi-star-fill text-warning"></i> Productos Destacados
-        </h2>
-        <div class="row g-4">
-            {% for product in featured %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-lg border-0 overflow-hidden">
-                    <div class="position-relative">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ product.name }}">
-                        {% else %}
-                            <img src="https://via.placeholder.com/300x250?text={{ product.name|slice:':4' }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ product.name }}">
-                        {% endif %}
-                        <span class="position-absolute top-0 start-0 badge bg-success m-2 shadow">🔥 Más Vendidos</span>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ product.name|truncatechars:40 }}</h5>
-                        <p class="text-muted">{{ product.category.name }} • {{ product.brand.name }}</p>
-                        <div class="d-flex align-items-center mb-3">
-                            <h3 class="text-primary mb-0 me-2">$ {{ product.price|floatformat:0|intcomma }}</h3>
-                            <span class="badge bg-warning fs-6">Nuevo</span>
-                        </div>
-                        <a href="{% url 'catalogo:product_detail' product.slug %}" class="btn btn-primary w-100 mt-auto">Ver Detalle</a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <h4>No hay productos destacados aún</h4>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="text-center mt-5">
-            <a href="{% url 'catalogo:product_list' %}" class="btn btn-outline-primary btn-lg">Ver Todos los Productos</a>
-        </div>
-    </div>
-</section>
-
-<!-- Productos del catálogo -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="text-center mb-5">
-            <i class="bi bi-grid text-danger"></i> Productos del Catálogo
-        </h2>
-        <div class="row g-4">
-            {% for offer in offers %}
-            <div class="col-md-6 col-lg-3">
-                <div class="card h-100 shadow">
-                    {% if offer.image %}
-                        <img src="{{ offer.image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ offer.name }}">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300x200?text=Producto" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ offer.name }}">
-                    {% endif %}
-                    <div class="card-body d-flex flex-column">
-                        <h6 class="card-title">{{ offer.name|truncatechars:30 }}</h6>
-                        <p class="text-muted mb-2">{{ offer.category.name }} • {{ offer.brand.name }}</p>
-                        <h4 class="text-danger mb-3">$ {{ offer.price|floatformat:0|intcomma }}</h4>
-                        <a href="{% url 'catalogo:product_detail' offer.slug %}" class="btn btn-danger w-100 mt-auto">Ver producto</a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12 text-center">
-                <h4>No hay productos disponibles</h4>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="text-center mt-5">
-            <a href="{% url 'catalogo:product_list' %}" class="btn btn-danger btn-lg">Ver Todo el Catálogo</a>
-        </div>
-    </div>
-</section>
-
-<!-- Trust Indicators -->
-<section class="py-5">
-    <div class="container">
-        <div class="row text-center g-4">
-            <div class="col-md-3">
-                <i class="bi bi-truck display-1 text-primary mb-3"></i>
-                <h5>Envío Gratis</h5>
-                <p class="text-muted">En pedidos > $50.000</p>
-            </div>
-            <div class="col-md-3">
-                <i class="bi bi-lightning-charge display-1 text-warning mb-3"></i>
-                <h5>Entrega Rápida</h5>
-                <p class="text-muted">24-48 horas Bogotá</p>
-            </div>
-            <div class="col-md-3">
-                <i class="bi bi-shield-check display-1 text-success mb-3"></i>
-                <h5>Garantía Total</h5>
-                <p class="text-muted">30 días devolución</p>
-            </div>
-            <div class="col-md-3">
-                <i class="bi bi-people display-1 text-info mb-3"></i>
-                <h5>+10K Clientes</h5>
-                <p class="text-muted">Felices con nosotros</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Catálogo Completo -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2>Explora Nuestro Catálogo Completo</h2>
-            <p class="lead">Encuentra exactamente lo que necesitas</p>
-            <a href="{% url 'catalogo:product_list' %}" class="btn btn-primary btn-lg">Ir al Catálogo Completo</a>
-        </div>
-    </div>
-</section>
-{% endblock %} 
-
 {% block extra_css %}
 <style>
-.card:hover {
+  /* ─── Google Fonts ─────────────────────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  /* ─── Design Tokens (mismo sistema que product_detail) ─────── */
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --primary-fg:    #ffffff;
+    --accent:        #2563eb;
+    --accent-fg:     #ffffff;
+    --success:       #16a34a;
+    --warning:       #ca8a04;
+    --danger:        #dc2626;
+    --radius-sm:     6px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+    --shadow:        0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Shared layout ─────────────────────────────────────────── */
+  .hm-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     HERO
+  ───────────────────────────────────────────────────────────── */
+  .hm-hero {
+    background: var(--primary);
+    color: #fff;
+    padding: 5rem 0 4rem;
+    margin-bottom: 4rem;
+    overflow: hidden;
+    position: relative;
+  }
+  /* Subtle dot-grid texture */
+  .hm-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+  .hm-hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: center;
+    position: relative;
+  }
+  @media (min-width: 992px) {
+    .hm-hero-inner { grid-template-columns: 1fr 1fr; }
+  }
+
+  .hm-hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .3rem .875rem;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 99px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.85);
+    margin-bottom: 1.25rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .hm-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    margin: 0 0 1.25rem;
+  }
+  .hm-hero-title span {
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,.5);
+  }
+
+  .hm-hero-desc {
+    font-size: 1.0625rem;
+    color: rgba(255,255,255,.7);
+    line-height: 1.7;
+    margin: 0 0 2rem;
+    max-width: 480px;
+  }
+
+  .hm-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+  }
+  .hm-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .875rem 1.75rem;
+    background: #fff;
+    color: var(--primary);
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: .9375rem;
+    text-decoration: none;
+    transition: transform var(--transition), box-shadow var(--transition);
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  }
+  .hm-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    color: var(--primary);
+  }
+  .hm-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .875rem 1.75rem;
+    background: transparent;
+    color: rgba(255,255,255,.85);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: .9375rem;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+  }
+  .hm-btn-ghost:hover {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+  }
+
+  .hm-hero-img-wrap {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,.4);
+    aspect-ratio: 4/3;
+    position: relative;
+  }
+  .hm-hero-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 600ms ease;
+  }
+  .hm-hero-img-wrap:hover img { transform: scale(1.04); }
+
+  /* ─── Trust bar ─────────────────────────────────────────────── */
+  .hm-trust {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 4.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  @media (min-width: 768px) { .hm-trust { grid-template-columns: repeat(4, 1fr); } }
+
+  .hm-trust-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    padding: 1.5rem 1rem;
+    background: var(--surface);
+    text-align: center;
+    transition: background var(--transition);
+  }
+  .hm-trust-item:hover { background: var(--surface-muted); }
+  .hm-trust-icon {
+    font-size: 1.625rem;
+    line-height: 1;
+    margin-bottom: .25rem;
+  }
+  .hm-trust-item h6 {
+    font-family: var(--font-display);
+    font-size: .9rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .hm-trust-item p {
+    font-size: .775rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ─── Section header ─────────────────────────────────────────── */
+  .hm-section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .hm-section-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    letter-spacing: -.02em;
+  }
+  .hm-section-title i { font-size: 1.125rem; }
+  .hm-section-title i.accent  { color: var(--accent); }
+  .hm-section-title i.warning { color: var(--warning); }
+  .hm-section-title i.danger  { color: var(--danger); }
+
+  .hm-btn-see-all {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: .4rem .875rem;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    background: var(--surface);
+    transition: color var(--transition), border-color var(--transition), box-shadow var(--transition);
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+  }
+  .hm-btn-see-all:hover {
+    color: var(--text);
+    border-color: var(--text);
+    box-shadow: var(--shadow);
+  }
+
+  /* ─── Featured cards (large) ─────────────────────────────────── */
+  .hm-featured-section { margin-bottom: 4.5rem; }
+
+  .hm-featured-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 768px) { .hm-featured-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 992px) { .hm-featured-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .hm-feat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .hm-feat-card:hover {
     transform: translateY(-5px);
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-}
+    box-shadow: var(--shadow-lg);
+  }
 
-.hero-actions .btn {
+  .hm-feat-card-img {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+    background: var(--surface-muted);
+    flex-shrink: 0;
+  }
+  .hm-feat-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 400ms ease;
+  }
+  .hm-feat-card:hover .hm-feat-card-img img { transform: scale(1.06); }
+
+  .hm-feat-badge {
+    position: absolute;
+    top: .875rem; left: .875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .7rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 99px;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hm-feat-card-body {
+    padding: 1.125rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .hm-feat-card-meta {
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-bottom: .5rem;
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+  }
+  .hm-feat-card-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .5; }
+
+  .hm-feat-card-title {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 .875rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .hm-feat-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: auto;
+  }
+  .hm-feat-price {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .hm-btn-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .5rem 1rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: .8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--transition), transform var(--transition);
+    flex-shrink: 0;
+  }
+  .hm-btn-detail:hover {
+    background: #222;
+    transform: scale(1.03);
+    color: #fff;
+  }
+
+  /* ─── Catalog cards (compact) ─────────────────────────────────── */
+  .hm-catalog-section {
+    padding: 3.5rem 0;
+    background: var(--surface-muted);
+    margin: 0 -1.25rem 4.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  /* Hack to make background bleed full-width while keeping content contained */
+  .hm-catalog-section-inner { max-width: 1200px; margin: 0 auto; }
+
+  .hm-catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (min-width: 576px) { .hm-catalog-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 768px) { .hm-catalog-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 992px) { .hm-catalog-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .hm-cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .hm-cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hm-cat-card-img {
+    height: 160px;
+    overflow: hidden;
+    background: var(--surface-muted);
+    flex-shrink: 0;
+  }
+  @media (min-width: 768px) { .hm-cat-card-img { height: 180px; } }
+  .hm-cat-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 340ms ease;
+  }
+  .hm-cat-card:hover .hm-cat-card-img img { transform: scale(1.08); }
+
+  .hm-cat-card-body { padding: .875rem; display: flex; flex-direction: column; flex: 1; }
+  .hm-cat-card-meta {
+    font-size: .7rem;
+    color: var(--text-muted);
+    margin-bottom: .375rem;
+  }
+  .hm-cat-card-title {
+    font-weight: 600;
+    font-size: .875rem;
+    line-height: 1.35;
+    margin: 0 0 .625rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hm-cat-price {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--danger);
+    margin-bottom: .75rem;
+  }
+  .hm-cat-btn {
+    display: block;
     width: 100%;
-}
+    text-align: center;
+    padding: .5rem .75rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+    margin-top: auto;
+  }
+  .hm-cat-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
 
-@media (min-width: 576px) {
-    .hero-actions .btn {
-        width: auto;
-    }
-}
+  /* ─── CTA Banner ─────────────────────────────────────────────── */
+  .hm-cta {
+    background: var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .hm-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 22px 22px;
+    pointer-events: none;
+  }
+  .hm-cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    margin: 0 0 .75rem;
+    position: relative;
+  }
+  .hm-cta-desc {
+    color: rgba(255,255,255,.65);
+    font-size: 1rem;
+    margin: 0 auto 2rem;
+    max-width: 480px;
+    position: relative;
+  }
+  .hm-cta .hm-btn-primary { position: relative; }
 
-@media (max-width: 991.98px) {
-    .display-4 {
-        font-size: 2.4rem;
-    }
-}
+  /* ─── Empty state ─────────────────────────────────────────────── */
+  .hm-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    font-size: .9375rem;
+  }
+  .hm-empty i { font-size: 2.5rem; display: block; margin-bottom: .75rem; opacity: .4; }
 
-@media (max-width: 767.98px) {
-    .display-4 {
-        font-size: 2rem;
-    }
-
-    .lead {
-        font-size: 1rem;
-    }
-
-    .card-img-top {
-        height: 220px !important;
-    }
-
-    #featured .card-title,
-    .bg-light .card-title {
-        min-height: auto;
-    }
-
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .display-4 {
-        font-size: 1.8rem;
-    }
-
-    h2.text-center {
-        font-size: 1.5rem;
-    }
-
-    .card-img-top {
-        height: 200px !important;
-    }
-
-    .btn-lg {
-        width: 100%;
-    }
-}
+  /* ─── Animations ─────────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hm-hero-inner > * {
+    animation: fadeUp .55s cubic-bezier(.22,1,.36,1) both;
+  }
+  .hm-hero-inner > *:nth-child(2) { animation-delay: .1s; }
 </style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ── -->
+<section class="hm-hero">
+  <div class="hm-hero-inner">
+    <div>
+      <div class="hm-hero-tag">
+        <i class="bi bi-lightning-charge-fill"></i>
+        Marketplace Tech #1 en Colombia
+      </div>
+      <h1 class="hm-hero-title">
+        Bienvenido a<br>
+        <span>TECH-JUANJO</span>
+      </h1>
+      <p class="hm-hero-desc">
+        Encuentra lo mejor en electrónica, gadgets y accesorios. Envío rápido, garantía total y los mejores precios.
+      </p>
+      <div class="hm-hero-actions">
+        <a href="{% url 'catalogo:product_list' %}" class="hm-btn-primary">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+          Explorar Catálogo
+        </a>
+        <a href="#ofertas" class="hm-btn-ghost">
+          <i class="bi bi-tag-fill"></i>
+          Ver Ofertas
+        </a>
+      </div>
+    </div>
+    <div class="hm-hero-img-wrap">
+      <img
+        src="https://images.unsplash.com/photo-1558494949-ef0d38d3e6ab?w=700&h=525&fit=crop"
+        alt="Gadgets tech"
+        loading="eager"
+      >
+    </div>
+  </div>
+</section>
+
+<div class="hm-wrap">
+
+  <!-- ── Trust bar ── -->
+  <div class="hm-trust">
+    <div class="hm-trust-item">
+      <div class="hm-trust-icon text-primary"><i class="bi bi-truck"></i></div>
+      <h6>Envío Gratis</h6>
+      <p>En pedidos &gt; $50.000</p>
+    </div>
+    <div class="hm-trust-item">
+      <div class="hm-trust-icon text-warning"><i class="bi bi-lightning-charge"></i></div>
+      <h6>Entrega Rápida</h6>
+      <p>24–48 h en Bogotá</p>
+    </div>
+    <div class="hm-trust-item">
+      <div class="hm-trust-icon text-success"><i class="bi bi-shield-check"></i></div>
+      <h6>Garantía Total</h6>
+      <p>30 días devolución</p>
+    </div>
+    <div class="hm-trust-item">
+      <div class="hm-trust-icon text-info"><i class="bi bi-people"></i></div>
+      <h6>+10K Clientes</h6>
+      <p>Felices con nosotros</p>
+    </div>
+  </div>
+
+  <!-- ── Featured products ── -->
+  <section class="hm-featured-section" id="featured">
+    <div class="hm-section-header">
+      <h2 class="hm-section-title">
+        <i class="bi bi-star-fill warning"></i>
+        Productos Destacados
+      </h2>
+      <a href="{% url 'catalogo:product_list' %}" class="hm-btn-see-all">
+        Ver todos <i class="bi bi-chevron-right"></i>
+      </a>
+    </div>
+
+    <div class="hm-featured-grid">
+      {% for product in featured %}
+      <div class="hm-feat-card">
+        <div class="hm-feat-card-img">
+          <span class="hm-feat-badge">
+            <i class="bi bi-fire"></i> Más Vendido
+          </span>
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <img src="https://via.placeholder.com/400x240?text={{ product.name|slice:':4' }}" alt="{{ product.name }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="hm-feat-card-body">
+          <div class="hm-feat-card-meta">
+            {{ product.category.name }}
+            <span class="dot"></span>
+            {{ product.brand.name }}
+          </div>
+          <h3 class="hm-feat-card-title">{{ product.name|truncatechars:50 }}</h3>
+          <div class="hm-feat-card-footer">
+            <span class="hm-feat-price">${{ product.price|floatformat:0|intcomma }}</span>
+            <a href="{% url 'catalogo:product_detail' product.slug %}" class="hm-btn-detail">
+              Ver detalle <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="hm-empty" style="grid-column: 1/-1;">
+        <i class="bi bi-box-seam"></i>
+        No hay productos destacados aún.
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</div><!-- /hm-wrap -->
+
+<!-- ── Catalog section (full-bleed bg) ── -->
+<div class="hm-catalog-section" id="ofertas">
+  <div class="hm-catalog-section-inner">
+
+    <div class="hm-section-header">
+      <h2 class="hm-section-title">
+        <i class="bi bi-grid-fill danger"></i>
+        Catálogo de Productos
+      </h2>
+      <a href="{% url 'catalogo:product_list' %}" class="hm-btn-see-all">
+        Ver todo <i class="bi bi-chevron-right"></i>
+      </a>
+    </div>
+
+    <div class="hm-catalog-grid">
+      {% for offer in offers %}
+      <div class="hm-cat-card">
+        <div class="hm-cat-card-img">
+          {% if offer.image %}
+            <img src="{{ offer.image.url }}" alt="{{ offer.name }}" loading="lazy">
+          {% else %}
+            <img src="https://via.placeholder.com/300x180?text=Producto" alt="{{ offer.name }}" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="hm-cat-card-body">
+          <div class="hm-cat-card-meta">{{ offer.category.name }} · {{ offer.brand.name }}</div>
+          <h6 class="hm-cat-card-title">{{ offer.name|truncatechars:40 }}</h6>
+          <div class="hm-cat-price">${{ offer.price|floatformat:0|intcomma }}</div>
+          <a href="{% url 'catalogo:product_detail' offer.slug %}" class="hm-cat-btn">
+            Ver producto
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="hm-empty" style="grid-column: 1/-1;">
+        <i class="bi bi-inbox"></i>
+        No hay productos disponibles.
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center; margin-top: 2.5rem;">
+      <a href="{% url 'catalogo:product_list' %}" class="hm-btn-primary" style="background: var(--primary); color: #fff; display: inline-flex;">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+        Ver todo el catálogo
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── CTA banner ── -->
+<div class="hm-wrap">
+  <div class="hm-cta">
+    <h2 class="hm-cta-title">¿Listo para encontrar tu próximo gadget?</h2>
+    <p class="hm-cta-desc">Explora nuestro catálogo completo y descubre los mejores precios en tecnología.</p>
+    <a href="{% url 'catalogo:product_list' %}" class="hm-btn-primary">
+      <i class="bi bi-arrow-right-circle-fill"></i>
+      Ir al Catálogo Completo
+    </a>
+  </div>
+</div>
+
 {% endblock %}

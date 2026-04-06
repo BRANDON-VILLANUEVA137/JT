@@ -2,184 +2,717 @@
 
 {% block title %}{{ product.name }} - TECH-JUANJO{% endblock %}
 
-{% block content %}
-<div class="container">
-    <div class="row">
-        <!-- Imagen Principal -->
-        <div class="col-lg-6">
-            <div id="productCarousel" class="carousel slide shadow">
-                {% if product.image %}
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="{{ product.image.url }}" class="d-block w-100 img-fluid" alt="{{ product.name }}" style="height: 500px; object-fit: cover;">
-                        </div>
-                    </div>
-                {% else %}
-                    <img src="https://via.placeholder.com/600x500" class="d-block w-100 img-fluid" alt="Sin imagen">
-                {% endif %}
-            </div>
-            
-            <div class="mt-3 small text-muted text-center">
-                {{ product.created_at|date:"d M Y" }} • {{ product.views|default:0 }} vistas
-            </div>
-        </div>
-        
-        <!-- Detalle Producto -->
-        <div class="col-lg-6">
-            <h1 class="mb-3">{{ product.name }}</h1>
-            
-            <div class="mb-3">
-                <span class="h2 text-primary fw-bold">${{ product.price }}</span>
-                <span class="badge bg-{% if product.condition == 'new' %}success{% else %}warning{% endif %} fs-6 ms-2">
-                    {{ product.condition|title }}
-                </span>
-            </div>
-            
-            <div class="mb-4">
-                <h6>Información del producto</h6>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item px-0 border-0">
-                        <strong>Categoría:</strong> {{ product.category.name }}
-                    </li>
-                    <li class="list-group-item px-0 border-0">
-                        <strong>Marca:</strong> {{ product.brand.name }}
-                    </li>
-                    <li class="list-group-item px-0 border-0">
-                        {% if product.stock == 0 %}
-                            <span class="badge bg-danger fs-6">Agotado</span>
-                        {% elif product.stock < 5 %}
-                            <span class="badge bg-warning fs-6">¡Últimos {{ product.stock }} unidades!</span>
-                        {% else %}
-                            <span class="badge bg-success fs-6">Stock: {{ product.stock }}</span>
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- CTA Principal -->
-            <div class="row mb-4 g-2">
-                {% if product.stock > 0 %}
-                    <div class="col">
-    {% if user.is_authenticated %}
-                            <form method="post" action="{% url 'carrito:add_to_cart' %}" class="d-inline">
-                                {% csrf_token %}
-                                <input type="hidden" name="product_id" value="{{ product.id }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-success btn-lg w-100">
-                                    <i class="bi bi-cart-plus me-2"></i>
-                                    Añadir al carrito - ${{ product.price }}
-                                </button>
-                            </form>
-                            {% else %}
-                            <a href="{% url 'usuarios:login' %}?next={% url 'catalogo:product_detail' product.slug %}" class="btn btn-success btn-lg w-100">
-                                <i class="bi bi-lock me-2"></i>
-                                Inicia sesión para comprar
-                            </a>
-                            {% endif %}
-                    </div>
-                {% else %}
-                    <div class="col">
-                        <button class="btn btn-outline-secondary btn-lg w-100 disabled">
-                            <i class="bi bi-x-circle me-2"></i> Sin stock
-                        </button>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <!-- Vendedor -->
-            <div class="card border-0 bg-light">
-                <div class="card-body">
-                    <h6 class="card-title mb-2">
-                        <i class="bi bi-person-circle me-2"></i>
-                        Vendido por {{ product.seller.get_nombre_completo }}
-                    </h6>
-                    <small class="text-muted">
-                        {{ product.seller.products.count }} productos • Miembro desde {{ product.seller.date_joined|date:"M Y" }}
-                    </small>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Descripción y acciones -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header">
-                    <ul class="nav nav-tabs card-header-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#description">Descripción</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="card-body">
-                    <div id="description">
-                        <h5>Descripción completa</h5>
-                        <p class="lead">{{ product.description }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Productos Relacionados -->
-    {% if related_products %}
-    <div class="row mt-5">
-        <div class="col-12">
-            <h4 class="mb-4">Productos relacionados</h4>
-            <div class="row g-3">
-                {% for rel in related_products %}
-                <div class="col-md-3">
-                    <div class="card h-100">
-                        {% if rel.image %}
-                            <img src="{{ rel.image.url }}" class="card-img-top" style="height:150px; object-fit:cover;">
-                        {% endif %}
-                        <div class="card-body">
-                            <h6 class="card-title">{{ rel.name }}</h6>
-                            <p class="fw-bold">${{ rel.price }}</p>
-                            <a href="{{ rel.get_absolute_url }}" class="btn btn-sm btn-outline-primary w-100">Ver</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    
-    <!-- Acciones vendedor -->
-    {% if user.is_staff %}
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <a href="{% url 'catalogo:product_update' product.slug %}" class="btn btn-warning w-100">
-                <i class="bi bi-pencil"></i> Editar producto
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="{% url 'catalogo:product_list' %}" class="btn btn-secondary w-100">
-                <i class="bi bi-list"></i> Mis productos
-            </a>
-        </div>
-    </div>
-    {% endif %}
-</div>
+{% block extra_css %}
+<style>
+  /* ─── Google Fonts ─────────────────────────────────────────── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Add to cart
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productId = this.dataset.product;
-            // Placeholder - actual carrito después
-            this.innerHTML = '<i class="bi bi-check-lg"></i> Añadido!';
-            this.classList.add('disabled');
-            setTimeout(() => {
-                this.innerHTML = '<i class="bi bi-cart-plus"></i> Añadir al carrito';
-                this.classList.remove('disabled');
-            }, 2000);
-        });
-    });
-});
-</script>
+  /* ─── Design Tokens ────────────────────────────────────────── */
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --primary-fg:    #ffffff;
+    --accent:        #2563eb;
+    --accent-fg:     #ffffff;
+    --success:       #16a34a;
+    --warning:       #ca8a04;
+    --danger:        #dc2626;
+    --radius-sm:     6px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+    --shadow:        0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  /* ─── Base ─────────────────────────────────────────────────── */
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Layout wrapper ───────────────────────────────────────── */
+  .pd-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* ─── Breadcrumb ───────────────────────────────────────────── */
+  .pd-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    padding: 1.5rem 0 2rem;
+    font-size: .8125rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .pd-breadcrumb a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .pd-breadcrumb a:hover { color: var(--text); }
+  .pd-breadcrumb .sep {
+    width: 14px; height: 14px;
+    opacity: .45;
+    flex-shrink: 0;
+  }
+  .pd-breadcrumb .current { color: var(--text); font-weight: 500; }
+
+  /* ─── Main grid ────────────────────────────────────────────── */
+  .pd-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 992px) {
+    .pd-grid { grid-template-columns: 1fr 1fr; gap: 3rem; }
+  }
+
+  /* ─── Image column ─────────────────────────────────────────── */
+  .pd-image-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    position: relative;
+    aspect-ratio: 1 / 1;
+  }
+  .pd-image-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 500ms ease;
+  }
+  .pd-image-card:hover img { transform: scale(1.04); }
+
+  .pd-condition-badge {
+    position: absolute;
+    top: 1rem; left: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .35rem .75rem;
+    border-radius: 99px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .03em;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .pd-condition-badge.new {
+    background: rgba(17,17,16,.85);
+    color: #fff;
+  }
+  .pd-condition-badge.used {
+    background: rgba(242,242,240,.92);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .pd-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 0 0;
+    font-size: .8125rem;
+    color: var(--text-muted);
+  }
+  .pd-meta-item { display: flex; align-items: center; gap: .375rem; }
+  .pd-meta-item i { font-size: .875rem; }
+  .pd-meta-divider { width: 1px; height: 14px; background: var(--border); }
+
+  /* ─── Info column ──────────────────────────────────────────── */
+  .pd-info { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .pd-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin: 0;
+  }
+
+  /* Price row */
+  .pd-price-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: .5rem;
+  }
+  .pd-price {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -.03em;
+  }
+
+  .pd-stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .35rem .8rem;
+    border-radius: 99px;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .pd-stock-badge.available { background: #dcfce7; color: var(--success); }
+  .pd-stock-badge.low       { background: #fef9c3; color: var(--warning); }
+  .pd-stock-badge.out       { background: #fee2e2; color: var(--danger); }
+
+  /* Details card */
+  .pd-details-card {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .pd-detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .875rem 1.125rem;
+    gap: 1rem;
+  }
+  .pd-detail-row + .pd-detail-row {
+    border-top: 1px solid var(--border);
+  }
+  .pd-detail-label {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    color: var(--text-muted);
+    font-size: .875rem;
+  }
+  .pd-detail-label i { font-size: 1rem; width: 18px; }
+  .pd-detail-value {
+    font-size: .875rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* CTA Buttons */
+  .pd-btn-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .625rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    box-shadow: var(--shadow);
+  }
+  .pd-btn-cart:hover:not(:disabled) {
+    background: #222;
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+    color: var(--primary-fg);
+  }
+  .pd-btn-cart:active:not(:disabled) { transform: scale(.99); }
+  .pd-btn-cart:disabled {
+    background: var(--surface-muted);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .pd-btn-cart .price-tag {
+    margin-left: auto;
+    font-size: .875rem;
+    opacity: .75;
+    font-weight: 400;
+  }
+
+  .pd-btn-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .625rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--surface-muted);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition), box-shadow var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+  .pd-btn-login:hover {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  /* Seller card */
+  .pd-seller-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.125rem;
+    transition: background var(--transition);
+  }
+  .pd-seller-card:hover { background: #ececea; }
+
+  .pd-seller-avatar {
+    flex-shrink: 0;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: var(--primary-fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  .pd-seller-name {
+    font-weight: 600;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+  }
+  .pd-seller-name i { color: var(--text-muted); font-size: .875rem; }
+  .pd-seller-meta {
+    font-size: .775rem;
+    color: var(--text-muted);
+    margin-top: .2rem;
+  }
+
+  /* Staff actions */
+  .pd-admin-actions {
+    display: flex;
+    gap: .75rem;
+  }
+  .pd-btn-admin {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .625rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: .875rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition), box-shadow var(--transition);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .pd-btn-admin:hover {
+    background: var(--surface-muted);
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  /* ─── Description section ──────────────────────────────────── */
+  .pd-desc-section {
+    margin-top: 3.5rem;
+  }
+  .pd-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+  .pd-tab-btn {
+    padding: .75rem 1.5rem;
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+    font-family: var(--font-body);
+  }
+  .pd-tab-btn.active {
+    color: var(--text);
+    border-bottom-color: var(--primary);
+  }
+  .pd-tab-btn:hover:not(.active) { color: var(--text); }
+
+  .pd-desc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .pd-desc-card h5 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: .875rem;
+  }
+  .pd-desc-card p {
+    color: var(--text-muted);
+    line-height: 1.75;
+    margin: 0;
+  }
+
+  /* ─── Related products ─────────────────────────────────────── */
+  .pd-related-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+  .pd-related-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    gap: 1rem;
+  }
+  .pd-section-title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+  }
+  .pd-section-title i { font-size: 1.125rem; color: var(--accent); }
+
+  .pd-related-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) { .pd-related-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .pd-rel-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .pd-rel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .pd-rel-card-img {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--surface-muted);
+  }
+  .pd-rel-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 320ms ease;
+  }
+  .pd-rel-card:hover .pd-rel-card-img img { transform: scale(1.08); }
+  .pd-rel-card-body { padding: .875rem; }
+  .pd-rel-card-title {
+    font-size: .875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 .5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pd-rel-card-price {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+  .pd-btn-view {
+    display: block;
+    width: 100%;
+    padding: .5rem .75rem;
+    text-align: center;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition);
+  }
+  .pd-btn-view:hover {
+    background: var(--primary);
+    color: var(--primary-fg);
+    border-color: var(--primary);
+  }
+
+  /* ─── Cart success state ───────────────────────────────────── */
+  .pd-btn-cart.added {
+    background: var(--success);
+  }
+
+  /* ─── Page fade-in ─────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .pd-grid > * {
+    animation: fadeUp .45s cubic-bezier(.22,1,.36,1) both;
+  }
+  .pd-grid > *:nth-child(2) { animation-delay: .08s; }
+</style>
 {% endblock %}
 
+{% block content %}
+<div class="pd-wrap">
+
+  <!-- ── Breadcrumb ── -->
+  <nav class="pd-breadcrumb" aria-label="breadcrumb">
+    <a href="{% url 'catalogo:product_list' %}">
+      <i class="bi bi-house-door"></i> Inicio
+    </a>
+    <svg class="sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+    <a href="#">{{ product.category.name }}</a>
+    <svg class="sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+    <span class="current">{{ product.name }}</span>
+  </nav>
+
+  <!-- ── Main grid ── -->
+  <div class="pd-grid">
+
+    <!-- Image column -->
+    <div>
+      <div class="pd-image-card">
+        <span class="pd-condition-badge {% if product.condition == 'new' %}new{% else %}used{% endif %}">
+          <i class="bi bi-{% if product.condition == 'new' %}stars{% else %}arrow-repeat{% endif %}"></i>
+          {{ product.condition|title }}
+        </span>
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="eager">
+        {% else %}
+          <img src="https://via.placeholder.com/600x600?text=Sin+imagen" alt="Sin imagen">
+        {% endif %}
+      </div>
+
+      <div class="pd-meta">
+        <span class="pd-meta-item">
+          <i class="bi bi-calendar3"></i>
+          {{ product.created_at|date:"d M Y" }}
+        </span>
+        <span class="pd-meta-divider"></span>
+        <span class="pd-meta-item">
+          <i class="bi bi-eye"></i>
+          {{ product.views|default:0 }} vistas
+        </span>
+      </div>
+    </div>
+
+    <!-- Info column -->
+    <div class="pd-info">
+
+      <div>
+        <h1 class="pd-title">{{ product.name }}</h1>
+
+        <div class="pd-price-row">
+          <span class="pd-price">${{ product.price }}</span>
+
+          {% if product.stock == 0 %}
+            <span class="pd-stock-badge out">
+              <i class="bi bi-x-circle-fill"></i> Agotado
+            </span>
+          {% elif product.stock < 5 %}
+            <span class="pd-stock-badge low">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Solo {{ product.stock }} unidades
+            </span>
+          {% else %}
+            <span class="pd-stock-badge available">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ product.stock }} disponibles
+            </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Details card -->
+      <div class="pd-details-card">
+        <div class="pd-detail-row">
+          <span class="pd-detail-label">
+            <i class="bi bi-layers"></i> Categoría
+          </span>
+          <span class="pd-detail-value">{{ product.category.name }}</span>
+        </div>
+        <div class="pd-detail-row">
+          <span class="pd-detail-label">
+            <i class="bi bi-award"></i> Marca
+          </span>
+          <span class="pd-detail-value">{{ product.brand.name }}</span>
+        </div>
+        <div class="pd-detail-row">
+          <span class="pd-detail-label">
+            <i class="bi bi-box-seam"></i> Condición
+          </span>
+          <span class="pd-detail-value">{{ product.condition|title }}</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      {% if product.stock > 0 %}
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'carrito:add_to_cart' %}" id="cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="pd-btn-cart" id="cart-btn">
+              <i class="bi bi-cart-plus"></i>
+              Añadir al carrito
+              <span class="price-tag">${{ product.price }}</span>
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'usuarios:login' %}?next={% url 'catalogo:product_detail' product.slug %}" class="pd-btn-login">
+            <i class="bi bi-lock"></i>
+            Inicia sesión para comprar
+          </a>
+        {% endif %}
+      {% else %}
+        <button class="pd-btn-cart" disabled>
+          <i class="bi bi-x-circle"></i>
+          Sin stock disponible
+        </button>
+      {% endif %}
+
+      <!-- Seller -->
+      <div class="pd-seller-card">
+        <div class="pd-seller-avatar">
+          {{ product.seller.get_nombre_completo|slice:":1"|upper }}
+        </div>
+        <div>
+          <div class="pd-seller-name">
+            <i class="bi bi-person-check"></i>
+            {{ product.seller.get_nombre_completo }}
+          </div>
+          <div class="pd-seller-meta">
+            {{ product.seller.products.count }} productos &bull;
+            Miembro desde {{ product.seller.date_joined|date:"M Y" }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff actions -->
+      {% if user.is_staff %}
+      <div class="pd-admin-actions">
+        <a href="{% url 'catalogo:product_update' product.slug %}" class="pd-btn-admin">
+          <i class="bi bi-pencil-square"></i> Editar
+        </a>
+        <a href="{% url 'catalogo:product_list' %}" class="pd-btn-admin">
+          <i class="bi bi-grid"></i> Mis productos
+        </a>
+      </div>
+      {% endif %}
+
+    </div><!-- /info column -->
+  </div><!-- /grid -->
+
+  <!-- ── Description ── -->
+  <div class="pd-desc-section">
+    <div class="pd-tabs">
+      <button class="pd-tab-btn active" type="button">
+        <i class="bi bi-file-text me-1"></i> Descripción
+      </button>
+    </div>
+    <div class="pd-desc-card">
+      <h5>Descripción del producto</h5>
+      <p>{{ product.description }}</p>
+    </div>
+  </div>
+
+  <!-- ── Related products ── -->
+  {% if related_products %}
+  <section class="pd-related-section">
+    <div class="pd-related-header">
+      <h2 class="pd-section-title">
+        <i class="bi bi-lightning-charge-fill"></i>
+        Productos relacionados
+      </h2>
+    </div>
+    <div class="pd-related-grid">
+      {% for rel in related_products %}
+      <div class="pd-rel-card">
+        <div class="pd-rel-card-img">
+          {% if rel.image %}
+            <img src="{{ rel.image.url }}" alt="{{ rel.name }}" loading="lazy">
+          {% else %}
+            <img src="https://via.placeholder.com/300x300?text=Sin+imagen" alt="Sin imagen" loading="lazy">
+          {% endif %}
+        </div>
+        <div class="pd-rel-card-body">
+          <h6 class="pd-rel-card-title">{{ rel.name }}</h6>
+          <div class="pd-rel-card-price">${{ rel.price }}</div>
+          <a href="{{ rel.get_absolute_url }}" class="pd-btn-view">Ver producto</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div><!-- /pd-wrap -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('cart-form');
+    const btn  = document.getElementById('cart-btn');
+    if (!form || !btn) return;
+
+    form.addEventListener('submit', function () {
+      btn.classList.add('added');
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> ¡Agregado al carrito!';
+    });
+  });
+</script>
+{% endblock %}

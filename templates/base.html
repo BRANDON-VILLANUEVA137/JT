@@ -1,261 +1,696 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}TECH-JUANJO Marketplace{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --navbar-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-        }
-        
-        .navbar {
-            box-shadow: var(--navbar-shadow);
-            background: var(--primary-gradient) !important;
-            padding: 1rem 0;
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar-brand:hover {
-            transform: scale(1.05);
-            color: rgba(255,255,255,0.9) !important;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            padding: 0.75rem 1.5rem !important;
-        }
-        
-        .nav-link:hover {
-            color: #fff !important;
-            transform: translateY(-2px);
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 1.5rem;
-            background: #fff;
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-            width: calc(100% - 3rem);
-        }
-        
-        .dropdown-menu {
-            border: none;
-            box-shadow: var(--navbar-shadow);
-            border-radius: 15px;
-            padding: 1rem 0;
-            margin-top: 0.5rem;
-        }
-        
-        .dropdown-item {
-            padding: 0.75rem 2rem;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .dropdown-item:hover {
-            background: var(--primary-gradient);
-            color: white !important;
-            transform: translateX(10px);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .cart-icon {
-            position: relative;
-            font-size: 1.2rem;
-        }
-        
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            font-size: 0.7rem;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 991px) {
-            .navbar-nav {
-                text-align: center;
-            }
-            .user-info {
-                flex-direction: column;
-                gap: 0.25rem;
-            }
-        }
-    </style>
-    
-    {% block extra_css %}{% endblock %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}TECH-JUANJO Marketplace{% endblock %}</title>
+
+  <!-- Bootstrap (solo grid y utilidades, el diseño lo manejamos nosotros) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:            #f7f7f5;
+      --surface:       #ffffff;
+      --surface-muted: #f2f2f0;
+      --border:        #e5e5e3;
+      --text:          #111110;
+      --text-muted:    #6b6b68;
+      --primary:       #111110;
+      --primary-fg:    #ffffff;
+      --accent:        #2563eb;
+      --accent-fg:     #ffffff;
+      --success:       #16a34a;
+      --warning:       #ca8a04;
+      --danger:        #dc2626;
+      --radius-sm:     6px;
+      --radius:        10px;
+      --radius-lg:     16px;
+      --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+      --shadow:        0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+      --shadow-lg:     0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+      --transition:    180ms cubic-bezier(.4,0,.2,1);
+      --font-body:     'DM Sans', system-ui, sans-serif;
+      --font-display:  'Syne', system-ui, sans-serif;
+      --nav-h:         60px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      /* neutraliza el fondo degradado de Bootstrap/Poppins anterior */
+      background-image: none;
+    }
+
+    .tj-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      height: var(--nav-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .tj-nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    /* Brand */
+    .tj-brand {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .tj-brand-logo {
+      width: 34px; height: 34px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      flex-shrink: 0;
+    }
+    .tj-brand-name {
+      font-family: var(--font-display);
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+    .tj-brand:hover .tj-brand-name { color: var(--text); }
+
+    /* Desktop nav links */
+    .tj-nav-links {
+      display: none;
+      align-items: center;
+      gap: .25rem;
+      flex: 1;
+    }
+    @media (min-width: 992px) { .tj-nav-links { display: flex; } }
+
+    .tj-nav-link {
+      display: flex;
+      align-items: center;
+      gap: .375rem;
+      padding: .45rem .75rem;
+      border-radius: var(--radius-sm);
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition);
+      position: relative;
+      white-space: nowrap;
+    }
+    .tj-nav-link:hover,
+    .tj-nav-link.active {
+      background: var(--surface-muted);
+      color: var(--text);
+    }
+    .tj-nav-link i { font-size: .95rem; }
+
+    /* Dropdown */
+    .tj-dropdown { position: relative; }
+    .tj-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: .375rem;
+      z-index: 200;
+    }
+    .tj-dropdown:hover .tj-dropdown-menu,
+    .tj-dropdown:focus-within .tj-dropdown-menu { display: block; }
+
+    .tj-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      padding: .55rem .75rem;
+      border-radius: var(--radius-sm);
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--text);
+      text-decoration: none;
+      transition: background var(--transition);
+    }
+    .tj-dropdown-item:hover { background: var(--surface-muted); color: var(--text); }
+    .tj-dropdown-item i { font-size: .9rem; color: var(--text-muted); width: 16px; }
+    .tj-dropdown-item.strong { font-weight: 700; }
+    .tj-dropdown-item.strong i { color: var(--accent); }
+    .tj-dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: .375rem 0;
+    }
+
+    /* Right side */
+    .tj-nav-right {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-left: auto;
+    }
+
+    /* Cart button */
+    .tj-cart-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background var(--transition), color var(--transition);
+      font-size: 1.1rem;
+    }
+    .tj-cart-btn:hover { background: var(--surface-muted); color: var(--text); }
+    .tj-cart-count {
+      position: absolute;
+      top: 2px; right: 2px;
+      min-width: 17px; height: 17px;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 99px;
+      font-size: .6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      border: 2px solid var(--surface);
+      line-height: 1;
+    }
+
+    /* Auth buttons */
+    .tj-btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      padding: .45rem .875rem;
+      border-radius: var(--radius-sm);
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+    .tj-btn-ghost:hover { background: var(--surface-muted); color: var(--text); border-color: #ccc; }
+
+    .tj-btn-solid {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      padding: .45rem .875rem;
+      border-radius: var(--radius-sm);
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--primary-fg);
+      background: var(--primary);
+      text-decoration: none;
+      border: 1px solid var(--primary);
+      transition: background var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .tj-btn-solid:hover { background: #333; color: #fff; transform: translateY(-1px); }
+
+    /* User menu */
+    .tj-user-menu { position: relative; }
+    .tj-user-trigger {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .35rem .625rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: background var(--transition);
+    }
+    .tj-user-trigger:hover { background: var(--surface-muted); }
+    .tj-user-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--primary-fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: .7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .tj-user-name {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tj-user-menu:hover .tj-dropdown-menu,
+    .tj-user-menu:focus-within .tj-dropdown-menu { display: block; }
+    .tj-user-menu .tj-dropdown-menu { left: auto; right: 0; }
+    .tj-dropdown-item.danger { color: var(--danger); }
+    .tj-dropdown-item.danger i { color: var(--danger); }
+    .tj-dropdown-item.danger:hover { background: #fee2e2; }
+    .tj-dropdown-item.admin { color: var(--warning); }
+    .tj-dropdown-item.admin i { color: var(--warning); }
+
+    .tj-mobile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    @media (min-width: 992px) { .tj-mobile-toggle { display: none; } }
+
+    .tj-mobile-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1040;
+    }
+    .tj-mobile-drawer.open { display: block; }
+
+    .tj-mobile-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      backdrop-filter: blur(2px);
+    }
+    .tj-mobile-panel {
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: min(300px, 85vw);
+      background: var(--surface);
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .tj-mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .tj-mobile-close {
+      width: 34px; height: 34px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+    .tj-mobile-link {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      padding: .7rem .875rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--text);
+      text-decoration: none;
+      transition: background var(--transition);
+    }
+    .tj-mobile-link:hover { background: var(--surface-muted); color: var(--text); }
+    .tj-mobile-link i { font-size: .95rem; color: var(--text-muted); width: 18px; }
+    .tj-mobile-link.strong { font-weight: 700; }
+    .tj-mobile-link.danger { color: var(--danger); }
+    .tj-mobile-link.danger i { color: var(--danger); }
+    .tj-mobile-link.admin-link { color: var(--warning); }
+    .tj-mobile-link.admin-link i { color: var(--warning); }
+    .tj-mobile-divider {
+      height: 1px;
+      background: var(--border);
+      margin: .375rem 0;
+    }
+    .tj-mobile-section-label {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: .5rem .875rem .25rem;
+    }
+
+    .tj-messages {
+      max-width: 1200px;
+      margin: 1rem auto 0;
+      padding: 0 1.25rem;
+    }
+    .tj-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .875rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid;
+      font-size: .875rem;
+      font-weight: 500;
+      margin-bottom: .625rem;
+      position: relative;
+    }
+    .tj-alert i { font-size: 1rem; flex-shrink: 0; margin-top: .1rem; }
+    .tj-alert-close {
+      position: absolute;
+      top: .625rem; right: .75rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: .9rem;
+      opacity: .5;
+      line-height: 1;
+      padding: 0;
+      transition: opacity var(--transition);
+    }
+    .tj-alert-close:hover { opacity: 1; }
+    /* Django message tags → colores */
+    .tj-alert.success { background: #f0fdf4; border-color: #bbf7d0; color: var(--success); }
+    .tj-alert.error,
+    .tj-alert.danger   { background: #fff1f2; border-color: #fecdd3; color: var(--danger); }
+    .tj-alert.warning  { background: #fefce8; border-color: #fef08a; color: var(--warning); }
+    .tj-alert.info     { background: #eff6ff; border-color: #bfdbfe; color: var(--accent); }
+
+    .tj-main {
+      min-height: calc(100vh - var(--nav-h) - 80px);
+      padding-bottom: 3rem;
+    }
+
+    .tj-footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 1.5rem 1.25rem;
+    }
+    .tj-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .tj-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      text-decoration: none;
+    }
+    .tj-footer-copy {
+      font-size: .8125rem;
+      color: var(--text-muted);
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <!-- Brand -->
-            <a class="navbar-brand" href="{% if user.is_authenticated %}{% if user.rol == 'admin' %}{% url 'usuarios:dashboard_admin' %}{% else %}/{% endif %}{% else %}/{% endif %}">
-                <i class="fas fa-brain me-2"></i>TECH-JUANJO
-            </a>
-            
-            <!-- Toggle button for mobile -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <!-- Navbar Collapse -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <!-- Catálogo Dropdown -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-store me-1"></i>Catálogo
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% for cat in categories %}
-                                <li>
-                                    <a class="dropdown-item" href="/catalogo/?category={{ cat.id }}">
-                                        <i class="fas fa-tag me-2 text-primary"></i>{{ cat.name }}
-                                    </a>
-                                </li>
-                            {% empty %}
-                                <li><span class="dropdown-item-text text-muted px-4">Cargando categorías...</span></li>
-                            {% endfor %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item fw-bold text-primary" href="{% url 'catalogo:product_list' %}">
-                                    <i class="fas fa-list me-2"></i>Ver Todo
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-                
-                <!-- Right side navigation -->
-                <ul class="navbar-nav ms-auto">
-                    <!-- Carrito -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="/carrito/">
-                            <span class="cart-icon">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span class="cart-badge {% if not request.session.cart_items %}d-none{% endif %}">                                                  {{ request.session.cart_items|default:0 }}
-                                </span>
-                            </span>
-                        </a>
-                    </li>
-                    
-                    {% if user.is_authenticated %}
-                        <!-- Usuario autenticado -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle user-info" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle me-1"></i>
-                                {{ user.get_nombre_completo|default:user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'usuarios:perfil' %}">
-                                        <i class="fas fa-user me-2"></i>Mi Perfil
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'pedidos:mis_pedidos' %}">
-                                        <i class="fas fa-box me-2"></i>Mis Pedidos
-                                    </a>
-                                </li>
-                                {% if user.rol == 'admin' %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item text-warning" href="{% url 'usuarios:dashboard_admin' %}">
-                                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'usuarios:lista_usuarios' %}">
-                                        <i class="fas fa-users me-2"></i>Gestionar Usuarios
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'pedidos:admin_pedidos' %}">
-                                        <i class="fas fa-clipboard-list me-2"></i>Pedidos Admin
-                                    </a>
-                                </li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'usuarios:logout' %}">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <!-- Usuario no autenticado -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'usuarios:login' %}">
-                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-outline-light ms-2" href="{% url 'usuarios:registro' %}">
-                                <i class="fas fa-user-plus me-1"></i>Registrarse
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <main class="container-fluid px-4 px-lg-5 mt-4 mb-5">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-4 shadow-sm" role="alert">
-                    <i class="fas fa-{{ message.extra_tags|default:'info-circle' }} me-2"></i>
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+
+  <nav class="tj-nav">
+    <div class="tj-nav-inner">
+
+      <!-- Brand -->
+      <a class="tj-brand" href="{% if user.is_authenticated and user.rol == 'admin' %}{% url 'usuarios:dashboard_admin' %}{% else %}/{% endif %}">
+        <div class="tj-brand-logo">TJ</div>
+        <span class="tj-brand-name">TECH-JUANJO</span>
+      </a>
+
+      <!-- Desktop links -->
+      <div class="tj-nav-links">
+        <!-- Catálogo dropdown -->
+        <div class="tj-dropdown">
+          <a class="tj-nav-link" href="{% url 'catalogo:product_list' %}" tabindex="0">
+            <i class="bi bi-grid-3x3-gap"></i>
+            Catálogo
+            <i class="bi bi-chevron-down" style="font-size:.65rem; margin-left:.1rem;"></i>
+          </a>
+          <div class="tj-dropdown-menu">
+            {% for cat in categories %}
+              <a class="tj-dropdown-item" href="/catalogo/?category={{ cat.id }}">
+                <i class="bi bi-tag"></i>{{ cat.name }}
+              </a>
+            {% empty %}
+              <span class="tj-dropdown-item" style="color:var(--text-muted); pointer-events:none;">
+                <i class="bi bi-hourglass"></i>Cargando…
+              </span>
             {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+            <div class="tj-dropdown-divider"></div>
+            <a class="tj-dropdown-item strong" href="{% url 'catalogo:product_list' %}">
+              <i class="bi bi-list-ul"></i>Ver todo el catálogo
+            </a>
+          </div>
+        </div>
+      </div>
 
-    {% block extra_js %}{% endblock %}
+      <!-- Right side -->
+      <div class="tj-nav-right">
+
+        <!-- Cart -->
+        <a class="tj-cart-btn d-none d-lg-flex" href="/carrito/" title="Carrito">
+          <i class="bi bi-bag"></i>
+          <span class="tj-cart-count {% if not request.session.cart_items %}d-none{% endif %}">
+            {{ request.session.cart_items|default:0 }}
+          </span>
+        </a>
+
+        
+        {% if user.is_authenticated %}
+          <!-- User dropdown -->
+          <div class="tj-user-menu">
+            <button class="tj-user-trigger" tabindex="0" type="button">
+              <div class="tj-user-avatar">
+                {{ user.get_nombre_completo|default:user.username|slice:":1"|upper }}
+              </div>
+              <span class="tj-user-name d-none d-sm-block">
+                {{ user.get_nombre_completo|default:user.username }}
+              </span>
+              <i class="bi bi-chevron-down" style="font-size:.65rem;"></i>
+            </button>
+            <div class="tj-dropdown-menu">
+              <a class="tj-dropdown-item" href="{% url 'usuarios:perfil' %}">
+                <i class="bi bi-person"></i>Mi Perfil
+              </a>
+              <a class="tj-dropdown-item" href="{% url 'pedidos:mis_pedidos' %}">
+                <i class="bi bi-box"></i>Mis Pedidos
+              </a>
+              {% if user.rol == 'admin' %}
+              <div class="tj-dropdown-divider"></div>
+              <a class="tj-dropdown-item admin" href="{% url 'usuarios:dashboard_admin' %}">
+                <i class="bi bi-speedometer2"></i>Dashboard Admin
+              </a>
+              <a class="tj-dropdown-item admin" href="{% url 'usuarios:lista_usuarios' %}">
+                <i class="bi bi-people"></i>Gestionar Usuarios
+              </a>
+              <a class="tj-dropdown-item admin" href="{% url 'pedidos:admin_pedidos' %}">
+                <i class="bi bi-clipboard-data"></i>Pedidos Admin
+              </a>
+              {% endif %}
+              <div class="tj-dropdown-divider"></div>
+              <a class="tj-dropdown-item danger" href="{% url 'usuarios:logout' %}">
+                <i class="bi bi-box-arrow-right"></i>Cerrar Sesión
+              </a>
+            </div>
+          </div>
+
+        {% else %}
+          <a class="tj-btn-ghost" href="{% url 'usuarios:login' %}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span class="d-none d-sm-inline">Ingresar</span>
+          </a>
+          <a class="tj-btn-solid" href="{% url 'usuarios:registro' %}">
+            <i class="bi bi-person-plus"></i>
+            <span class="d-none d-sm-inline">Registrarse</span>
+          </a>
+        {% endif %}
+
+        <!-- Mobile toggle -->
+        <button class="tj-mobile-toggle" id="mobileToggle" aria-label="Abrir menú">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="tj-mobile-drawer" id="mobileDrawer">
+    <div class="tj-mobile-overlay" id="mobileOverlay"></div>
+    <div class="tj-mobile-panel">
+      <div class="tj-mobile-header">
+        <a class="tj-brand" href="/">
+          <div class="tj-brand-logo">TJ</div>
+          <span class="tj-brand-name">TECH-JUANJO</span>
+        </a>
+        <button class="tj-mobile-close" id="mobileClose">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <!-- Categories -->
+      <div class="tj-mobile-section-label">Catálogo</div>
+      {% for cat in categories %}
+        <a class="tj-mobile-link" href="/catalogo/?category={{ cat.id }}">
+          <i class="bi bi-tag"></i>{{ cat.name }}
+        </a>
+      {% endfor %}
+      <a class="tj-mobile-link strong" href="{% url 'catalogo:product_list' %}">
+        <i class="bi bi-grid-3x3-gap"></i>Ver todo el catálogo
+      </a>
+
+      <div class="tj-mobile-divider"></div>
+
+      <!-- Cart -->
+      <a class="tj-mobile-link" href="/carrito/">
+        <i class="bi bi-bag"></i>
+        Carrito
+        {% if request.session.cart_items %}
+          <span style="margin-left:auto; background:var(--danger); color:#fff; border-radius:99px; font-size:.7rem; font-weight:700; padding:.1rem .45rem;">
+            {{ request.session.cart_items }}
+          </span>
+        {% endif %}
+      </a>
+
+      <div class="tj-mobile-divider"></div>
+
+      {% if user.is_authenticated %}
+        <div class="tj-mobile-section-label">Mi cuenta</div>
+        <a class="tj-mobile-link" href="{% url 'usuarios:perfil' %}">
+          <i class="bi bi-person"></i>Mi Perfil
+        </a>
+        <a class="tj-mobile-link" href="{% url 'pedidos:mis_pedidos' %}">
+          <i class="bi bi-box"></i>Mis Pedidos
+        </a>
+        {% if user.rol == 'admin' %}
+          <div class="tj-mobile-divider"></div>
+          <div class="tj-mobile-section-label">Administración</div>
+          <a class="tj-mobile-link admin-link" href="{% url 'usuarios:dashboard_admin' %}">
+            <i class="bi bi-speedometer2"></i>Dashboard Admin
+          </a>
+          <a class="tj-mobile-link admin-link" href="{% url 'usuarios:lista_usuarios' %}">
+            <i class="bi bi-people"></i>Gestionar Usuarios
+          </a>
+          <a class="tj-mobile-link admin-link" href="{% url 'pedidos:admin_pedidos' %}">
+            <i class="bi bi-clipboard-data"></i>Pedidos Admin
+          </a>
+        {% endif %}
+        <div class="tj-mobile-divider"></div>
+        <a class="tj-mobile-link danger" href="{% url 'usuarios:logout' %}">
+          <i class="bi bi-box-arrow-right"></i>Cerrar Sesión
+        </a>
+      {% else %}
+        <a class="tj-mobile-link" href="{% url 'usuarios:login' %}">
+          <i class="bi bi-box-arrow-in-right"></i>Iniciar Sesión
+        </a>
+        <a class="tj-mobile-link strong" href="{% url 'usuarios:registro' %}">
+          <i class="bi bi-person-plus"></i>Registrarse
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if messages %}
+  <div class="tj-messages">
+    {% for message in messages %}
+    <div class="tj-alert {{ message.tags }}">
+      <i class="bi bi-{% if 'success' in message.tags %}check-circle-fill{% elif 'error' in message.tags or 'danger' in message.tags %}x-circle-fill{% elif 'warning' in message.tags %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+      <span>{{ message }}</span>
+      <button class="tj-alert-close" onclick="this.parentElement.remove()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="tj-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="tj-footer">
+    <div class="tj-footer-inner">
+      <a class="tj-footer-brand" href="/">
+        <div class="tj-brand-logo">TJ</div>
+        <span class="tj-brand-name">TECH-JUANJO</span>
+      </a>
+      <p class="tj-footer-copy mb-0">
+        © {% now "Y" %} TECH-JUANJO · Todos los derechos reservados.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS (para colapsos si quedan) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* ── Mobile drawer ── */
+    const drawer  = document.getElementById('mobileDrawer');
+    const overlay = document.getElementById('mobileOverlay');
+    const toggle  = document.getElementById('mobileToggle');
+    const close   = document.getElementById('mobileClose');
+
+    function openDrawer()  { drawer.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function closeDrawer() { drawer.classList.remove('open'); document.body.style.overflow = ''; }
+
+    toggle?.addEventListener('click', openDrawer);
+    close?.addEventListener('click', closeDrawer);
+    overlay?.addEventListener('click', closeDrawer);
+
+    /* ESC closes drawer */
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+  </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>
