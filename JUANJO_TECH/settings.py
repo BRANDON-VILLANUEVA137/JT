@@ -30,7 +30,7 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-lp9#&x@q*w3z!p7k_5n0m2v8r^4t1y+u6h9j$o3i2a5s7d%f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -134,18 +134,29 @@ LOGOUT_REDIRECT_URL = '/login/'
 SESSION_COOKIE_AGE = 120
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Static/Media
+# Static files (local)
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+# Render auto serves static from STATIC_ROOT
+
+# ================================
+# MEDIA FILES (Cloudinary vs Local)
+# ================================
+
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'  # opcional
 
 # Cloudinary config
 CLOUDINARY_STORAGE = {
-'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET')
 }
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
