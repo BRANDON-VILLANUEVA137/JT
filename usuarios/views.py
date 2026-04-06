@@ -98,6 +98,9 @@ def cambiar_password_view(request):
         form = PasswordChangeCustomForm(request.user, request.POST)
         if form.is_valid():
             form.save()
+            # Force update password field
+            form.request_user.set_password(form.cleaned_data['new_password1'])
+            form.request_user.save(update_fields=['password'])
             messages.success(request, 'Contraseña cambiada exitosamente.')
             logout(request)
             return redirect('usuarios:login')
