@@ -1,184 +1,487 @@
 {% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Dashboard Admin - TECH-JUANJO{% endblock %}
 
-{% block title %}Dashboard Admin - E-commerce{% endblock %}
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --surface-glass: rgba(255,255,255,.85);
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --accent:        #2563eb;
+    --success:       #16a34a;
+    --warning:       #ca8a04;
+    --danger:        #dc2626;
+    --radius:        16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07);
+    --shadow:        0 4px 12px rgba(0,0,0,.08);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1);
+    --gradient-admin: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+    --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    --gradient-info: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+  }
+
+  .da-hero {
+    background: var(--gradient-admin);
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    padding: 4.5rem 0 4rem;
+  }
+  .da-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    animation: float 25s ease-in-out infinite;
+  }
+  .da-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+  .da-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    margin: 0 0 1rem;
+  }
+  .da-hero-subtitle {
+    font-size: 1.125rem;
+    color: rgba(255,255,255,.85);
+    margin: 0 0 .5rem;
+  }
+  .da-admin-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1.125rem;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 99px;
+    font-size: .8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.95);
+    margin-left: auto;
+    backdrop-filter: blur(10px);
+  }
+  .da-admin-tag i { animation: pulse 2s infinite; }
+
+  .da-metrics {
+    margin: 3.5rem 0 4rem;
+    padding: 0 1.25rem;
+  }
+  .da-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .da-metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .da-metric-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+  .da-metric-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2rem;
+    background: conic-gradient(from 0deg, var(--success) 0deg 90deg, var(--warning) 90deg 180deg, var(--danger) 180deg 270deg, var(--accent) 270deg 360deg);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px) 0, black 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: .05;
+    pointer-events: none;
+  }
+  .da-metric-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    position: relative;
+    z-index: 1;
+  }
+  .da-metric-users .da-metric-icon { background: var(--gradient-success); color: #fff; }
+  .da-metric-pedidos .da-metric-icon { background: var(--gradient-info); color: #fff; }
+  .da-metric-pendientes .da-metric-icon { background: var(--gradient-warning); color: #fff; }
+  .da-metric-ventas .da-metric-icon { background: var(--gradient-primary); color: #1d1d1d; }
+
+  .da-metric-content h3 {
+    font-family: var(--font-display);
+    font-size: clamp(0.75rem, 3vw, 1.50rem);
+    font-weight: 200;
+    margin: 0 0 .25rem;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .da-metric-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .da-actions {
+    max-width: 1200px;
+    margin: 0 auto 4rem;
+    padding: 0 1.25rem;
+  }
+  .da-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .da-action-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.25rem 1.75rem;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .da-action-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: .03;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  }
+  .da-action-card:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-lg);
+    color: var(--text);
+  }
+  .da-action-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    position: relative;
+    z-index: 1;
+  }
+  .da-action-pedidos .da-action-icon { background: var(--gradient-info); color: #fff; }
+  .da-action-usuarios .da-action-icon { background: var(--gradient-success); color: #fff; }
+  .da-action-product .da-action-icon { background: var(--gradient-primary); color: #151515; }
+  .da-action-catalogo .da-action-icon { background: var(--gradient-warning); color: #fff; }
+
+  .da-action-title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 .75rem;
+    letter-spacing: -.01em;
+  }
+  .da-action-desc {
+    color: var(--text-muted);
+    font-size: .9rem;
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+  }
+
+  .da-table-section {
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+    padding: 0 1.25rem;
+  }
+  .da-table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .da-table-header {
+    padding: 1.5rem 1.75rem;
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .da-table-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+  }
+
+  .da-table {
+    margin: 0;
+  }
+  .da-table thead th {
+    font-weight: 700;
+    color: var(--text);
+    font-size: .9rem;
+    letter-spacing: .025em;
+    text-transform: uppercase;
+    border: none;
+    padding: 1.25rem 1.75rem .75rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .da-table tbody tr {
+    transition: background var(--transition);
+  }
+  .da-table tbody tr:hover { background: var(--surface-muted); }
+  .da-table td {
+    padding: 1.25rem 1.75rem;
+    border: none;
+    vertical-align: middle;
+  }
+  .da-status-badge {
+    padding: .4rem .875rem;
+    border-radius: 99px;
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .da-status-preparacion { background: rgba(245,101,101,.1); color: #dc2626; }
+  .da-status-enviado { background: rgba(34,197,94,.1); color: var(--success); }
+  .da-status-reparto { background: rgba(251,191,36,.1); color: var(--warning); }
+  .da-status-entregado { background: rgba(16,185,129,.1); color: var(--success); }
+  .da-status-cancelado { background: rgba(107,114,128,.1); color: var(--text-muted); }
+
+  .da-btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .5rem 1rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: .825rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background var(--transition), transform var(--transition);
+  }
+  .da-btn-view:hover {
+    background: #222;
+    transform: translateY(-1px);
+    color: #fff;
+  }
+
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  .da-hero-inner > * { animation: fadeUp .6s ease-out; }
+  .da-metric-card { animation: fadeUp .4s ease-out; }
+  .da-metric-card:nth-child(2) { animation-delay: .1s; }
+  .da-metric-card:nth-child(3) { animation-delay: .2s; }
+  .da-metric-card:nth-child(4) { animation-delay: .3s; }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Hero Header -->
-<div class="bg-primary text-white py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="display-4 fw-bold mb-2">
-                    <i class="bi bi-speedometer2 me-3"></i>Panel de Administración
-                </h1>
-                <p class="lead mb-0">Gestiona tu tienda online - Datos en tiempo real</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <span class="badge bg-light text-dark fs-6 px-3 py-2">
-                    Admin: {{ user.get_nombre_completo }}
-                </span>
-            </div>
-        </div>
+<!-- Hero -->
+<section class="da-hero">
+  <div class="da-hero-inner">
+    <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-4">
+      <div>
+        <h1 class="da-hero-title">
+          Panel de Administración
+        </h1>
+        <p class="da-hero-subtitle">
+          Gestiona usuarios, pedidos y productos en tiempo real
+        </p>
+      </div>
+      <div class="da-admin-tag">
+        <i class="bi bi-person-shield"></i>
+        Admin: {{ user.get_nombre_completo|truncatechars:25 }}
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- Metrics -->
+<div class="da-metrics">
+  <div class="da-metrics-grid">
+    <div class="da-metric-card da-metric-users">
+      <div class="da-metric-icon">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div class="da-metric-content">
+        <h3>{{ total_usuarios|default:"0" }}</h3>
+        <p class="da-metric-label">Total Usuarios</p>
+      </div>
+    </div>
+
+    <div class="da-metric-card da-metric-pedidos">
+      <div class="da-metric-icon">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div class="da-metric-content">
+        <h3>{{ total_pedidos|default:"0" }}</h3>
+        <p class="da-metric-label">Total Pedidos</p>
+      </div>
+    </div>
+
+    <div class="da-metric-card da-metric-pendientes">
+      <div class="da-metric-icon">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="da-metric-content">
+        <h3>{{ pedidos_pendientes|default:"0" }}</h3>
+        <p class="da-metric-label">Pendientes</p>
+      </div>
+    </div>
+
+    <div class="da-metric-card da-metric-ventas">
+      <div class="da-metric-icon">
+        <i class="bi bi-currency-dollar"></i>
+      </div>
+      <div class="da-metric-content">
+        <h3>${{ ventas_totales|floatformat:0|intcomma|default:"0" }}</h3>
+        <p class="da-metric-label">Ventas Totales</p>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="container">
-    <!-- Métricas Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="bi bi-people display-6 text-primary"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Usuarios</h6>
-                        <h2 class="fw-bold text-dark mb-0">{{ total_usuarios }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="bi bi-receipt display-6 text-success"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Total Pedidos</h6>
-                        <h2 class="fw-bold text-dark mb-0">{{ total_pedidos }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="bi bi-hourglass-split display-6 text-warning"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Pendientes</h6>
-                        <h2 class="fw-bold text-dark mb-0">{{ pedidos_pendientes }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <div class="card border-0 shadow h-100">
-                <div class="card-body d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <i class="bi bi-currency-dollar display-6 text-info"></i>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="text-muted mb-1">Ventas Totales</h6>
-                        <h2 class="fw-bold text-dark mb-0">${{ ventas_totales|floatformat:0 }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Quick Actions -->
+<div class="da-actions">
+  <div class="da-actions-grid">
+    <a href="{% url 'pedidos:admin_pedidos' %}" class="da-action-card da-action-pedidos">
+      <div class="da-action-icon">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <h3 class="da-action-title">Gestionar Pedidos</h3>
+      <p class="da-action-desc">Ver, editar estados y rastreo de todos los pedidos</p>
+    </a>
 
-    <div class="row g-4 mb-5">
-        <!-- Acciones Grandes -->
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'pedidos:admin_pedidos' %}" class="card border-0 shadow h-100 text-decoration-none text-reset">
-                <div class="card-body d-flex flex-column align-items-center text-center p-4">
-                    <i class="bi bi-receipt display-1 text-primary mb-3"></i>
-                    <h5 class="card-title fw-bold mb-2">Gestionar Pedidos</h5>
-                    <p class="text-muted mb-0">Ver, editar y eliminar pedidos</p>
-                </div>
-            </a>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'usuarios:lista_usuarios' %}" class="card border-0 shadow h-100 text-decoration-none text-reset">
-                <div class="card-body d-flex flex-column align-items-center text-center p-4">
-                    <i class="bi bi-people display-1 text-success mb-3"></i>
-                    <h5 class="card-title fw-bold mb-2">Gestionar Usuarios</h5>
-                    <p class="text-muted mb-0">Listar, crear, editar, eliminar</p>
-                </div>
-            </a>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'catalogo:product_create' %}" class="card border-0 shadow h-100 text-decoration-none text-reset">
-                <div class="card-body d-flex flex-column align-items-center text-center p-4">
-                    <i class="bi bi-shop display-1 text-info mb-3"></i>
-                    <h5 class="card-title fw-bold mb-2">Añadir Producto</h5>
-                    <p class="text-muted mb-0">Añade Producto o Marca</p>
-                </div>
-            </a>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-            <a href="{% url 'catalogo:product_list' %}" class="card border-0 shadow h-100 text-decoration-none text-reset">
-                <div class="card-body d-flex flex-column align-items-center text-center p-4">
-                    <i class="bi bi-gear display-1 text-warning mb-3"></i>
-                    <h5 class="card-title fw-bold mb-2">Gestionar Productos</h5>
-                    <p class="text-muted mb-0">Catálogo y inventario</p>
-                </div>
-            </a>
-        </div>
-    </div>
+    <a href="{% url 'usuarios:lista_usuarios' %}" class="da-action-card da-action-usuarios">
+      <div class="da-action-icon">
+        <i class="bi bi-people"></i>
+      </div>
+      <h3 class="da-action-title">Usuarios</h3>
+      <p class="da-action-desc">Listar, crear, editar y bloquear cuentas</p>
+    </a>
 
-    <!-- Pedidos Recientes -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="bi bi-clock-history me-2"></i>Pedidos Recientes
-                    </h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Cliente</th>
-                                    <th>Total</th>
-                                    <th>Estado</th>
-                                    <th>Fecha</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for pedido in pedidos_recientes %}
-                                <tr>
-                                    <td><strong>#{{ pedido.id }}</strong></td>
-                                    <td>{{ pedido.user.get_nombre_completo|truncatechars:20 }}</td>
-                                    <td><strong>${{ pedido.total|floatformat:0 }}</strong></td>
-                                    <td>
-                                        <span class="badge bg-{{ pedido.estado|lower }}">
-                                            {{ pedido.get_estado_display }}
-                                        </span>
-                                    </td>
-                                    <td>{{ pedido.fecha_creacion|date:"d M Y H:i" }}</td>
-                                    <td>
-                                        <a href="{% url 'pedidos:admin_pedidos' %}#pedido-{{ pedido.id }}" class="btn btn-sm btn-outline-primary">
-                                            Ver
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="6" class="text-center py-4 text-muted">
-                                        <i class="bi bi-inbox display-6 mb-2 d-block"></i>
-                                        No hay pedidos recientes
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <a href="{% url 'catalogo:product_create' %}" class="da-action-card da-action-product">
+      <div class="da-action-icon">
+        <i class="bi bi-plus-circle"></i>
+      </div>
+      <h3 class="da-action-title">Nuevo Producto</h3>
+      <p class="da-action-desc">Añade productos, categorías y marcas al catálogo</p>
+    </a>
+
+    <a href="{% url 'catalogo:product_list' %}" class="da-action-card da-action-catalogo">
+      <div class="da-action-icon">
+        <i class="bi bi-shop"></i>
+      </div>
+      <h3 class="da-action-title">Catálogo</h3>
+      <p class="da-action-desc">Gestiona inventario, precios y disponibilidad</p>
+    </a>
+  </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div class="da-table-section">
+  <div class="da-table-card">
+    <div class="da-table-header">
+      <h2 class="da-table-title">
+        <i class="bi bi-clock-history me-2"></i>
+        Pedidos Recientes
+      </h2>
     </div>
+    <div class="table-responsive">
+      <table class="table da-table mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos_recientes %}
+          <tr>
+            <td><strong>#{{ pedido.id }}</strong></td>
+            <td>{{ pedido.user.get_nombre_completo|truncatechars:20 }}</td>
+            <td><strong>${{ pedido.total|floatformat:0|intcomma }}</strong></td>
+            <td>
+              <span class="da-status-badge da-status-{{ pedido.estado }}">
+                {{ pedido.get_estado_display }}
+              </span>
+            </td>
+            <td>{{ pedido.fecha_creacion|date:"d M Y H:i" }}</td>
+            <td>
+              <a href="{% url 'pedidos:admin_edit_pedido' pedido.id %}" class="da-btn-view">
+                <i class="bi bi-pencil me-1"></i>Ver/Editar
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <i class="bi bi-inbox2-fill" style="font-size:3rem; opacity:.3;"></i>
+              <p class="mt-2 mb-0 text-muted">No hay pedidos recientes</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %}
+
