@@ -1,120 +1,314 @@
 {% extends 'base.html' %}
-{% block title %}Mis Pedidos{% endblock %}
+{% load humanize %}
+
+{% block title %}Mis Pedidos - TECH-JUANJO{% endblock %}
+
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+
+  /* Exact base vars */
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --accent:        #2563eb;
+    --success:       #16a34a;
+    --warning:       #ca8a04;
+    --danger:        #dc2626;
+    --radius-sm:     6px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07);
+    --shadow:        0 4px 12px rgba(0,0,0,.08);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  body { font-family: var(--font-body); }
+
+.mp-wrap { 
+  max-width: 1100px; /* 🔽 menos ancho */
+  margin: 2.5rem auto; 
+  padding: 0 1.25rem; 
+}
+
+/* HERO MEJORADO */
+.mp-hero {
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.75rem;
+  margin-bottom: 2.25rem;
+  box-shadow: var(--shadow);
+}
+.mp-hero-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.mp-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  margin: 0;
+}
+.mp-hero-count {
+  font-size: .85rem;
+  opacity: .8;
+}
+
+/* TABS MEJORADAS */
+.nav-tabs {
+  border: none;
+  gap: .5rem;
+}
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.nav-tabs .nav-link.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* GRID */
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+/* CARD MODERNA */
+.mp-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0,0,0,.04);
+  transition: all var(--transition);
+}
+.mp-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* HEADER BIEN ALINEADO */
+.mp-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: var(--surface-muted);
+}
+
+.mp-id {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.mp-status {
+  font-size: .7rem;
+  padding: .3rem .65rem;
+}
+
+/* BODY */
+.mp-card-body { 
+  padding: 1.25rem; 
+}
+
+/* DETALLES */
+.mp-details-grid {
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.mp-label {
+  font-size: .65rem;
+}
+
+.mp-value-total { 
+  font-size: 1.5rem; /* 🔥 más protagonista */
+  color: var(--primary);
+}
+
+/* TRACKING MÁS LIMPIO */
+.mp-tracking {
+  background: rgba(37,99,235,.05);
+  border: 1px solid rgba(37,99,235,.15);
+  padding: .85rem;
+}
+
+/* ITEMS MÁS COMPACTOS */
+.mp-item {
+  padding: .65rem 0;
+}
+.mp-item-name {
+  font-size: .9rem;
+}
+.mp-item-meta {
+  font-size: .75rem;
+}
+
+/* FOOTER MEJOR */
+.mp-footer {
+  padding: .85rem;
+  background: var(--surface-muted);
+}
+
+.mp-btn-cancel {
+  font-size: .8rem;
+  padding: .4rem .8rem;
+}
+
+/* EMPTY MÁS BONITO */
+.mp-empty {
+  padding: 3rem 1.5rem;
+}
+.mp-empty i {
+  font-size: 3rem;
+}
+
+
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .mp-card { animation: fadeUp .35s ease-out both; }
+  .mp-card:nth-child(2) { animation-delay: .1s; }
+  .mp-card:nth-child(3) { animation-delay: .2s; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">
-        <i class="bi bi-receipt"></i> Mis Pedidos ({{ total_pedidos }})
-    </h2>
+<div class="mp-wrap">
 
-    {% if total_pedidos == 0 %}
-    <div class="alert alert-info text-center">
-        <i class="bi bi-inbox display-4 mb-3"></i>
-        <h4>No tienes pedidos aún</h4>
-        <p>Realiza tu primera compra en el catálogo.</p>
-        <a href="/" class="btn btn-primary">Ir al Catálogo</a>
+  <!-- Hero -->
+  <div class="mp-hero">
+    <div class="mp-hero-inner">
+      <h1 class="mp-hero-title">
+        <i class="bi bi-receipt" style="opacity:.8; margin-right:.5rem;"></i>
+        Mis Pedidos
+      </h1>
+      <span class="mp-hero-count">{{ total_pedidos }} pedido{{ total_pedidos|pluralize }}</span>
     </div>
-    {% else %}
+  </div>
 
-    <!-- Tabs por estado -->
-    <ul class="nav nav-tabs mb-4" id="pedidosTabs" role="tablist">
-        {% for estado in estados_data %}
-        <li class="nav-item" role="presentation">
-            <button class="nav-link {% if forloop.first %}active{% endif %}" 
-                    id="tab-{{ estado.key|slugify }}" 
-                    data-bs-toggle="tab" 
-                    data-bs-target="#panel-{{ estado.key|slugify }}" 
-                    type="button" role="tab">
-                {{ estado.label }} ({{ estado.pedidos|length }})
-            </button>
-        </li>
-        {% endfor %}
+  {% if total_pedidos == 0 %}
+    <div class="mp-empty">
+      <i class="bi bi-inbox2"></i>
+      <h3>No tienes pedidos aún</h3>
+      <p>Realiza tu primera compra en el <a href="/" style="color:var(--accent);">catálogo</a>.</p>
+    </div>
+  {% else %}
+
+    <!-- Tabs native BS minimal -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      {% for estado in estados_data %}
+      <li class="nav-item" role="presentation">
+        <button class="nav-link{% if forloop.first %} active{% endif %} px-3 py-2" 
+          id="tab{{ forloop.counter }}" data-bs-toggle="tab" data-bs-target="#panel-{{ estado.key|slugify }}" 
+          type="button" role="tab">
+          {{ estado.label }}
+          <span class="badge bg-muted ms-1">{{ estado.pedidos|length }}</span>
+        </button>
+      </li>
+      {% endfor %}
     </ul>
 
-    <div class="tab-content" id="pedidosTabContent">
-        {% for estado in estados_data %}
-        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
-             id="panel-{{ estado.key|slugify }}" role="tabpanel">
-            
-            <div class="row g-4">
-                {% for pedido in estado.pedidos %}
-                <div class="col-lg-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <strong>Pedido #{{ pedido.id }}</strong>
-                            <span class="badge bg-{{ pedido.estado|lower }}">
-                                {{ pedido.get_estado_display }}
-                            </span>
-                        </div>
-
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <small class="text-muted">Fecha</small>
-                                    <p class="mb-2">{{ pedido.fecha_creacion|date:"d M Y H:i" }}</p>
-                                    <small class="text-muted">Total</small>
-                                    <h5 class="text-primary mb-2">${{ pedido.total }}</h5>
-                                </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted">Envío a</small>
-                                    <p class="mb-2">{{ pedido.direccion|truncatewords:8 }}</p>
-                                    <p class="mb-0"><i class="bi bi-telephone"></i> {{ pedido.telefono }}</p>
-                            </div>
-                            </div>
-                            
-                            {% if pedido.numero_guia or pedido.orden_flete_pdf %}
-                            <hr class="my-3">
-                            <h6><i class="bi bi-truck"></i> Seguimiento de Envío</h6>
-                            <div class="alert alert-success" role="alert">
-                                {% if pedido.numero_guia %}
-                                <strong>Nº Guía:</strong> {{ pedido.numero_guia }}<br>
-                                {% endif %}
-                                {% if pedido.orden_flete_pdf %}
-                                <a href="{{ pedido.orden_flete_pdf.url }}" target="_blank" class="btn btn-sm btn-outline-success mt-1">
-                                    <i class="bi bi-file-earmark-pdf"></i> Ver PDF Flete
-                                </a>
-                                {% endif %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if pedido.items.exists %}
-                            <hr>
-                            <h6>Productos:</h6>
-                            <ul class="list-unstyled">
-                                {% for item in pedido.items.all %}
-                                <li class="mb-1">
-                                    {{ item.cantidad }}x {{ item.product.name|default:"Producto eliminado" }} 
-                                    <small class="text-muted">(${{ item.precio_unitario }} c/u)</small>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                        </div>
-
-                        <div class="card-footer bg-light">
-                            {% if pedido.estado == 'preparacion' %}
-                            <a href="{% url 'pedidos:cancelar_pedido' pedido.id %}" class="btn btn-outline-danger btn-sm">
-                                <i class="bi bi-x-circle"></i> Cancelar Pedido
-                            </a>
-                            {% else %}
-                            <span class="text-muted small">No editable</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        <div class="mb-3">
-                            No hay pedidos en {{ estado.label|lower }}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+    <div class="tab-content">
+      {% for estado in estados_data %}
+      <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="panel-{{ estado.key|slugify }}">
+        <div class="mp-grid">
+          {% for pedido in estado.pedidos %}
+          <div class="mp-card">
+            <div class="mp-card-header">
+              <span class="mp-id">Pedido #{{ pedido.id }}</span>
+              <span class="mp-status mp-status-{{ pedido.estado }}">
+                {{ pedido.get_estado_display }}
+              </span>
             </div>
+            <div class="mp-card-body">
+              <div class="mp-details-grid">
+                <div class="mp-detail">
+                  <span class="mp-label">Fecha</span>
+                  <p class="mp-value">{{ pedido.fecha_creacion|date:"d MMM y, H:i" }}</p>
+                </div>
+                <div class="mp-detail">
+                  <span class="mp-label">Total</span>
+                  <p class="mp-value-total">${{ pedido.total|floatformat:0|intcomma }}</p>
+                </div>
+                <div class="mp-detail">
+                  <span class="mp-label">Teléfono</span>
+                  <p class="mp-value">
+                    <i class="bi bi-telephone mp-icon"></i>{{ pedido.telefono }}
+                  </p>
+                </div>
+                <div class="mp-detail">
+                  <span class="mp-label">Dirección</span>
+                  <p class="mp-value">{{ pedido.direccion|truncatechars:60 }}</p>
+                </div>
+              </div>
+
+              {% if pedido.numero_guia or pedido.orden_flete_pdf %}
+              <div class="mp-tracking">
+                <span class="mp-tracking-label">Seguimiento</span>
+                <div class="mp-guia">{{ pedido.numero_guia }}</div>
+                {% if pedido.orden_flete_pdf %}
+                <a href="{{ pedido.orden_flete_pdf.url }}" target="_blank" class="mp-pdf-btn">
+                  <i class="bi bi-file-earmark-pdf"></i> PDF Flete
+                </a>
+                {% endif %}
+              </div>
+              {% endif %}
+
+              {% if pedido.items.exists %}
+              <h6 class="mp-items-title">
+                <i class="bi bi-box-seam"></i>
+                Productos ({{ pedido.items.count }})
+              </h6>
+              {% for item in pedido.items.all %}
+              <div class="mp-item">
+                <div>
+                  <div class="mp-item-name">{{ item.cantidad }}x {{ item.product.name|default:"Producto eliminado" }}</div>
+                  <div class="mp-item-meta">${{ item.precio_unitario }} c/u • ${{ item.subtotal|floatformat:0 }}</div>
+                </div>
+              </div>
+              {% endfor %}
+              {% endif %}
+            </div>
+
+            <div class="mp-footer">
+              {% if pedido.estado == 'preparacion' %}
+              <a href="{% url 'pedidos:cancelar_pedido' pedido.id %}" class="mp-btn-cancel">
+                <i class="bi bi-x-circle"></i> Cancelar
+              </a>
+              {% else %}
+              <span style="color:var(--text-muted); font-size:.85rem;">Estado finalizado</span>
+              {% endif %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="mp-empty" style="grid-column: 1 / -1;">
+            <i class="bi bi-receipt-x"></i>
+            No hay pedidos en {{ estado.label|lower }}
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
+      </div>
+      {% endfor %}
     </div>
-    {% endif %}
+
+  {% endif %}
+
 </div>
 {% endblock %}
+
