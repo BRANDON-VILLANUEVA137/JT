@@ -126,7 +126,7 @@ USE_TZ = True
 
 # Auth
 AUTH_USER_MODEL = 'usuarios.Usuario'
-LOGIN_URL = '/login/'
+LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
