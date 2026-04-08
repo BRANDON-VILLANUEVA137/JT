@@ -1,487 +1,809 @@
 {% extends 'base.html' %}
 {% load humanize %}
-{% block title %}Dashboard Admin - TECH-JUANJO{% endblock %}
+{% block title %}Dashboard Admin — TECH-JUANJO{% endblock %}
 
 {% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@600;700;800&display=swap');
 
+  /* ── Variables ─────────────────────────────────────── */
   :root {
-    --bg:            #f7f7f5;
-    --surface:       #ffffff;
-    --surface-muted: #f2f2f0;
-    --surface-glass: rgba(255,255,255,.85);
-    --border:        #e5e5e3;
-    --text:          #111110;
-    --text-muted:    #6b6b68;
-    --primary:       #111110;
-    --accent:        #2563eb;
-    --success:       #16a34a;
-    --warning:       #ca8a04;
-    --danger:        #dc2626;
-    --radius:        16px;
-    --shadow-sm:     0 1px 3px rgba(0,0,0,.07);
-    --shadow:        0 4px 12px rgba(0,0,0,.08);
-    --shadow-lg:     0 12px 32px rgba(0,0,0,.1);
-    --gradient-admin: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
-    --gradient-warning: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-    --gradient-info: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-    --transition:    180ms cubic-bezier(.4,0,.2,1);
-    --font-body:     'DM Sans', system-ui, sans-serif;
-    --font-display:  'Syne', system-ui, sans-serif;
+    --bg:           #f4f4f1;
+    --surface:      #ffffff;
+    --border:       #e8e8e5;
+    --text:         #111110;
+    --text-muted:   #72726e;
+    --accent:       #2563eb;
+    --success:      #16a34a;
+    --warning:      #ca8a04;
+    --danger:       #dc2626;
+    --r:            14px;
+    --r-sm:         8px;
+    --shadow-sm:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow:       0 4px 16px rgba(0,0,0,.07);
+    --grad-hero:    linear-gradient(135deg, #1a2235 0%, #0f1623 100%);
+    --grad-revenue: linear-gradient(135deg, #10b981, #059669);
+    --grad-conv:    linear-gradient(135deg, #f59e0b, #d97706);
+    --grad-ok:      linear-gradient(135deg, #059669, #047857);
+    --font:         'DM Sans', system-ui, sans-serif;
+    --font-display: 'Syne', system-ui, sans-serif;
+    --ease:         cubic-bezier(.4,0,.2,1);
   }
 
-  body {
-    font-family: var(--font-body);
-    background: var(--bg);
-  }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); }
 
+  /* ── Hero ──────────────────────────────────────────── */
   .da-hero {
-    background: var(--gradient-admin);
+    background: var(--grad-hero);
+    color: #fff;
+    padding: 3.5rem 0 2.5rem;
     position: relative;
     overflow: hidden;
-    color: #fff;
-    padding: 4.5rem 0 4rem;
   }
   .da-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
-    background-size: 32px 32px;
-    animation: float 25s ease-in-out infinite;
+    background: radial-gradient(ellipse 80% 60% at 70% 40%, rgba(37,99,235,.18) 0%, transparent 70%);
+    pointer-events: none;
   }
   .da-hero-inner {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 0 auto;
-    padding: 0 1.25rem;
+    padding: 0 2rem;
+    position: relative;
   }
   .da-hero-title {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
     font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -.03em;
-    margin: 0 0 1rem;
+    letter-spacing: -.02em;
+    margin: 0 0 .4rem;
+    line-height: 1.15;
   }
   .da-hero-subtitle {
-    font-size: 1.125rem;
-    color: rgba(255,255,255,.85);
-    margin: 0 0 .5rem;
+    color: rgba(255,255,255,.55);
+    font-size: .9rem;
+    margin: 0;
+    font-weight: 400;
   }
   .da-admin-tag {
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
-    padding: .5rem 1.125rem;
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.25);
+    gap: .4rem;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
     border-radius: 99px;
+    padding: .3rem .85rem;
+    font-size: .8rem;
+    font-weight: 500;
+    color: rgba(255,255,255,.8);
+    margin-bottom: .75rem;
+  }
+
+  /* ── Filtros ───────────────────────────────────────── */
+  .da-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    margin-top: .5rem;
+  }
+  .da-filter-group label {
     font-size: .8rem;
     font-weight: 600;
-    color: rgba(255,255,255,.95);
-    margin-left: auto;
-    backdrop-filter: blur(10px);
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 0;
   }
-  .da-admin-tag i { animation: pulse 2s infinite; }
+  .da-filter-select,
+  .da-date-input {
+    padding: .45rem .8rem;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #fff;
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .15s var(--ease), background .15s var(--ease);
+  }
+  .da-filter-select:focus,
+  .da-date-input:focus {
+    outline: none;
+    border-color: rgba(255,255,255,.4);
+    background: rgba(255,255,255,.13);
+  }
+  .da-date-input { color-scheme: dark; }
+  #custom-dates {
+    display: none;
+    gap: .5rem;
+    align-items: center;
+  }
+  .da-pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--grad-ok);
+    border: none;
+    color: #fff;
+    padding: .45rem 1.1rem;
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s var(--ease), transform .15s var(--ease);
+  }
+  .da-pdf-btn:hover { opacity: .88; transform: translateY(-1px); }
 
-  .da-metrics {
-    margin: 3.5rem 0 4rem;
-    padding: 0 1.25rem;
+  /* ── Layout wrapper ────────────────────────────────── */
+  .da-body {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
   }
+
+  /* ── Sección título ────────────────────────────────── */
+  .da-section-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  /* ── KPI Grid ──────────────────────────────────────── */
   .da-metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
   }
   .da-metric-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.75rem;
+    border-radius: var(--r);
+    padding: 1.35rem 1.5rem;
     display: flex;
-    align-items: center;
-    gap: 1.25rem;
+    align-items: flex-start;
+    gap: 1rem;
     box-shadow: var(--shadow-sm);
-    transition: transform var(--transition), box-shadow var(--transition);
-    position: relative;
-    overflow: hidden;
+    transition: box-shadow .2s var(--ease), transform .2s var(--ease);
   }
   .da-metric-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-  }
-  .da-metric-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 2rem;
-    background: conic-gradient(from 0deg, var(--success) 0deg 90deg, var(--warning) 90deg 180deg, var(--danger) 180deg 270deg, var(--accent) 270deg 360deg);
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px) 0, black 0);
-    mask-composite: xor;
-    -webkit-mask-composite: xor;
-    opacity: .05;
-    pointer-events: none;
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
   }
   .da-metric-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(0,0,0,.12);
-    position: relative;
-    z-index: 1;
+    background: var(--bg);
+    color: var(--text-muted);
   }
-  .da-metric-users .da-metric-icon { background: var(--gradient-success); color: #fff; }
-  .da-metric-pedidos .da-metric-icon { background: var(--gradient-info); color: #fff; }
-  .da-metric-pendientes .da-metric-icon { background: var(--gradient-warning); color: #fff; }
-  .da-metric-ventas .da-metric-icon { background: var(--gradient-primary); color: #1d1d1d; }
+  .da-metric-revenue  .da-metric-icon { background: var(--grad-revenue); color: #fff; }
+  .da-metric-conversion .da-metric-icon { background: var(--grad-conv); color: #fff; }
+  .da-metric-pendientes .da-metric-icon { background: linear-gradient(135deg,#f97316,#ea580c); color:#fff; }
+  .da-metric-users .da-metric-icon { background: linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; }
+  .da-metric-pedidos .da-metric-icon { background: linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; }
 
   .da-metric-content h3 {
     font-family: var(--font-display);
-    font-size: clamp(0.75rem, 3vw, 1.50rem);
-    font-weight: 200;
-    margin: 0 0 .25rem;
-    line-height: 1;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 .15rem;
     letter-spacing: -.02em;
+    line-height: 1;
   }
   .da-metric-label {
-    font-size: .85rem;
-    font-weight: 600;
+    font-size: .78rem;
     color: var(--text-muted);
-    letter-spacing: .025em;
-    text-transform: uppercase;
     margin: 0;
+    font-weight: 500;
   }
 
-  .da-actions {
-    max-width: 1200px;
-    margin: 0 auto 4rem;
-    padding: 0 1.25rem;
+  /* ── Charts ────────────────────────────────────────── */
+  .da-charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
   }
+  .da-chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .da-chart-header {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .da-chart-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+  }
+  .da-chart-canvas { max-height: 260px; width: 100%; }
+
+  /* ── Actions ───────────────────────────────────────── */
   .da-actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
   }
   .da-action-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2.25rem 1.75rem;
+    border-radius: var(--r);
+    padding: 1.5rem;
     text-decoration: none;
     color: var(--text);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    gap: .5rem;
     box-shadow: var(--shadow-sm);
-    transition: transform var(--transition), box-shadow var(--transition);
+    transition: box-shadow .2s var(--ease), transform .2s var(--ease), border-color .2s;
     position: relative;
     overflow: hidden;
   }
   .da-action-card::before {
     content: '';
     position: absolute;
-    inset: 0;
-    opacity: .03;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--r) var(--r) 0 0;
+    opacity: 0;
+    transition: opacity .2s;
   }
-  .da-action-card:hover {
-    transform: translateY(-12px);
-    box-shadow: var(--shadow-lg);
-    color: var(--text);
-  }
+  .da-action-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); border-color: #d0d0cc; }
+  .da-action-card:hover::before { opacity: 1; }
+  .da-action-pedidos::before  { background: var(--grad-revenue); }
+  .da-action-usuarios::before { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
+  .da-action-product::before  { background: var(--grad-conv); }
+  .da-action-catalogo::before { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+
   .da-action-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: var(--radius);
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    margin-bottom: 1.25rem;
-    box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    position: relative;
-    z-index: 1;
-  }
-  .da-action-pedidos .da-action-icon { background: var(--gradient-info); color: #fff; }
-  .da-action-usuarios .da-action-icon { background: var(--gradient-success); color: #fff; }
-  .da-action-product .da-action-icon { background: var(--gradient-primary); color: #151515; }
-  .da-action-catalogo .da-action-icon { background: var(--gradient-warning); color: #fff; }
-
-  .da-action-title {
-    font-family: var(--font-display);
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin: 0 0 .75rem;
-    letter-spacing: -.01em;
-  }
-  .da-action-desc {
+    font-size: 1.15rem;
+    background: var(--bg);
     color: var(--text-muted);
-    font-size: .9rem;
-    line-height: 1.6;
-    margin: 0;
-    flex: 1;
+    transition: background .2s, color .2s;
   }
+  .da-action-pedidos:hover  .da-action-icon { background: #ecfdf5; color: #059669; }
+  .da-action-usuarios:hover .da-action-icon { background: #f5f3ff; color: #7c3aed; }
+  .da-action-product:hover  .da-action-icon { background: #fffbeb; color: #d97706; }
+  .da-action-catalogo:hover .da-action-icon { background: #e0f2fe; color: #0284c7; }
 
-  .da-table-section {
-    max-width: 1200px;
-    margin: 0 auto 3rem;
-    padding: 0 1.25rem;
-  }
+  .da-action-title { font-weight: 700; font-size: .95rem; margin: 0; }
+  .da-action-desc  { font-size: .8rem; color: var(--text-muted); margin: 0; line-height: 1.45; }
+
+  /* ── Table ─────────────────────────────────────────── */
   .da-table-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
+    border-radius: var(--r);
     box-shadow: var(--shadow-sm);
+    overflow: hidden;
   }
   .da-table-header {
-    padding: 1.5rem 1.75rem;
-    background: var(--surface-muted);
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .da-table-title {
     font-family: var(--font-display);
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: .625rem;
+    gap: .5rem;
   }
-
-  .da-table {
-    margin: 0;
-  }
+  .da-table { width: 100%; border-collapse: collapse; }
   .da-table thead th {
+    padding: .75rem 1.25rem;
+    font-size: .72rem;
     font-weight: 700;
-    color: var(--text);
-    font-size: .9rem;
-    letter-spacing: .025em;
+    letter-spacing: .07em;
     text-transform: uppercase;
-    border: none;
-    padding: 1.25rem 1.75rem .75rem;
-    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
   }
-  .da-table tbody tr {
-    transition: background var(--transition);
-  }
-  .da-table tbody tr:hover { background: var(--surface-muted); }
-  .da-table td {
-    padding: 1.25rem 1.75rem;
-    border: none;
+  .da-table tbody td {
+    padding: .9rem 1.25rem;
+    font-size: .875rem;
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
-  .da-status-badge {
-    padding: .4rem .875rem;
+  .da-table tbody tr:last-child td { border-bottom: none; }
+  .da-table tbody tr { transition: background .15s; }
+  .da-table tbody tr:hover { background: var(--bg); }
+
+  /* Badges */
+  .da-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .2rem .65rem;
     border-radius: 99px;
-    font-size: .8rem;
+    font-size: .72rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .03em;
+    letter-spacing: .02em;
   }
-  .da-status-preparacion { background: rgba(245,101,101,.1); color: #dc2626; }
-  .da-status-enviado { background: rgba(34,197,94,.1); color: var(--success); }
-  .da-status-reparto { background: rgba(251,191,36,.1); color: var(--warning); }
-  .da-status-entregado { background: rgba(16,185,129,.1); color: var(--success); }
-  .da-status-cancelado { background: rgba(107,114,128,.1); color: var(--text-muted); }
+  .da-badge-preparacion { background: #fff7ed; color: #c2410c; }
+  .da-badge-enviado     { background: #eff6ff; color: #1d4ed8; }
+  .da-badge-entregado   { background: #f0fdf4; color: #15803d; }
+  .da-badge-cancelado   { background: #fef2f2; color: #b91c1c; }
+  .da-badge-pendiente   { background: #fefce8; color: #a16207; }
 
   .da-btn-view {
     display: inline-flex;
     align-items: center;
-    gap: .375rem;
-    padding: .5rem 1rem;
-    background: var(--primary);
-    color: #fff;
-    border-radius: var(--radius-sm);
-    font-size: .825rem;
+    gap: .3rem;
+    padding: .35rem .8rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border);
+    font-size: .8rem;
     font-weight: 600;
+    color: var(--text);
     text-decoration: none;
-    transition: background var(--transition), transform var(--transition);
+    transition: background .15s, border-color .15s, color .15s;
   }
-  .da-btn-view:hover {
-    background: #222;
-    transform: translateY(-1px);
-    color: #fff;
+  .da-btn-view:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── Responsive ────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .da-charts-grid { grid-template-columns: 1fr; }
+    .da-body { padding: 1.5rem 1rem 3rem; }
   }
-
-  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-
-  .da-hero-inner > * { animation: fadeUp .6s ease-out; }
-  .da-metric-card { animation: fadeUp .4s ease-out; }
-  .da-metric-card:nth-child(2) { animation-delay: .1s; }
-  .da-metric-card:nth-child(3) { animation-delay: .2s; }
-  .da-metric-card:nth-child(4) { animation-delay: .3s; }
+  @media (max-width: 600px) {
+    .da-metrics-grid { grid-template-columns: 1fr 1fr; }
+    .da-hero { padding: 2.5rem 0 2rem; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero -->
+
+<!-- ── Hero ──────────────────────────────────────────── -->
 <section class="da-hero">
   <div class="da-hero-inner">
-    <div class="d-flex flex-column flex-md-row align-items-start justify-content-between gap-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
+
       <div>
-        <h1 class="da-hero-title">
-          Panel de Administración
-        </h1>
+        <div class="da-admin-tag">
+          <i class="bi bi-person-shield-fill"></i>
+          {{ user.get_nombre_completo|truncatechars:30 }}
+        </div>
+        <h1 class="da-hero-title">Panel Estadístico</h1>
         <p class="da-hero-subtitle">
-          Gestiona usuarios, pedidos y productos en tiempo real
+          {{ start_date|date:"d M Y" }} — {{ end_date|date:"d M Y" }}
         </p>
       </div>
-      <div class="da-admin-tag">
-        <i class="bi bi-person-shield"></i>
-        Admin: {{ user.get_nombre_completo|truncatechars:25 }}
+
+      <div class="d-flex flex-column gap-2 align-items-start">
+        <div class="da-filter-group">
+          <label>Período</label>
+          <select class="da-filter-select" id="period-select" onchange="applyFilters()">
+            <option value="hoy"   {% if period == 'hoy' %}selected{% endif %}>Hoy</option>
+            <option value="7d"    {% if period == '7d'  %}selected{% endif %}>7 días</option>
+            <option value="30d"   {% if period == '30d' %}selected{% endif %}>30 días</option>
+            <option value="90d"   {% if period == '90d' %}selected{% endif %}>90 días</option>
+            <option value="custom" {% if period == 'custom' %}selected{% endif %}>Personalizado</option>
+          </select>
+          <div id="custom-dates" {% if period == 'custom' %}style="display:flex;gap:.5rem"{% endif %}>
+            <input class="da-date-input" type="date" id="fecha_inicio" value="{{ start_date|date:'Y-m-d' }}">
+            <input class="da-date-input" type="date" id="fecha_fin"    value="{{ end_date|date:'Y-m-d' }}">
+            <button class="da-pdf-btn" onclick="applyFilters()" type="button">Aplicar</button>
+          </div>
+          <button class="da-pdf-btn" onclick="exportPDF()" type="button">
+            <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+          </button>
+        </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- Metrics -->
-<div class="da-metrics">
-  <div class="da-metrics-grid">
-    <div class="da-metric-card da-metric-users">
-      <div class="da-metric-icon">
-        <i class="bi bi-people-fill"></i>
+<!-- ── Contenido principal ───────────────────────────── -->
+<div class="da-body" id="da-stats-content">
+
+  <!-- KPIs -->
+  <section>
+    <p class="da-section-label">Métricas del período</p>
+    <div class="da-metrics-grid">
+
+      <div class="da-metric-card da-metric-revenue">
+        <div class="da-metric-icon"><i class="bi bi-graph-up"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ventas_periodo|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Ingresos período</p>
+        </div>
       </div>
-      <div class="da-metric-content">
-        <h3>{{ total_usuarios|default:"0" }}</h3>
-        <p class="da-metric-label">Total Usuarios</p>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-day"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_hoy|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Hoy</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-week"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_semanal|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Semanal</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-month"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_mensual|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Mensual</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-pedidos">
+        <div class="da-metric-icon"><i class="bi bi-receipt"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ total_pedidos_periodo|default:"0" }}</h3>
+          <p class="da-metric-label">Pedidos período</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-conversion">
+        <div class="da-metric-icon"><i class="bi bi-arrow-repeat"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ tasa_conversion|floatformat:1 }}%</h3>
+          <p class="da-metric-label">Tasa conversión</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-cart"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ticket_promedio|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Ticket promedio</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-users">
+        <div class="da-metric-icon"><i class="bi bi-person-plus"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ clientes_nuevos|default:"0" }}</h3>
+          <p class="da-metric-label">Clientes nuevos</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ clientes_recurrentes|default:"0" }}</h3>
+          <p class="da-metric-label">Recurrentes</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-pendientes">
+        <div class="da-metric-icon"><i class="bi bi-hourglass-split"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ pedidos_pendientes|default:"0" }}</h3>
+          <p class="da-metric-label">Pendientes</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section>
+    <p class="da-section-label">Analítica visual</p>
+    <div class="da-charts-grid">
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-graph-up-arrow" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Ingresos últimos 7 días</h3>
+        </div>
+        <canvas id="chart-ingresos" class="da-chart-canvas"
+                data-labels='{{ chart_ingresos_labels|safe }}'
+                data-values='{{ chart_ingresos_values|safe }}'></canvas>
+      </div>
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-pie-chart" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Por estado</h3>
+        </div>
+        <canvas id="chart-estados" class="da-chart-canvas"
+                data-labels='{{ chart_estados_labels|safe }}'
+                data-values='{{ chart_estados_values|safe }}'></canvas>
+      </div>
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-people" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Clientes</h3>
+        </div>
+        <canvas id="chart-clientes" class="da-chart-canvas"
+                data-values='[{{ clientes_nuevos }}, {{ clientes_recurrentes }}]'></canvas>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Acciones rápidas -->
+  <section>
+    <p class="da-section-label">Acciones rápidas</p>
+    <div class="da-actions-grid">
+
+      <a href="{% url 'pedidos:admin_pedidos' %}" class="da-action-card da-action-pedidos">
+        <div class="da-action-icon"><i class="bi bi-receipt"></i></div>
+        <h3 class="da-action-title">Gestionar Pedidos</h3>
+        <p class="da-action-desc">Ver, editar estados y rastreo de todos los pedidos</p>
+      </a>
+
+      <a href="{% url 'usuarios:lista_usuarios' %}" class="da-action-card da-action-usuarios">
+        <div class="da-action-icon"><i class="bi bi-people"></i></div>
+        <h3 class="da-action-title">Usuarios</h3>
+        <p class="da-action-desc">Listar, crear, editar y bloquear cuentas</p>
+      </a>
+
+      <a href="{% url 'catalogo:product_create' %}" class="da-action-card da-action-product">
+        <div class="da-action-icon"><i class="bi bi-plus-circle"></i></div>
+        <h3 class="da-action-title">Nuevo Producto</h3>
+        <p class="da-action-desc">Añade productos, categorías y marcas al catálogo</p>
+      </a>
+
+      <a href="{% url 'catalogo:product_list' %}" class="da-action-card da-action-catalogo">
+        <div class="da-action-icon"><i class="bi bi-shop"></i></div>
+        <h3 class="da-action-title">Catálogo</h3>
+        <p class="da-action-desc">Gestiona inventario, precios y disponibilidad</p>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Tabla pedidos recientes -->
+  <section>
+    <div class="da-table-card">
+      <div class="da-table-header">
+        <h2 class="da-table-title">
+          <i class="bi bi-clock-history"></i> Pedidos recientes
+        </h2>
+      </div>
+      <div class="table-responsive">
+        <table class="da-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pedido in pedidos_recientes %}
+            <tr>
+              <td><strong>#{{ pedido.id }}</strong></td>
+              <td>{{ pedido.user.get_nombre_completo|truncatechars:22 }}</td>
+              <td><strong>${{ pedido.total|floatformat:0|intcomma }}</strong></td>
+              <td>
+                <span class="da-badge da-badge-{{ pedido.estado }}">
+                  {{ pedido.get_estado_display }}
+                </span>
+              </td>
+              <td style="color:var(--text-muted);font-size:.82rem">
+                {{ pedido.fecha_creacion|date:"d M Y H:i" }}
+              </td>
+              <td>
+                <a href="{% url 'pedidos:admin_edit_pedido' pedido.id %}" class="da-btn-view">
+                  <i class="bi bi-pencil"></i> Editar
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" style="text-align:center;padding:3rem;color:var(--text-muted)">
+                <i class="bi bi-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.3"></i>
+                No hay pedidos recientes
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
+  </section>
 
-    <div class="da-metric-card da-metric-pedidos">
-      <div class="da-metric-icon">
-        <i class="bi bi-receipt"></i>
-      </div>
-      <div class="da-metric-content">
-        <h3>{{ total_pedidos|default:"0" }}</h3>
-        <p class="da-metric-label">Total Pedidos</p>
-      </div>
-    </div>
-
-    <div class="da-metric-card da-metric-pendientes">
-      <div class="da-metric-icon">
-        <i class="bi bi-hourglass-split"></i>
-      </div>
-      <div class="da-metric-content">
-        <h3>{{ pedidos_pendientes|default:"0" }}</h3>
-        <p class="da-metric-label">Pendientes</p>
-      </div>
-    </div>
-
-    <div class="da-metric-card da-metric-ventas">
-      <div class="da-metric-icon">
-        <i class="bi bi-currency-dollar"></i>
-      </div>
-      <div class="da-metric-content">
-        <h3>${{ ventas_totales|floatformat:0|intcomma|default:"0" }}</h3>
-        <p class="da-metric-label">Ventas Totales</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="da-actions">
-  <div class="da-actions-grid">
-    <a href="{% url 'pedidos:admin_pedidos' %}" class="da-action-card da-action-pedidos">
-      <div class="da-action-icon">
-        <i class="bi bi-receipt"></i>
-      </div>
-      <h3 class="da-action-title">Gestionar Pedidos</h3>
-      <p class="da-action-desc">Ver, editar estados y rastreo de todos los pedidos</p>
-    </a>
-
-    <a href="{% url 'usuarios:lista_usuarios' %}" class="da-action-card da-action-usuarios">
-      <div class="da-action-icon">
-        <i class="bi bi-people"></i>
-      </div>
-      <h3 class="da-action-title">Usuarios</h3>
-      <p class="da-action-desc">Listar, crear, editar y bloquear cuentas</p>
-    </a>
-
-    <a href="{% url 'catalogo:product_create' %}" class="da-action-card da-action-product">
-      <div class="da-action-icon">
-        <i class="bi bi-plus-circle"></i>
-      </div>
-      <h3 class="da-action-title">Nuevo Producto</h3>
-      <p class="da-action-desc">Añade productos, categorías y marcas al catálogo</p>
-    </a>
-
-    <a href="{% url 'catalogo:product_list' %}" class="da-action-card da-action-catalogo">
-      <div class="da-action-icon">
-        <i class="bi bi-shop"></i>
-      </div>
-      <h3 class="da-action-title">Catálogo</h3>
-      <p class="da-action-desc">Gestiona inventario, precios y disponibilidad</p>
-    </a>
-  </div>
-</div>
-
-<!-- Recent Orders Table -->
-<div class="da-table-section">
-  <div class="da-table-card">
-    <div class="da-table-header">
-      <h2 class="da-table-title">
-        <i class="bi bi-clock-history me-2"></i>
-        Pedidos Recientes
-      </h2>
-    </div>
-    <div class="table-responsive">
-      <table class="table da-table mb-0">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for pedido in pedidos_recientes %}
-          <tr>
-            <td><strong>#{{ pedido.id }}</strong></td>
-            <td>{{ pedido.user.get_nombre_completo|truncatechars:20 }}</td>
-            <td><strong>${{ pedido.total|floatformat:0|intcomma }}</strong></td>
-            <td>
-              <span class="da-status-badge da-status-{{ pedido.estado }}">
-                {{ pedido.get_estado_display }}
-              </span>
-            </td>
-            <td>{{ pedido.fecha_creacion|date:"d M Y H:i" }}</td>
-            <td>
-              <a href="{% url 'pedidos:admin_edit_pedido' pedido.id %}" class="da-btn-view">
-                <i class="bi bi-pencil me-1"></i>Ver/Editar
-              </a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="6" class="text-center py-5">
-              <i class="bi bi-inbox2-fill" style="font-size:3rem; opacity:.3;"></i>
-              <p class="mt-2 mb-0 text-muted">No hay pedidos recientes</p>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+</div><!-- /da-body -->
 {% endblock %}
 
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+/* ── Filtros ──────────────────────────────────────────── */
+function applyFilters() {
+  const period = document.getElementById('period-select').value;
+  const url = new URL(window.location);
+  if (period !== 'custom') {
+    url.searchParams.set('periodo', period);
+    url.searchParams.delete('fecha_inicio');
+    url.searchParams.delete('fecha_fin');
+  } else {
+    const start = document.getElementById('fecha_inicio').value;
+    const end   = document.getElementById('fecha_fin').value;
+    if (start && end) {
+      url.searchParams.set('periodo', 'custom');
+      url.searchParams.set('fecha_inicio', start);
+      url.searchParams.set('fecha_fin', end);
+    }
+  }
+  window.location = url;
+}
+
+document.getElementById('period-select').addEventListener('change', function () {
+  const cd = document.getElementById('custom-dates');
+  cd.style.display = this.value === 'custom' ? 'flex' : 'none';
+  if (this.value !== 'custom') applyFilters();
+});
+
+/* ── PDF ──────────────────────────────────────────────── */
+async function exportPDF() {
+  const btn = document.querySelector('.da-pdf-btn[onclick="exportPDF()"]');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando…';
+  btn.disabled = true;
+  try {
+    const { jsPDF } = window.jspdf;
+    const canvas = await html2canvas(document.getElementById('da-stats-content'), {
+      scale: 1.5, useCORS: true, logging: false,
+    });
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const ratio = canvas.width / canvas.height;
+    const imgH = pw / ratio;
+    let pos = 0;
+    if (imgH <= ph) {
+      doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pw, imgH);
+    } else {
+      // multi-página si el contenido es muy largo
+      let remaining = canvas.height;
+      while (remaining > 0) {
+        const slice = Math.min(remaining, Math.floor(canvas.width * ph / pw));
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width  = canvas.width;
+        tempCanvas.height = slice;
+        tempCanvas.getContext('2d').drawImage(canvas, 0, pos, canvas.width, slice, 0, 0, canvas.width, slice);
+        if (pos > 0) doc.addPage();
+        doc.addImage(tempCanvas.toDataURL('image/png'), 'PNG', 0, 0, pw, slice * pw / canvas.width);
+        pos += slice;
+        remaining -= slice;
+      }
+    }
+    doc.save('dashboard-tech-juanjo.pdf');
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
+}
+
+/* ── Charts ───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const font = { family: 'DM Sans' };
+  const gridColor = 'rgba(0,0,0,.05)';
+  const baseOpts = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font } },
+      y: { grid: { color: gridColor }, ticks: { font } },
+    },
+  };
+
+  /* Ingresos 7d — line */
+  const ingCtx = document.getElementById('chart-ingresos');
+  if (ingCtx) {
+    new Chart(ingCtx, {
+      type: 'line',
+      data: {
+        labels: JSON.parse(ingCtx.dataset.labels),
+        datasets: [{
+          data: JSON.parse(ingCtx.dataset.values),
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563eb',
+          pointHoverRadius: 6,
+        }],
+      },
+      options: baseOpts,
+    });
+  }
+
+  /* Estados — doughnut */
+  const estCtx = document.getElementById('chart-estados');
+  if (estCtx) {
+    new Chart(estCtx, {
+      type: 'doughnut',
+      data: {
+        labels: JSON.parse(estCtx.dataset.labels),
+        datasets: [{
+          data: JSON.parse(estCtx.dataset.values),
+          backgroundColor: ['#2563eb','#f59e0b','#16a34a','#dc2626','#8b5cf6'],
+          borderWidth: 0,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { font, padding: 12, boxWidth: 10, usePointStyle: true },
+          },
+        },
+      },
+    });
+  }
+
+  /* Clientes — bar */
+  const cliCtx = document.getElementById('chart-clientes');
+  if (cliCtx) {
+    new Chart(cliCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Nuevos', 'Recurrentes'],
+        datasets: [{
+          data: JSON.parse(cliCtx.dataset.values),
+          backgroundColor: ['#2563eb', '#16a34a'],
+          borderRadius: 8,
+          borderSkipped: false,
+        }],
+      },
+      options: baseOpts,
+    });
+  }
+});
+</script>
+{% endblock %}
