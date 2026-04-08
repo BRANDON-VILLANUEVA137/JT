@@ -291,9 +291,7 @@ class AdminUserForm(forms.ModelForm):
         is_staff = cleaned_data.get('is_staff')
         is_superuser = cleaned_data.get('is_superuser')
 
-        if rol == 'admin' and not is_staff:
-            self.add_error('is_staff', 'Un usuario con rol admin debe tener permisos de staff.')
-
+       
         if is_superuser and rol != 'admin':
             self.add_error('rol', 'Solo un usuario con rol admin puede ser superusuario.')
 
