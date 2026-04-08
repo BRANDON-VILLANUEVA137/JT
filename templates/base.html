@@ -524,9 +524,11 @@
               <a class="tj-dropdown-item" href="{% url 'usuarios:perfil' %}">
                 <i class="bi bi-person"></i>Mi Perfil
               </a>
-              <a class="tj-dropdown-item" href="{% url 'pedidos:mis_pedidos' %}">
-                <i class="bi bi-box"></i>Mis Pedidos
-              </a>
+              {% if user.rol != 'admin' %}
+                <a class="tj-mobile-link" href="{% url 'pedidos:mis_pedidos' %}">
+                  <i class="bi bi-box"></i>Mis Pedidos
+                </a>
+              {% endif %}
               {% if user.rol == 'admin' %}
               <div class="tj-dropdown-divider"></div>
               <a class="tj-dropdown-item admin" href="{% url 'usuarios:dashboard_admin' %}">
@@ -609,9 +611,11 @@
         <a class="tj-mobile-link" href="{% url 'usuarios:perfil' %}">
           <i class="bi bi-person"></i>Mi Perfil
         </a>
-        <a class="tj-mobile-link" href="{% url 'pedidos:mis_pedidos' %}">
-          <i class="bi bi-box"></i>Mis Pedidos
-        </a>
+        {% if user.rol != 'admin' %}
+          <a class="tj-mobile-link" href="{% url 'pedidos:mis_pedidos' %}">
+            <i class="bi bi-box"></i>Mis Pedidos
+          </a>
+        {% endif %}
         {% if user.rol == 'admin' %}
           <div class="tj-mobile-divider"></div>
           <div class="tj-mobile-section-label">Administración</div>

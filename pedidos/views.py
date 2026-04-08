@@ -10,10 +10,13 @@ from collections import defaultdict
 
 @login_required
 def mis_pedidos(request):
-    """
-    Pedidos del usuario logueado, agrupados por estado con opción cancelar.
-    """
-    pedidos = Pedido.objects.filter(user=request.user).prefetch_related('items__product').order_by('-fecha_creacion')
+    if request.user.rol == 'admin':
+        messages.error(request, 'Los administradores no pueden acceder a esta sección.')
+        return redirect('pedidos:admin_pedidos')  # o dashboard admin
+
+    pedidos = Pedido.objects.filter(user=request.user)\
+        .prefetch_related('items__product')\
+        .order_by('-fecha_creacion')
     
     pedidos_by_state = defaultdict(list)
     for pedido in pedidos:
