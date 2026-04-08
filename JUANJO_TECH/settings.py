@@ -30,7 +30,7 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-lp9#&x@q*w3z!p7k_5n0m2v8r^4t1y+u6h9j$o3i2a5s7d%f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -144,7 +144,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA FILES (Cloudinary vs Local)
 # ================================
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 
 # Conditional media storage
