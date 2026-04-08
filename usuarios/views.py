@@ -18,6 +18,9 @@ from .tokens import EmailChangeToken
 from usuarios.decoradores import requiere_admin
 from pedidos.models import Pedido
 
+from django.db.models.functions import TruncDay
+from collections import OrderedDict
+import json
 
 # ──────────────────────────────────────────────
 # AUTH VIEWS
@@ -331,6 +334,42 @@ def dashboard_admin_view(request):
         .order_by('-fecha_creacion')[:10]
     )
 
+
+    ventas_7d = (
+        Pedido.objects
+        .filter(
+            fecha_creacion__date__gte=end_date - timedelta(days=6),
+            fecha_creacion__date__lte=end_date,
+            estado='entregado'
+        )
+        .annotate(dia=TruncDay('fecha_creacion'))
+        .values('dia')
+        .annotate(total=Sum('total'))
+        .order_by('dia')
+    )
+
+    dias = OrderedDict()
+    for i in range(7):
+        d = end_date - timedelta(days=6 - i)
+        dias[d] = 0
+
+    for item in ventas_7d:
+        if item['dia']:
+            dias[item['dia'].date()] = float(item['total'] or 0)
+
+    chart_ingresos_labels = [d.strftime('%d %b') for d in dias.keys()]
+    chart_ingresos_values = list(dias.values())
+
+    estados = (
+        pedidos_periodo_qs
+        .values('estado')
+        .annotate(total=Count('id'))
+    )
+
+    chart_estados_labels = [item['estado'] for item in estados]
+    chart_estados_values = [item['total'] for item in estados]
+
+
     context = {
         # Período activo
         'start_date': start_date,
@@ -365,6 +404,12 @@ def dashboard_admin_view(request):
 
         # Usuario actual
         'user': request.user,
+
+        # Datos para gráficos
+        'chart_ingresos_labels': json.dumps(chart_ingresos_labels),
+        'chart_ingresos_values': json.dumps(chart_ingresos_values),
+        'chart_estados_labels': json.dumps(chart_estados_labels),
+        'chart_estados_values': json.dumps(chart_estados_values),
     }
     return render(request, 'usuarios/dashboard_admin.html', context)
 
