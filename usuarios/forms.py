@@ -311,3 +311,71 @@ class AdminUserForm(forms.ModelForm):
             'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+
+class PasswordResetRequestForm(forms.Form):
+    """
+    Formulario para solicitar recuperación de contraseña.
+    """
+    email = forms.EmailField(
+        label='Correo electrónico',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Tu email registrado',
+            'required': 'required'
+        })
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not Usuario.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('No existe una cuenta con este correo.')
+        return email
+
+
+class PasswordResetForm(forms.Form):
+    """
+    Formulario para restablecer contraseña con token válido.
+    """
+    new_password = forms.CharField(
+        label='Nueva contraseña',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nueva contraseña',
+            'required': 'required'
+        }),
+        strip=False,
+        help_text='Mín 12 chars, 1 mayús, 1 minús, 1 núm, 1 especial'
+    )
+    new_password_confirm = forms.CharField(
+        label='Confirmar contraseña',
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirma tu nueva contraseña',
+            'required': 'required'
+        }),
+        strip=False
+    )
+
+    def clean_new_password(self):
+        password = self.cleaned_data.get('new_password')
+        if len(password) < 12:
+            raise forms.ValidationError('La contraseña debe tener al menos 12 caracteres.')
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 mayúscula.')
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 minúscula.')
+        if not re.search(r'\d', password):
+            raise forms.ValidationError('Debe incluir al menos 1 número.')
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+            raise forms.ValidationError('Debe incluir al menos 1 carácter especial (!@#$%^&*(),.?":{}|<>).')
+        if re.search(r'(.)\1{2,}', password):
+            raise forms.ValidationError('No uses la misma carácter 3+ veces seguidas.')
+        return password
+
+    def clean_new_password_confirm(self):
+        password = self.cleaned_data.get('new_password')
+        password_confirm = self.cleaned_data.get('new_password_confirm')
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError('Las contraseñas no coinciden.')
+        return password_confirm

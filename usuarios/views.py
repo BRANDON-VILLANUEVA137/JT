@@ -12,8 +12,8 @@ from django.db.models import Sum, Count, Avg, Q
 from django.utils import timezone
 from datetime import timedelta, date
 
-from .forms import LoginForm, RegisterForm, UserUpdateForm, PasswordChangeCustomForm, EmailChangeForm
-from .models import Usuario
+from .forms import LoginForm, RegisterForm, UserUpdateForm, PasswordChangeCustomForm, EmailChangeForm, PasswordResetRequestForm, PasswordResetForm
+from .models import Usuario, PasswordResetToken
 from .tokens import EmailChangeToken
 from usuarios.decoradores import requiere_admin
 from pedidos.models import Pedido
@@ -514,3 +514,87 @@ def eliminar_usuario_view(request, pk):
         messages.success(request, f'Usuario {nombre} eliminado permanentemente.')
         return redirect('usuarios:lista_usuarios')
     return render(request, 'usuarios/confirmar_eliminar_usuario.html', {'usuario': usuario})
+
+
+# ──────────────────────────────────────────────
+# PASSWORD RECOVERY VIEWS
+# ──────────────────────────────────────────────
+
+def password_reset_request_view(request):
+    """
+    Vista para solicitar recuperación de contraseña.
+    """
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = Usuario.objects.get(email__iexact=email)
+            
+            # Generar token
+            token = PasswordResetToken.generate_token(user)
+            
+            # Construir URL de reseteo
+            reset_url = request.build_absolute_uri(f'/usuarios/restablecer-contrasena/{token}/')
+            
+            # Enviar email
+            try:
+                send_mail(
+                    'Recupera tu contraseña - TECH-JUANJO',
+                    f'Hola {user.get_nombre_completo()},\n\n'
+                    f'Recibimos una solicitud para recuperar tu contraseña.\n'
+                    f'Si fuiste tú, haz click en el siguiente enlace:\n\n'
+                    f'{reset_url}\n\n'
+                    f'Este enlace expira en 24 horas.\n'
+                    f'Si no solicitaste recuperar tu contraseña, ignora este email.\n\n'
+                    f'Saludos,\nTECH-JUANJO',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f'Se envió un enlace de recuperación a {email}. Revisa tu bandeja de entrada.')
+                return redirect('usuarios:login')
+            except Exception as e:
+                messages.error(request, f'Error al enviar el email: {str(e)}')
+    else:
+        form = PasswordResetRequestForm()
+    
+    return render(request, 'usuarios/password_reset_request.html', {'form': form})
+
+
+def password_reset_view(request, token):
+    """
+    Vista para restablecer la contraseña con un token válido.
+    """
+    if request.user.is_authenticated:
+        return redirect('/')
+    
+    try:
+        token_obj = PasswordResetToken.objects.get(token=token)
+    except PasswordResetToken.DoesNotExist:
+        messages.error(request, 'Token inválido o expirado.')
+        return redirect('usuarios:password_reset_request')
+    
+    if not token_obj.is_valid():
+        messages.error(request, 'El token ha expirado. Solicita uno nuevo.')
+        return redirect('usuarios:password_reset_request')
+    
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            user = token_obj.user
+            user.set_password(form.cleaned_data['new_password'])
+            user.save()
+            
+            # Marcar token como usado
+            token_obj.is_used = True
+            token_obj.save()
+            
+            messages.success(request, 'Contraseña restablecida exitosamente. Inicia sesión con tu nueva contraseña.')
+            return redirect('usuarios:login')
+    else:
+        form = PasswordResetForm()
+    
+    return render(request, 'usuarios/password_reset.html', {'form': form, 'token': token})

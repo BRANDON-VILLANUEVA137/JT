@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.utils.crypto import constant_time_compare
 import secrets
 
-from usuarios.models import Usuario
+from usuarios.models import Usuario, PasswordResetToken
 User = Usuario
 
 class EmailChangeToken(models.Model):
@@ -27,3 +27,4 @@ class EmailChangeToken(models.Model):
             defaults={'new_email': new_email, 'token': token}
         )
         return token
+
