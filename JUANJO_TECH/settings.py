@@ -90,11 +90,20 @@ WSGI_APPLICATION = 'JUANJO_TECH.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'JT_SERVICES',
-        'USER': 'postgres',
-        'PASSWORD': '123456789',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': config('LOCAL_DB_NAME'),
+        'USER': config('LOCAL_DB_USER'),
+        'PASSWORD': config('LOCAL_DB_PASSWORD'),
+        'HOST': config('LOCAL_DB_HOST'),
+        'PORT': config('LOCAL_DB_PORT'),
+    },
+
+    'render': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('RENDER_DB_NAME'),
+        'USER': config('RENDER_DB_USER'),
+        'PASSWORD': config('RENDER_DB_PASSWORD'),
+        'HOST': config('RENDER_DB_HOST'),
+        'PORT': config('RENDER_DB_PORT'),
     }
 }
 
