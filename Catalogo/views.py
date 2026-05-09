@@ -25,6 +25,7 @@ def home(request):
         'offers': offers,
     })
 
+
 # 1. LISTAR (PÚBLICO - cualquiera puede ver)
 def catalog_list(request):
     CONDITION_CHOICES = [

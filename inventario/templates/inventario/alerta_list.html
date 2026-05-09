@@ -1,0 +1,123 @@
+{% extends 'inventario/base_inventario.html' %}
+
+{% block inventario_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-bell"></i> Alertas de Stock</h2>
+    <a href="{% url 'inventario:alerta_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nueva Alerta
+    </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="activo" class="form-select">
+                    <option value="">Todas</option>
+                    <option value="si" {% if request.GET.activo == 'si' %}selected{% endif %}>Activas</option>
+                    <option value="no" {% if request.GET.activo == 'no' %}selected{% endif %}>Inactivas</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock Actual</th>
+                                <th>Stock Mínimo</th>
+                                <th>Estado</th>
+                                <th>Última Notificación</th>
+                                <th>Activo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alerta in alertas %}
+                            <tr class="{% if alerta.verificar_stock and alerta.activo %}table-danger{% endif %}">
+                                <td>{{ alerta.product.name }}</td>
+                                <td>
+                                    <span class="badge {% if alerta.verificar_stock %}bg-danger{% else %}bg-success{% endif %} fs-6">
+                                        {{ alerta.product.stock }}
+                                    </span>
+                                </td>
+                                <td>{{ alerta.stock_minimo }}</td>
+                                <td>
+                                    {% if alerta.verificar_stock and alerta.activo %}
+                                        <span class="badge bg-danger">¡Stock bajo!</span>
+                                    {% elif alerta.activo %}
+                                        <span class="badge bg-success">Ok</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactiva</span>
+                                    {% endif %}
+                                </td>
+                                <td><small>{{ alerta.ultima_notificacion|date:"d/m/Y H:i"|default:"Nunca" }}</small></td>
+                                <td>
+                                    {% if alerta.activo %}
+                                        <span class="badge bg-success">Sí</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">No</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'inventario:alerta_update' alerta.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'inventario:alerta_delete' alerta.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                    <p class="mb-0">No hay alertas de stock configuradas.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Productos sin Alerta</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for p in productos_sin_alerta %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ p.name }}
+                        <span class="badge bg-primary rounded-pill">{{ p.stock }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="list-group-item text-muted text-center">Todos los productos tienen alerta.</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if productos_sin_alerta %}
+            <div class="card-footer">
+                <a href="{% url 'inventario:alerta_create' %}" class="btn btn-sm btn-primary w-100">
+                    <i class="fas fa-plus"></i> Configurar alerta para estos
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

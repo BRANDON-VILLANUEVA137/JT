@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth import get_user_model
 from carrito.models import Cart
 from pedidos.models import Pedido, PedidoItem
+from inventario.services import registrar_venta
 from django.utils import timezone
 import logging
 
@@ -90,7 +91,7 @@ def stripe_webhook(request):
                 stripe_session_id=session_id,
             )
             
-            # Create items and update stock
+            # Create items and update stock via inventory system
             for item in cart.items.all():
                 PedidoItem.objects.create(
                     pedido=pedido,
@@ -99,9 +100,13 @@ def stripe_webhook(request):
                     precio_unitario=item.product.price,
                 )
                 
-                item.product.stock -= item.quantity
-                item.product.save()
-                logger.info("✅ Stock updated for {}: -{}".format(item.product.name, item.quantity))
+                # Use inventory service to register the sale
+                registrar_venta(
+                    product=item.product,
+                    cantidad=item.quantity,
+                    pedido_id=pedido.id,
+                )
+                logger.info("✅ Stock updated for {}: -{} (via inventario)".format(item.product.name, item.quantity))
             
             # Clear cart
             cart.items.all().delete()

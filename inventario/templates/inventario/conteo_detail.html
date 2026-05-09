@@ -1,0 +1,132 @@
+{% extends 'inventario/base_inventario.html' %}
+{% load humanize %}
+
+{% block inventario_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-clipboard-check"></i> Conteo: {{ conteo.codigo_conteo }}</h2>
+    <div>
+        {% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}
+            <a href="{% url 'inventario:conteo_completar' conteo.pk %}" class="btn btn-success me-2" onclick="return confirm('¿Completar conteo? Se aplicarán los ajustes automáticamente.')">
+                <i class="fas fa-check"></i> Completar Conteo
+            </a>
+            <a href="{% url 'inventario:conteo_cancelar' conteo.pk %}" class="btn btn-danger me-2" onclick="return confirm('¿Cancelar este conteo?')">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        {% endif %}
+        <a href="{% url 'inventario:conteo_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Información</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr><th>Estado:</th><td>{% if conteo.estado == 'completado' %}<span class="badge bg-success">Completado</span>{% elif conteo.estado == 'pendiente' %}<span class="badge bg-warning text-dark">Pendiente</span>{% elif conteo.estado == 'en_progreso' %}<span class="badge bg-info">En progreso</span>{% else %}<span class="badge bg-secondary">Cancelado</span>{% endif %}</td></tr>
+                    <tr><th>Fecha:</th><td>{{ conteo.fecha_conteo|date:"d/m/Y" }}</td></tr>
+                    <tr><th>Usuario:</th><td>{{ conteo.usuario|default:"-" }}</td></tr>
+                    <tr><th>Productos contados:</th><td>{{ items|length }}</td></tr>
+                    <tr><th>Notas:</th><td>{{ conteo.notas|default:"-"|linebreaks }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center {% if conteo.estado == 'completado' or conteo.estado == 'cancelado' %}bg-secondary{% else %}bg-success{% endif %} text-white">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Productos Contados</h5>
+                {% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}
+                <button type="button" class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock Sistema</th>
+                                <th>Stock Contado</th>
+                                <th>Diferencia</th>
+                                <th>Notas</th>
+                                {% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}
+                                <th>Acción</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr class="{% if item.diferencia > 0 %}table-success{% elif item.diferencia < 0 %}table-danger{% endif %}">
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.stock_sistema }}</td>
+                                <td>{{ item.stock_contado }}</td>
+                                <td>
+                                    <span class="fw-bold {% if item.diferencia > 0 %}text-success{% elif item.diferencia < 0 %}text-danger{% endif %}">
+                                        {% if item.diferencia > 0 %}+{% endif %}{{ item.diferencia }}
+                                    </span>
+                                </td>
+                                <td><small>{{ item.notas|default:"-" }}</small></td>
+                                {% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}
+                                <td>
+                                    <a href="{% url 'inventario:conteo_eliminar_item' item.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este item?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="{% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}6{% else %}5{% endif %}" class="text-center text-muted py-4">
+                                    <i class="fas fa-box-open fa-2x mb-2"></i>
+                                    <p class="mb-0">No hay productos en este conteo. Agrega productos para empezar.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar producto -->
+{% if conteo.estado == 'pendiente' or conteo.estado == 'en_progreso' %}
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Producto al Conteo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {% for field in item_form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{% for error in field.errors %}{{ error }}{% endfor %}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

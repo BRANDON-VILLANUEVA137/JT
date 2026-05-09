@@ -1,0 +1,105 @@
+{% extends 'inventario/base_inventario.html' %}
+{% load humanize %}
+
+{% block inventario_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-layer-group"></i> Lote: {{ lote.codigo_lote }}</h2>
+    <a href="{% url 'inventario:lote_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Información del Lote</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr><th>Producto:</th><td>{{ lote.product.name }}</td></tr>
+                    <tr><th>Cantidad Inicial:</th><td>{{ lote.cantidad_inicial }}</td></tr>
+                    <tr><th>Cantidad Actual:</th><td>{{ lote.cantidad_actual }}</td></tr>
+                    <tr><th>Proveedor:</th><td>{{ lote.proveedor|default:"-" }}</td></tr>
+                    <tr><th>Costo Unitario:</th><td>{% if lote.costo_unitario %}${{ lote.costo_unitario|intcomma }}{% else %}-{% endif %}</td></tr>
+                    <tr><th>Fecha Ingreso:</th><td>{{ lote.fecha_ingreso|date:"d/m/Y" }}</td></tr>
+                    <tr>
+                        <th>Fecha Vencimiento:</th>
+                        <td>
+                            {% if lote.fecha_vencimiento %}
+                                {% if lote.esta_vencido %}
+                                    <span class="text-danger">{{ lote.fecha_vencimiento|date:"d/m/Y" }} (VENCIDO)</span>
+                                {% elif lote.por_vencer %}
+                                    <span class="text-warning">{{ lote.fecha_vencimiento|date:"d/m/Y" }} (Por vencer)</span>
+                                {% else %}
+                                    {{ lote.fecha_vencimiento|date:"d/m/Y" }}
+                                {% endif %}
+                            {% else %}
+                                Sin fecha
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr><th>Estado:</th><td>{% if lote.activo %}<span class="badge bg-success">Activo</span>{% else %}<span class="badge bg-secondary">Inactivo</span>{% endif %}</td></tr>
+                    <tr><th>Notas:</th><td>{{ lote.notas|default:"-"|linebreaks }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-microchip"></i> Unidades Individuales</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr><th>Código</th><th>Estado</th><th>Precio Venta</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for u in unidades %}
+                            <tr>
+                                <td>{{ u.codigo_interno }}</td>
+                                <td><span class="badge bg-{% if u.estado == 'disponible' %}success{% elif u.estado == 'vendido' %}secondary{% elif u.estado == 'merma' %}danger{% else %}warning{% endif %}">{{ u.get_estado_display }}</span></td>
+                                <td>{% if u.precio_venta %}${{ u.precio_venta|intcomma }}{% else %}-{% endif %}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center text-muted py-3">Sin unidades individuales.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-history"></i> Movimientos del Lote</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr><th>Fecha</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th><th>Notas</th></tr>
+                </thead>
+                <tbody>
+                    {% for mov in movimientos %}
+                    <tr>
+                        <td>{{ mov.fecha|date:"d/m/Y H:i" }}</td>
+                        <td><span class="badge bg-{% if mov.cantidad > 0 %}success{% else %}danger{% endif %}">{{ mov.get_tipo_display }}</span></td>
+                        <td><span class="{% if mov.cantidad > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">{% if mov.cantidad > 0 %}+{% endif %}{{ mov.cantidad }}</span></td>
+                        <td>{{ mov.usuario|default:"-" }}</td>
+                        <td>{{ mov.notas|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-3">Sin movimientos.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

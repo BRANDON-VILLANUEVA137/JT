@@ -1,0 +1,103 @@
+{% extends 'inventario/base_inventario.html' %}
+{% load humanize %}
+{% load inventario_tags %}
+
+{% block inventario_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-boxes"></i> Stock General de Productos</h2>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" name="q" class="form-control" placeholder="Buscar producto..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-3">
+                <select name="categoria" class="form-select">
+                    <option value="">Todas las categorías</option>
+                    {% for cat_name, cat_id in categories %}
+                        <option value="{{ cat_id }}" {% if request.GET.categoria == cat_id|stringformat:"s" %}selected{% endif %}>{{ cat_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'inventario:producto_stock' %}" class="btn btn-secondary w-100"><i class="fas fa-undo"></i> Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Estado</th>
+                        <th>Precio</th>
+                        <th>Condición</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in productos %}
+                    <tr class="{% if product.id in alertas_dict and product.stock <= alertas_dict|get_item:product.id %}table-warning{% endif %}">
+                        <td>
+                            <strong>{{ product.name }}</strong>
+                            {% if product.destacado %}<span class="badge bg-warning text-dark">Destacado</span>{% endif %}
+                        </td>
+                        <td>{{ product.category.name|default:"-" }}</td>
+                        <td>
+                            <span class="badge {% if product.stock == 0 %}bg-danger{% elif product.id in alertas_dict and product.stock <= alertas_dict|get_item:product.id %}bg-warning text-dark{% else %}bg-success{% endif %} fs-6">
+                                {{ product.stock }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if product.id in alertas_dict %}
+                                {{ alertas_dict|get_item:product.id }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.stock == 0 %}
+                                <span class="badge bg-danger">Sin stock</span>
+                            {% elif product.id in alertas_dict and product.stock <= alertas_dict|get_item:product.id %}
+                                <span class="badge bg-warning text-dark">Stock bajo</span>
+                            {% else %}
+                                <span class="badge bg-success">Disponible</span>
+                            {% endif %}
+                        </td>
+                        <td>${{ product.price|intcomma }}</td>
+                        <td>{{ product.get_condition_display }}</td>
+                        <td>
+                            <a href="{% url 'inventario:lote_list' %}?product={{ product.id }}" class="btn btn-sm btn-info" title="Ver lotes">
+                                <i class="fas fa-layer-group"></i>
+                            </a>
+                            <a href="{% url 'inventario:entrada_compra' %}?product={{ product.id }}" class="btn btn-sm btn-success" title="Entrada por compra">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-box-open fa-2x mb-2"></i>
+                            <p class="mb-0">No hay productos registrados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
