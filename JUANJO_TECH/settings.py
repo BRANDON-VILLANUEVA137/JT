@@ -88,25 +88,39 @@ WSGI_APPLICATION = 'JUANJO_TECH.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('LOCAL_DB_NAME'),
-        'USER': config('LOCAL_DB_USER'),
-        'PASSWORD': config('LOCAL_DB_PASSWORD'),
-        'HOST': config('LOCAL_DB_HOST'),
-        'PORT': config('LOCAL_DB_PORT'),
-    },
+# Database - Usar diferente DB según entorno
+import sys
 
-    'render': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('RENDER_DB_NAME'),
-        'USER': config('RENDER_DB_USER'),
-        'PASSWORD': config('RENDER_DB_PASSWORD'),
-        'HOST': config('RENDER_DB_HOST'),
-        'PORT': config('RENDER_DB_PORT'),
+# Detectar si estamos en Render
+IS_RENDER = os.environ.get('RENDER', False) or 'RENDER' in os.environ
+
+if IS_RENDER:
+    # Usar base de datos de Render en producción
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('RENDER_DB_NAME'),
+            'USER': config('RENDER_DB_USER'),
+            'PASSWORD': config('RENDER_DB_PASSWORD'),
+            'HOST': config('RENDER_DB_HOST'),
+            'PORT': config('RENDER_DB_PORT'),
+            'OPTIONS': {
+                'sslmode': 'require',  # Render requiere SSL
+            }
+        }
     }
-}
+else:
+    # Usar base de datos local en desarrollo
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('LOCAL_DB_NAME'),
+            'USER': config('LOCAL_DB_USER'),
+            'PASSWORD': config('LOCAL_DB_PASSWORD'),
+            'HOST': config('LOCAL_DB_HOST'),
+            'PORT': config('LOCAL_DB_PORT'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
