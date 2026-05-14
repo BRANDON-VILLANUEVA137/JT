@@ -59,7 +59,17 @@
                     <td>{{ usuario.username }}</td>
                     <td>{{ usuario.numero_documento }}</td>
                     <td>{{ usuario.email|default:"N/A" }}</td>
-                    <td><span class="badge bg-{{ usuario.rol|lower }}">{{ usuario.get_rol_display }}</span></td>
+                    <td>
+                        <span class="badge
+                            {% if usuario.rol == 'ADMIN' %}bg-danger
+                            {% elif usuario.rol == 'COMPRADOR' %}bg-success
+                            {% elif usuario.rol == 'VENDEDOR' %}bg-primary
+                            {% else %}bg-secondary
+                            {% endif %}">
+                            
+                            {{ usuario.get_rol_display }}
+                        </span>
+                    </td>          
                     <td>
                         <span class="badge {% if usuario.is_active %}bg-success{% else %}bg-danger{% endif %}">
                             {% if usuario.is_active %}Activo{% else %}Inactivo{% endif %}

@@ -50,7 +50,14 @@
                     </td>
                     <td><strong class="text-primary">${{ pedido.total }}</strong></td>
                     <td>
-                        <span class="badge bg-{{ pedido.estado|lower }}">
+                        <span class="badge 
+                            {% if pedido.estado == 'PENDIENTE' %}bg-warning
+                            {% elif pedido.estado == 'COMPLETADO' %}bg-success
+                            {% elif pedido.estado == 'CANCELADO' %}bg-danger
+                            {% elif pedido.estado == 'ENVIADO' %}bg-primary
+                            {% else %}bg-secondary
+                            {% endif %}">
+                            
                             {{ pedido.get_estado_display }}
                         </span>
                     </td>
