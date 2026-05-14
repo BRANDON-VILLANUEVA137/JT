@@ -465,7 +465,7 @@
 
       <!-- Brand -->
       <a class="tj-brand" href="{% if user.is_authenticated and user.rol == 'admin' %}{% url 'usuarios:dashboard_admin' %}{% else %}/{% endif %}">
-        <div class="tj-brand-logo">TJ</div>
+        <div class="tj-brand-logo">RJG</div>
         <span class="tj-brand-name">Radiadores jg</span>
       </a>
 
@@ -543,6 +543,12 @@
               <a class="tj-dropdown-item admin" href="{% url 'pedidos:admin_pedidos' %}">
                 <i class="bi bi-clipboard-data"></i>Pedidos Admin
               </a>
+              <a class="tj-dropdown-item admin" href="{% url 'inventario:dashboard' %}">
+                <i class="bi bi-box-seam-fill"></i>
+                <h3 class="da-action-title">Inventario</h3>
+              </a>
+
+
               {% endif %}
               <div class="tj-dropdown-divider"></div>
               <a class="tj-dropdown-item danger" href="{% url 'usuarios:logout' %}">
