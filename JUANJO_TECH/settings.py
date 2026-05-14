@@ -31,7 +31,7 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-lp9#&x@q*w3z!p7k_5n0m2v8r^4t1y+u6h9j$o3i2a5s7d%f')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes', 'on')
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -172,10 +172,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Conditional media storage
-# En Render el filesystem es efímero, por eso siempre usamos Cloudinary allí.
-if IS_RENDER:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-elif DEBUG:
+if DEBUG:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 else:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -201,5 +198,6 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
 
 
