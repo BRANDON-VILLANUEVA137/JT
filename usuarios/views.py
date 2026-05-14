@@ -414,6 +414,93 @@ def dashboard_admin_view(request):
     return render(request, 'usuarios/dashboard_admin.html', context)
 
 
+@requiere_admin
+def dashboard_admin_stats_view(request):
+    """Vista independiente para el panel estadístico (KPIs + charts)."""
+    start_date, end_date, period = _parse_period(request)
+
+    # ── Pedidos del período ──────────────────
+    pedidos_periodo_qs = Pedido.objects.filter(
+        fecha_creacion__date__gte=start_date,
+        fecha_creacion__date__lte=end_date,
+    )
+    total_pedidos_periodo = pedidos_periodo_qs.count()
+
+    # ── Ingresos ────────────────────────────
+    ventas_periodo    = _ventas_por_periodo(start_date, end_date)
+    ingresos_hoy      = _ingresos_hoy()
+    ingresos_semanal  = _ingresos_rango(7)
+    ingresos_mensual  = _ingresos_rango(30)
+
+    # ── KPIs ────────────────────────────────
+    tasa_conversion   = _tasa_conversion(start_date, end_date)
+    ticket_promedio   = _ticket_promedio(start_date, end_date)
+
+    # ── Clientes ────────────────────────────
+    clientes_nuevos      = _clientes_nuevos(start_date, end_date)
+    clientes_recurrentes = _clientes_recurrentes(start_date, end_date)
+
+    # ── Pedidos pendientes (globales) ───────
+    pedidos_pendientes = Pedido.objects.filter(estado='preparacion').count()
+
+    # ── Charts preparacion ──────────────────
+    ventas_7d = (
+        Pedido.objects
+        .filter(
+            fecha_creacion__date__gte=end_date - timedelta(days=6),
+            fecha_creacion__date__lte=end_date,
+            estado='entregado'
+        )
+        .annotate(dia=TruncDay('fecha_creacion'))
+        .values('dia')
+        .annotate(total=Sum('total'))
+        .order_by('dia')
+    )
+
+    dias = OrderedDict()
+    for i in range(7):
+        d = end_date - timedelta(days=6 - i)
+        dias[d] = 0
+
+    for item in ventas_7d:
+        if item['dia']:
+            dias[item['dia'].date()] = float(item['total'] or 0)
+
+    chart_ingresos_labels = [d.strftime('%d %b') for d in dias.keys()]
+    chart_ingresos_values = list(dias.values())
+
+    estados = (
+        pedidos_periodo_qs
+        .values('estado')
+        .annotate(total=Count('id'))
+    )
+
+    chart_estados_labels = [item['estado'] for item in estados]
+    chart_estados_values = [item['total'] for item in estados]
+
+    context = {
+        'start_date': start_date,
+        'end_date':   end_date,
+        'period':     period,
+        'ventas_periodo':   ventas_periodo,
+        'ingresos_hoy':     ingresos_hoy,
+        'ingresos_semanal': ingresos_semanal,
+        'ingresos_mensual': ingresos_mensual,
+        'total_pedidos_periodo': total_pedidos_periodo,
+        'pedidos_pendientes':    pedidos_pendientes,
+        'tasa_conversion': tasa_conversion,
+        'ticket_promedio': ticket_promedio,
+        'clientes_nuevos':      clientes_nuevos,
+        'clientes_recurrentes': clientes_recurrentes,
+        'user': request.user,
+        'chart_ingresos_labels': json.dumps(chart_ingresos_labels),
+        'chart_ingresos_values': json.dumps(chart_ingresos_values),
+        'chart_estados_labels': json.dumps(chart_estados_labels),
+        'chart_estados_values': json.dumps(chart_estados_values),
+    }
+    return render(request, 'usuarios/dashboard_admin_stats.html', context)
+
+
 # ──────────────────────────────────────────────
 # CRUD USUARIOS (ADMIN)
 # ──────────────────────────────────────────────

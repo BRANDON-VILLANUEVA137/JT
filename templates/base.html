@@ -534,6 +534,9 @@
               <a class="tj-dropdown-item admin" href="{% url 'usuarios:dashboard_admin' %}">
                 <i class="bi bi-speedometer2"></i>Dashboard Admin
               </a>
+              <a class="tj-dropdown-item admin" href="{% url 'usuarios:dashboard_admin_stats' %}">
+                <i class="bi bi-bar-chart-fill"></i>Panel Estadístico
+              </a>
               <a class="tj-dropdown-item admin" href="{% url 'usuarios:lista_usuarios' %}">
                 <i class="bi bi-people"></i>Gestionar Usuarios
               </a>
@@ -621,6 +624,9 @@
           <div class="tj-mobile-section-label">Administración</div>
           <a class="tj-mobile-link admin-link" href="{% url 'usuarios:dashboard_admin' %}">
             <i class="bi bi-speedometer2"></i>Dashboard Admin
+          </a>
+          <a class="tj-mobile-link admin-link" href="{% url 'usuarios:dashboard_admin_stats' %}">
+            <i class="bi bi-bar-chart-fill"></i>Panel Estadístico
           </a>
           <a class="tj-mobile-link admin-link" href="{% url 'usuarios:lista_usuarios' %}">
             <i class="bi bi-people"></i>Gestionar Usuarios

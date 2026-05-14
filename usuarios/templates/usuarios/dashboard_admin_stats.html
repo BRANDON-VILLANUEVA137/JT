@@ -1,0 +1,588 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Panel Estadístico — Radiadores jg{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@600;700;800&display=swap');
+
+  /* ── Variables ─────────────────────────────────────── */
+  :root {
+    --bg:           #f4f4f1;
+    --surface:      #ffffff;
+    --border:       #e8e8e5;
+    --text:         #111110;
+    --text-muted:   #72726e;
+    --accent:       #2563eb;
+    --success:      #16a34a;
+    --warning:      #ca8a04;
+    --danger:       #dc2626;
+    --r:            14px;
+    --r-sm:         8px;
+    --shadow-sm:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow:       0 4px 16px rgba(0,0,0,.07);
+    --grad-hero:    linear-gradient(135deg, #1a2235 0%, #0f1623 100%);
+    --grad-revenue: linear-gradient(135deg, #10b981, #059669);
+    --grad-conv:    linear-gradient(135deg, #f59e0b, #d97706);
+    --grad-ok:      linear-gradient(135deg, #059669, #047857);
+    --font:         'DM Sans', system-ui, sans-serif;
+    --font-display: 'Syne', system-ui, sans-serif;
+    --ease:         cubic-bezier(.4,0,.2,1);
+  }
+
+  body { font-family: var(--font); background: var(--bg); color: var(--text); }
+
+  /* ── Hero ──────────────────────────────────────────── */
+  .da-hero {
+    background: var(--grad-hero);
+    color: #fff;
+    padding: 3.5rem 0 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .da-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 70% 40%, rgba(37,99,235,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .da-hero-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+  }
+  .da-hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin: 0 0 .4rem;
+    line-height: 1.15;
+  }
+  .da-hero-subtitle {
+    color: rgba(255,255,255,.55);
+    font-size: .9rem;
+    margin: 0;
+    font-weight: 400;
+  }
+  .da-admin-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 99px;
+    padding: .3rem .85rem;
+    font-size: .8rem;
+    font-weight: 500;
+    color: rgba(255,255,255,.8);
+    margin-bottom: .75rem;
+  }
+
+  /* ── Filtros ───────────────────────────────────────── */
+  .da-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: center;
+    margin-top: .5rem;
+  }
+  .da-filter-group label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin: 0;
+  }
+  .da-filter-select,
+  .da-date-input {
+    padding: .45rem .8rem;
+    background: rgba(255, 255, 255, 0.714);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #000000;
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .15s var(--ease), background .15s var(--ease);
+  }
+  .da-filter-select:focus,
+  .da-date-input:focus {
+    outline: none;
+    border-color: rgba(255,255,255,.4);
+    background: rgba(255,255,255,.13);
+  }
+  .da-date-input { color-scheme: dark; }
+  #custom-dates {
+    display: none;
+    gap: .5rem;
+    align-items: center;
+  }
+  .da-pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: var(--grad-ok);
+    border: none;
+    color: #fff;
+    padding: .45rem 1.1rem;
+    border-radius: var(--r-sm);
+    font-family: var(--font);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s var(--ease), transform .15s var(--ease);
+  }
+  .da-pdf-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+  /* ── Layout wrapper ────────────────────────────────── */
+  .da-body {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  /* ── Sección título ────────────────────────────────── */
+  .da-section-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  /* ── KPI Grid ──────────────────────────────────────── */
+  .da-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .da-metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.35rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s var(--ease), transform .2s var(--ease);
+  }
+  .da-metric-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+  .da-metric-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    background: var(--bg);
+    color: var(--text-muted);
+  }
+  .da-metric-revenue  .da-metric-icon { background: var(--grad-revenue); color: #fff; }
+  .da-metric-conversion .da-metric-icon { background: var(--grad-conv); color: #fff; }
+  .da-metric-pendientes .da-metric-icon { background: linear-gradient(135deg,#f97316,#ea580c); color:#fff; }
+  .da-metric-users .da-metric-icon { background: linear-gradient(135deg,#8b5cf6,#7c3aed); color:#fff; }
+  .da-metric-pedidos .da-metric-icon { background: linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; }
+
+  .da-metric-content h3 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 .15rem;
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+  .da-metric-label {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  /* ── Charts ────────────────────────────────────────── */
+  .da-charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+  }
+  .da-chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .da-chart-header {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .da-chart-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+  }
+  .da-chart-canvas { max-height: 260px; width: 100%; }
+
+  /* ── Responsive ────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .da-charts-grid { grid-template-columns: 1fr; }
+    .da-body { padding: 1.5rem 1rem 3rem; }
+  }
+  @media (max-width: 600px) {
+    .da-metrics-grid { grid-template-columns: 1fr 1fr; }
+    .da-hero { padding: 2.5rem 0 2rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ──────────────────────────────────────────── -->
+<section class="da-hero">
+  <div class="da-hero-inner">
+    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
+
+      <div>
+        <div class="da-admin-tag">
+          <i class="bi bi-person-shield-fill"></i>
+          {{ user.get_nombre_completo|truncatechars:30 }}
+        </div>
+        <h1 class="da-hero-title">Panel Estadístico</h1>
+        <p class="da-hero-subtitle">
+          {{ start_date|date:"d M Y" }} — {{ end_date|date:"d M Y" }}
+        </p>
+      </div>
+
+      <div class="d-flex flex-column gap-2 align-items-start">
+        <div class="da-filter-group">
+          <label>Período</label>
+          <select class="da-filter-select" id="period-select" onchange="applyFilters()">
+            <option value="hoy"   {% if period == 'hoy' %}selected{% endif %}>Hoy</option>
+            <option value="7d"    {% if period == '7d'  %}selected{% endif %}>7 días</option>
+            <option value="30d"   {% if period == '30d' %}selected{% endif %}>30 días</option>
+            <option value="90d"   {% if period == '90d' %}selected{% endif %}>90 días</option>
+            <option value="custom" {% if period == 'custom' %}selected{% endif %}>Personalizado</option>
+          </select>
+          <div id="custom-dates" {% if period == 'custom' %}style="display:flex;gap:.5rem"{% endif %}>
+            <input class="da-date-input" type="date" id="fecha_inicio" value="{{ start_date|date:'Y-m-d' }}">
+            <input class="da-date-input" type="date" id="fecha_fin"    value="{{ end_date|date:'Y-m-d' }}">
+            <button class="da-pdf-btn" onclick="applyFilters()" type="button">Aplicar</button>
+          </div>
+          <button class="da-pdf-btn" onclick="exportPDF()" type="button">
+            <i class="bi bi-file-earmark-pdf-fill"></i> PDF
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Contenido principal ───────────────────────────── -->
+<div class="da-body" id="da-stats-content">
+
+  <!-- KPIs -->
+  <section>
+    <p class="da-section-label">Métricas del período</p>
+    <div class="da-metrics-grid">
+
+      <div class="da-metric-card da-metric-revenue">
+        <div class="da-metric-icon"><i class="bi bi-graph-up"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ventas_periodo|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Ingresos período</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-day"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_hoy|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Hoy</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-week"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_semanal|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Semanal</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-calendar-month"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ingresos_mensual|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Mensual</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-pedidos">
+        <div class="da-metric-icon"><i class="bi bi-receipt"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ total_pedidos_periodo|default:"0" }}</h3>
+          <p class="da-metric-label">Pedidos período</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-conversion">
+        <div class="da-metric-icon"><i class="bi bi-arrow-repeat"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ tasa_conversion|floatformat:1 }}%</h3>
+          <p class="da-metric-label">Tasa conversión</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-cart"></i></div>
+        <div class="da-metric-content">
+          <h3>${{ ticket_promedio|floatformat:0|intcomma|default:"0" }}</h3>
+          <p class="da-metric-label">Ticket promedio</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-users">
+        <div class="da-metric-icon"><i class="bi bi-person-plus"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ clientes_nuevos|default:"0" }}</h3>
+          <p class="da-metric-label">Clientes nuevos</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card">
+        <div class="da-metric-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ clientes_recurrentes|default:"0" }}</h3>
+          <p class="da-metric-label">Recurrentes</p>
+        </div>
+      </div>
+
+      <div class="da-metric-card da-metric-pendientes">
+        <div class="da-metric-icon"><i class="bi bi-hourglass-split"></i></div>
+        <div class="da-metric-content">
+          <h3>{{ pedidos_pendientes|default:"0" }}</h3>
+          <p class="da-metric-label">Pendientes</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section>
+    <p class="da-section-label">Analítica visual</p>
+    <div class="da-charts-grid">
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-graph-up-arrow" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Ingresos últimos 7 días</h3>
+        </div>
+        <canvas id="chart-ingresos" class="da-chart-canvas"
+                data-labels='{{ chart_ingresos_labels|safe }}'
+                data-values='{{ chart_ingresos_values|safe }}'></canvas>
+      </div>
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-pie-chart" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Por estado</h3>
+        </div>
+        <canvas id="chart-estados" class="da-chart-canvas"
+                data-labels='{{ chart_estados_labels|safe }}'
+                data-values='{{ chart_estados_values|safe }}'></canvas>
+      </div>
+
+      <div class="da-chart-card">
+        <div class="da-chart-header">
+          <i class="bi bi-people" style="color:var(--accent)"></i>
+          <h3 class="da-chart-title">Clientes</h3>
+        </div>
+        <canvas id="chart-clientes" class="da-chart-canvas"
+                data-values='[{{ clientes_nuevos }}, {{ clientes_recurrentes }}]'></canvas>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /da-body -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+/* ── Filtros ──────────────────────────────────────────── */
+function applyFilters() {
+  const period = document.getElementById('period-select').value;
+  const url = new URL(window.location);
+  if (period !== 'custom') {
+    url.searchParams.set('periodo', period);
+    url.searchParams.delete('fecha_inicio');
+    url.searchParams.delete('fecha_fin');
+  } else {
+    const start = document.getElementById('fecha_inicio').value;
+    const end   = document.getElementById('fecha_fin').value;
+    if (start && end) {
+      url.searchParams.set('periodo', 'custom');
+      url.searchParams.set('fecha_inicio', start);
+      url.searchParams.set('fecha_fin', end);
+    }
+  }
+  window.location = url;
+}
+
+document.getElementById('period-select').addEventListener('change', function () {
+  const cd = document.getElementById('custom-dates');
+  cd.style.display = this.value === 'custom' ? 'flex' : 'none';
+  if (this.value !== 'custom') applyFilters();
+});
+
+/* ── PDF ──────────────────────────────────────────────── */
+async function exportPDF() {
+  const btn = document.querySelector('.da-pdf-btn[onclick="exportPDF()"]');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando…';
+  btn.disabled = true;
+  try {
+    const { jsPDF } = window.jspdf;
+    const canvas = await html2canvas(document.getElementById('da-stats-content'), {
+      scale: 1.5, useCORS: true, logging: false,
+    });
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const ratio = canvas.width / canvas.height;
+    const imgH = pw / ratio;
+    let pos = 0;
+    if (imgH <= ph) {
+      doc.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pw, imgH);
+    } else {
+      let remaining = canvas.height;
+      while (remaining > 0) {
+        const slice = Math.min(remaining, Math.floor(canvas.width * ph / pw));
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width  = canvas.width;
+        tempCanvas.height = slice;
+        tempCanvas.getContext('2d').drawImage(canvas, 0, pos, canvas.width, slice, 0, 0, canvas.width, slice);
+        if (pos > 0) doc.addPage();
+        doc.addImage(tempCanvas.toDataURL('image/png'), 'PNG', 0, 0, pw, slice * pw / canvas.width);
+        pos += slice;
+        remaining -= slice;
+      }
+    }
+    doc.save('estadisticas-Radiadores jg.pdf');
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+  }
+}
+
+/* ── Charts ───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  const font = { family: 'DM Sans' };
+  const gridColor = 'rgba(0,0,0,.05)';
+  const baseOpts = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font } },
+      y: { grid: { color: gridColor }, ticks: { font } },
+    },
+  };
+
+  /* Ingresos 7d — line */
+  const ingCtx = document.getElementById('chart-ingresos');
+  if (ingCtx) {
+    new Chart(ingCtx, {
+      type: 'line',
+      data: {
+        labels: JSON.parse(ingCtx.dataset.labels),
+        datasets: [{
+          data: JSON.parse(ingCtx.dataset.values),
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37,99,235,.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563eb',
+          pointHoverRadius: 6,
+        }],
+      },
+      options: baseOpts,
+    });
+  }
+
+  /* Estados — doughnut */
+  const estCtx = document.getElementById('chart-estados');
+  if (estCtx) {
+    new Chart(estCtx, {
+      type: 'doughnut',
+      data: {
+        labels: JSON.parse(estCtx.dataset.labels),
+        datasets: [{
+          data: JSON.parse(estCtx.dataset.values),
+          backgroundColor: ['#2563eb','#f59e0b','#16a34a','#dc2626','#8b5cf6'],
+          borderWidth: 0,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '65%',
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: { font, padding: 12, boxWidth: 10, usePointStyle: true },
+          },
+        },
+      },
+    });
+  }
+
+  /* Clientes — bar */
+  const cliCtx = document.getElementById('chart-clientes');
+  if (cliCtx) {
+    new Chart(cliCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Nuevos', 'Recurrentes'],
+        datasets: [{
+          data: JSON.parse(cliCtx.dataset.values),
+          backgroundColor: ['#2563eb', '#16a34a'],
+          borderRadius: 8,
+          borderSkipped: false,
+        }],
+      },
+      options: baseOpts,
+    });
+  }
+});
+</script>
+{% endblock %}
