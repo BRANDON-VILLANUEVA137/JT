@@ -3,115 +3,378 @@
 
 {% block extra_css %}
 <style>
-.inventario-sidebar {
-    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-    min-height: calc(100vh - 56px);
-    padding: 20px 0;
-}
-.inventario-sidebar .nav-link {
-    color: rgba(255,255,255,0.7);
-    padding: 10px 20px;
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@600;700;800&display=swap');
+
+  :root {
+    --bg:            #f7f7f5;
+    --surface:       #ffffff;
+    --surface-muted: #f2f2f0;
+    --border:        #e5e5e3;
+    --text:          #111110;
+    --text-muted:    #6b6b68;
+    --primary:       #111110;
+    --primary-fg:    #ffffff;
+    --accent:        #2563eb;
+    --accent-light:  #e0f2fe;
+    --success:       #16a34a;
+    --success-light: #dcfce7;
+    --warning:       #ca8a04;
+    --warning-light: #fef9c3;
+    --danger:        #dc2626;
+    --danger-light:  #fee2e2;
+    --info:          #0ea5e9;
+    --info-light:    #e0f2fe;
+    --radius-sm:     6px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow-sm:     0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+    --shadow:        0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.05);
+    --shadow-lg:     0 12px 32px rgba(0,0,0,.1), 0 3px 8px rgba(0,0,0,.06);
+    --transition:    180ms cubic-bezier(.4,0,.2,1);
+    --font-body:     'DM Sans', system-ui, sans-serif;
+    --font-display:  'Syne', system-ui, sans-serif;
+  }
+
+  /* ── Layout ────────────────────────────────────────── */
+  .inv-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - var(--nav-h, 60px) - 80px);
+    gap: 0;
+  }
+  @media (max-width: 991px) {
+    .inv-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── Sidebar ───────────────────────────────────────── */
+  .inv-sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.25rem 0;
+    position: sticky;
+    top: var(--nav-h, 60px);
+    height: calc(100vh - var(--nav-h, 60px));
+    overflow-y: auto;
+  }
+  @media (max-width: 991px) {
+    .inv-sidebar { display: none; }
+  }
+  .inv-sidebar-section {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: .75rem 1.25rem .35rem;
+  }
+  .inv-sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    padding: .55rem 1.25rem;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
     border-left: 3px solid transparent;
-    transition: all 0.3s;
-}
-.inventario-sidebar .nav-link:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.1);
-    border-left-color: #0d6efd;
-}
-.inventario-sidebar .nav-link.active {
-    color: #fff;
-    background: rgba(13,110,253,0.2);
-    border-left-color: #0d6efd;
-}
-.inventario-sidebar .nav-link i {
-    width: 24px;
-    margin-right: 10px;
-}
-.stat-card {
-    border-radius: 12px;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+  }
+  .inv-sidebar-link:hover {
+    background: var(--surface-muted);
+    color: var(--text);
+  }
+  .inv-sidebar-link.active {
+    color: var(--accent);
+    background: var(--accent-light);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .inv-sidebar-link i {
+    width: 18px;
+    font-size: .95rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .inv-sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: .5rem 0;
+  }
+
+  /* ── Main content ──────────────────────────────────── */
+  .inv-main {
+    padding: 1.75rem 2rem 3rem;
+    max-width: 1400px;
+  }
+  @media (max-width: 600px) {
+    .inv-main { padding: 1.25rem 1rem 2rem; }
+  }
+
+  /* ── Page header ───────────────────────────────────── */
+  .inv-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .inv-header-left h1 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    margin: 0 0 .25rem;
+    line-height: 1.2;
+  }
+  .inv-header-left p {
+    font-size: .85rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .inv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem 1rem;
+    background: var(--primary);
+    color: var(--primary-fg);
     border: none;
-    transition: transform 0.2s;
-}
-.stat-card:hover {
-    transform: translateY(-3px);
-}
-.stat-card .stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+    white-space: nowrap;
+  }
+  .inv-btn:hover { background: #333; color: #fff; transform: translateY(-1px); }
+  .inv-btn-sm { padding: .4rem .75rem; font-size: .8rem; }
+  .inv-btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .inv-btn-outline:hover { background: var(--surface-muted); color: var(--text); border-color: #ccc; transform: none; }
+
+  /* ── Stats cards grid ──────────────────────────────── */
+  .inv-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .inv-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .inv-stat-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+  .inv-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-}
-.bg-soft-warning { background: rgba(255,193,7,0.15); color: #856404; }
-.bg-soft-danger { background: rgba(220,53,69,0.15); color: #721c24; }
-.bg-soft-info { background: rgba(13,202,240,0.15); color: #055160; }
-.bg-soft-success { background: rgba(25,135,84,0.15); color: #0f5132; }
-.stock-bajo { background-color: #fff3cd; }
-.stock-critico { background-color: #f8d7da; font-weight: bold; }
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .inv-stat-icon.blue  { background: var(--accent-light); color: var(--accent); }
+  .inv-stat-icon.green { background: var(--success-light); color: var(--success); }
+  .inv-stat-icon.orange { background: var(--warning-light); color: var(--warning); }
+  .inv-stat-icon.red   { background: var(--danger-light); color: var(--danger); }
+  .inv-stat-icon.teal  { background: #ccfbf1; color: #0d9488; }
+
+  .inv-stat-content h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0 0 .1rem;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .inv-stat-label {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  /* ── Card (generic panel) ──────────────────────────── */
+  .inv-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .inv-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .inv-card-header h5 {
+    font-family: var(--font-display);
+    font-size: .95rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .inv-card-body { padding: 0; }
+  .inv-card-body-padded { padding: 1.25rem; }
+
+  /* ── Tables ─────────────────────────────────────────── */
+  .inv-table-wrap { overflow-x: auto; }
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .inv-table thead th {
+    padding: .65rem 1.25rem;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .inv-table tbody td {
+    padding: .75rem 1.25rem;
+    font-size: .85rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .inv-table tbody tr:last-child td { border-bottom: none; }
+  .inv-table tbody tr { transition: background .1s; }
+  .inv-table tbody tr:hover { background: var(--surface-muted); }
+
+  /* ── Badges ─────────────────────────────────────────── */
+  .inv-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: .2rem .6rem;
+    border-radius: 99px;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .inv-badge-success { background: var(--success-light); color: var(--success); }
+  .inv-badge-warning { background: var(--warning-light); color: var(--warning); }
+  .inv-badge-danger  { background: var(--danger-light); color: var(--danger); }
+  .inv-badge-info    { background: var(--info-light); color: var(--info); }
+  .inv-badge-neutral { background: var(--surface-muted); color: var(--text-muted); }
+
+  /* ── Empty state ────────────────────────────────────── */
+  .inv-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+  }
+  .inv-empty i {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: .75rem;
+    opacity: .25;
+  }
+  .inv-empty p { font-size: .875rem; margin-bottom: 0; }
+
+  /* ── Responsive mobile sidebar (off-canvas style) ──── */
+  .inv-mobile-nav {
+    display: none;
+    margin-bottom: 1.25rem;
+  }
+  @media (max-width: 991px) {
+    .inv-mobile-nav { display: flex; flex-wrap: wrap; gap: .375rem; }
+    .inv-mobile-nav .inv-btn { flex: 1; justify-content: center; min-width: 0; font-size: .78rem; padding: .4rem .5rem; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 inventario-sidebar d-none d-md-block">
-            <h6 class="text-white-50 px-3 mb-3 text-uppercase small fw-bold">Inventario</h6>
-            <nav class="nav flex-column">
-                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'inventario:dashboard' %}">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'producto_stock' %}active{% endif %}" href="{% url 'inventario:producto_stock' %}">
-                    <i class="fas fa-boxes"></i> Stock General
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'movimiento_list' %}active{% endif %}" href="{% url 'inventario:movimiento_list' %}">
-                    <i class="fas fa-exchange-alt"></i> Movimientos
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'entrada_compra' %}active{% endif %}" href="{% url 'inventario:entrada_compra' %}">
-                    <i class="fas fa-truck-loading"></i> Entrada Compra
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'salida_merma' %}active{% endif %}" href="{% url 'inventario:salida_merma' %}">
-                    <i class="fas fa-trash-alt"></i> Merma
-                </a>
-                <hr class="border-secondary">
-                <h6 class="text-white-50 px-3 mb-3 text-uppercase small fw-bold">Lotes</h6>
-                <a class="nav-link {% if request.resolver_match.url_name == 'lote_list' %}active{% endif %}" href="{% url 'inventario:lote_list' %}">
-                    <i class="fas fa-layer-group"></i> Lotes
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'lote_create' %}active{% endif %}" href="{% url 'inventario:lote_create' %}">
-                    <i class="fas fa-plus-circle"></i> Nuevo Lote
-                </a>
-                <hr class="border-secondary">
-                <h6 class="text-white-50 px-3 mb-3 text-uppercase small fw-bold">Control</h6>
-                <a class="nav-link {% if request.resolver_match.url_name == 'conteo_list' %}active{% endif %}" href="{% url 'inventario:conteo_list' %}">
-                    <i class="fas fa-clipboard-check"></i> Conteo Físico
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'alerta_list' %}active{% endif %}" href="{% url 'inventario:alerta_list' %}">
-                    <i class="fas fa-bell"></i> Alertas de Stock
-                </a>
-                <hr class="border-secondary">
-                <h6 class="text-white-50 px-3 mb-3 text-uppercase small fw-bold">Unidades</h6>
-                <a class="nav-link {% if request.resolver_match.url_name == 'unidad_list' %}active{% endif %}" href="{% url 'inventario:unidad_list' %}">
-                    <i class="fas fa-microchip"></i> Unidades Individuales
-                </a>
-            </nav>
+<div class="inv-layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────── -->
+  <aside class="inv-sidebar">
+    <div class="inv-sidebar-section">Inventario</div>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'inventario:dashboard' %}">
+      <i class="bi bi-speedometer2"></i> Dashboard
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'producto_stock' %}active{% endif %}" href="{% url 'inventario:producto_stock' %}">
+      <i class="bi bi-boxes"></i> Stock General
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'movimiento_list' %}active{% endif %}" href="{% url 'inventario:movimiento_list' %}">
+      <i class="bi bi-arrow-left-right"></i> Movimientos
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'entrada_compra' %}active{% endif %}" href="{% url 'inventario:entrada_compra' %}">
+      <i class="bi bi-truck"></i> Entrada Compra
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'salida_merma' %}active{% endif %}" href="{% url 'inventario:salida_merma' %}">
+      <i class="bi bi-trash"></i> Merma
+    </a>
+
+    <div class="inv-sidebar-divider"></div>
+    <div class="inv-sidebar-section">Lotes</div>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'lote_list' %}active{% endif %}" href="{% url 'inventario:lote_list' %}">
+      <i class="bi bi-layers"></i> Lotes
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'lote_create' %}active{% endif %}" href="{% url 'inventario:lote_create' %}">
+      <i class="bi bi-plus-circle"></i> Nuevo Lote
+    </a>
+
+    <div class="inv-sidebar-divider"></div>
+    <div class="inv-sidebar-section">Control</div>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'conteo_list' %}active{% endif %}" href="{% url 'inventario:conteo_list' %}">
+      <i class="bi bi-clipboard-check"></i> Conteo Físico
+    </a>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'alerta_list' %}active{% endif %}" href="{% url 'inventario:alerta_list' %}">
+      <i class="bi bi-bell"></i> Alertas de Stock
+    </a>
+
+    <div class="inv-sidebar-divider"></div>
+    <div class="inv-sidebar-section">Unidades</div>
+    <a class="inv-sidebar-link {% if request.resolver_match.url_name == 'unidad_list' %}active{% endif %}" href="{% url 'inventario:unidad_list' %}">
+      <i class="bi bi-cpu"></i> Unidades Individuales
+    </a>
+  </aside>
+
+  <!-- ── Main content ────────────────────────────────── -->
+  <main class="inv-main">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="tj-alert {{ message.tags }}">
+          <i class="bi bi-{% if 'success' in message.tags %}check-circle-fill{% elif 'error' in message.tags or 'danger' in message.tags %}x-circle-fill{% elif 'warning' in message.tags %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+          <span>{{ message }}</span>
+          <button class="tj-alert-close" onclick="this.parentElement.remove()">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-10 p-4">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            {% block inventario_content %}{% endblock %}
-        </div>
-    </div>
+      {% endfor %}
+    {% endif %}
+
+    {% block inventario_content %}{% endblock %}
+  </main>
+
 </div>
 {% endblock %}

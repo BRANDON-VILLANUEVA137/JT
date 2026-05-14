@@ -153,6 +153,7 @@
   .da-action-usuarios::before { background: linear-gradient(135deg,#8b5cf6,#7c3aed); }
   .da-action-product::before  { background: var(--grad-conv); }
   .da-action-catalogo::before { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+  .da-action-inventario::before { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
   .da-action-stats::before    { background: linear-gradient(135deg,#f59e0b,#d97706); }
 
   .da-action-icon {
@@ -171,6 +172,7 @@
   .da-action-usuarios:hover .da-action-icon { background: #f5f3ff; color: #7c3aed; }
   .da-action-product:hover  .da-action-icon { background: #fffbeb; color: #d97706; }
   .da-action-catalogo:hover .da-action-icon { background: #e0f2fe; color: #0284c7; }
+  .da-action-inventario:hover .da-action-icon { background: #e0f2fe; color: #0284c7; }
   .da-action-stats:hover    .da-action-icon { background: #fef3c7; color: #d97706; }
 
   .da-action-title { font-weight: 700; font-size: .95rem; margin: 0; }
@@ -316,7 +318,7 @@
         <p class="da-action-desc">Gestiona productos, precios y disponibilidad</p>
       </a>
 
-      <a href="{% url 'inventario:dashboard' %}" class="da-action-card da-action-pedidos">
+      <a href="{% url 'inventario:dashboard' %}" class="da-action-card da-action-inventario">
         <div class="da-action-icon"><i class="bi bi-box-seam-fill"></i></div>
         <h3 class="da-action-title">Inventario</h3>
         <p class="da-action-desc">Control de stock, lotes, conteos físicos y alertas</p>

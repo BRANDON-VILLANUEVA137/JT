@@ -2,304 +2,283 @@
 {% load humanize %}
 
 {% block inventario_content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-tachometer-alt"></i> Dashboard de Inventario</h2>
-    <div>
-        <a href="{% url 'inventario:entrada_compra' %}" class="btn btn-success me-2">
-            <i class="fas fa-plus"></i> Entrada por Compra
-        </a>
-        <a href="{% url 'inventario:movimiento_create' %}" class="btn btn-primary">
-            <i class="fas fa-exchange-alt"></i> Nuevo Movimiento
-        </a>
-    </div>
+
+<!-- ── Header ─────────────────────────────────────────── -->
+<div class="inv-header">
+  <div class="inv-header-left">
+    <h1><i class="bi bi-box-seam-fill" style="color:var(--accent)"></i> Dashboard de Inventario</h1>
+    <p>Resumen general del inventario, alertas y movimientos recientes</p>
+  </div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <a href="{% url 'inventario:entrada_compra' %}" class="inv-btn">
+      <i class="bi bi-truck"></i> Entrada por Compra
+    </a>
+    <a href="{% url 'inventario:movimiento_create' %}" class="inv-btn">
+      <i class="bi bi-arrow-left-right"></i> Nuevo Movimiento
+    </a>
+  </div>
 </div>
 
-<!-- Stats Row -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card shadow-sm bg-primary text-white">
-            <div class="card-body d-flex align-items-center">
-                <div class="stat-icon bg-white bg-opacity-25 me-3">
-                    <i class="fas fa-box"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0">Productos</h6>
-                    <h3 class="mb-0">{{ total_productos }}</h3>
-                </div>
-            </div>
-        </div>
+<!-- ── Stats Cards ────────────────────────────────────── -->
+<div class="inv-stats-grid">
+  <div class="inv-stat-card">
+    <div class="inv-stat-icon blue"><i class="bi bi-box"></i></div>
+    <div class="inv-stat-content">
+      <h3>{{ total_productos }}</h3>
+      <p class="inv-stat-label">Productos</p>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card shadow-sm bg-success text-white">
-            <div class="card-body d-flex align-items-center">
-                <div class="stat-icon bg-white bg-opacity-25 me-3">
-                    <i class="fas fa-cubes"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0">Stock Total</h6>
-                    <h3 class="mb-0">{{ total_stock }}</h3>
-                </div>
-            </div>
-        </div>
+  </div>
+  <div class="inv-stat-card">
+    <div class="inv-stat-icon teal"><i class="bi bi-cubes"></i></div>
+    <div class="inv-stat-content">
+      <h3>{{ total_stock|intcomma }}</h3>
+      <p class="inv-stat-label">Stock Total</p>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card shadow-sm bg-info text-white">
-            <div class="card-body d-flex align-items-center">
-                <div class="stat-icon bg-white bg-opacity-25 me-3">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0">Unid. Vendidas</h6>
-                    <h3 class="mb-0">{{ total_unidades_vendidas }}</h3>
-                </div>
-            </div>
-        </div>
+  </div>
+  <div class="inv-stat-card">
+    <div class="inv-stat-icon green"><i class="bi bi-cart-check"></i></div>
+    <div class="inv-stat-content">
+      <h3>{{ total_unidades_vendidas|intcomma }}</h3>
+      <p class="inv-stat-label">Unid. Vendidas</p>
     </div>
-    <div class="col-md-3 mb-3">
-        <div class="card stat-card shadow-sm bg-warning text-white">
-            <div class="card-body d-flex align-items-center">
-                <div class="stat-icon bg-white bg-opacity-25 me-3">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div>
-                    <h6 class="mb-0">Alertas de Stock</h6>
-                    <h3 class="mb-0">{{ alertas_stock|length }}</h3>
-                </div>
-            </div>
-        </div>
+  </div>
+  <div class="inv-stat-card">
+    <div class="inv-stat-icon orange"><i class="bi bi-exclamation-triangle"></i></div>
+    <div class="inv-stat-content">
+      <h3>{{ alertas_stock|length }}</h3>
+      <p class="inv-stat-label">Alertas de Stock</p>
     </div>
+  </div>
 </div>
 
-<div class="row">
-    <!-- Alertas de Stock -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-danger text-white d-flex justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-bell"></i> Productos con Stock Bajo</h5>
-                <a href="{% url 'inventario:alerta_list' %}" class="btn btn-sm btn-light">Ver todas</a>
-            </div>
-            <div class="card-body p-0">
-                {% if alertas_stock %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Stock Actual</th>
-                                    <th>Stock Mínimo</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for alerta in alertas_stock %}
-                                <tr class="{% if alerta.product.stock == 0 %}stock-critico{% else %}stock-bajo{% endif %}">
-                                    <td>{{ alerta.product.name }}</td>
-                                    <td>{{ alerta.product.stock }}</td>
-                                    <td>{{ alerta.stock_minimo }}</td>
-                                    <td>
-                                        {% if alerta.product.stock == 0 %}
-                                            <span class="badge bg-danger">Sin stock</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Stock bajo</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+  <!-- ── Productos con Stock Bajo ─────────────────────── -->
+  <div class="inv-card">
+    <div class="inv-card-header">
+      <h5><i class="bi bi-bell" style="color:var(--danger)"></i> Productos con Stock Bajo</h5>
+      <a href="{% url 'inventario:alerta_list' %}" class="inv-btn inv-btn-sm inv-btn-outline">Ver todas</a>
+    </div>
+    <div class="inv-card-body">
+      {% if alertas_stock %}
+        <div class="inv-table-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for alerta in alertas_stock %}
+              <tr>
+                <td><strong>{{ alerta.product.name }}</strong></td>
+                <td>{{ alerta.product.stock }}</td>
+                <td>{{ alerta.stock_minimo }}</td>
+                <td>
+                  {% if alerta.product.stock == 0 %}
+                    <span class="inv-badge inv-badge-danger">Sin stock</span>
+                  {% else %}
+                    <span class="inv-badge inv-badge-warning">Stock bajo</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="inv-empty">
+          <i class="bi bi-check-circle-fill" style="color:var(--success);opacity:.5"></i>
+          <p>No hay productos con stock bajo.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Lotes por Vencer ─────────────────────────────── -->
+  <div class="inv-card">
+    <div class="inv-card-header">
+      <h5><i class="bi bi-clock" style="color:var(--warning)"></i> Lotes por Vencer (30 días)</h5>
+      <a href="{% url 'inventario:lote_list' %}" class="inv-btn inv-btn-sm inv-btn-outline">Ver todos</a>
+    </div>
+    <div class="inv-card-body">
+      {% if productos_por_vencer %}
+        <div class="inv-table-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Stock</th>
+                <th>Vence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for lote in productos_por_vencer %}
+              <tr>
+                <td>{{ lote.product.name }}</td>
+                <td><code>{{ lote.codigo_lote }}</code></td>
+                <td>{{ lote.cantidad_actual }}</td>
+                <td style="color:var(--warning);font-weight:600">{{ lote.fecha_vencimiento|date:"d/m/Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="inv-empty">
+          <i class="bi bi-check-circle-fill" style="color:var(--success);opacity:.5"></i>
+          <p>No hay lotes próximos a vencer.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0">
+  <!-- ── Lotes Vencidos ───────────────────────────────── -->
+  <div class="inv-card">
+    <div class="inv-card-header">
+      <h5><i class="bi bi-exclamation-octagon" style="color:var(--danger)"></i> Lotes Vencidos</h5>
+    </div>
+    <div class="inv-card-body">
+      {% if lotes_vencidos %}
+        <div class="inv-table-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Stock</th>
+                <th>Venció el</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for lote in lotes_vencidos %}
+              <tr>
+                <td>{{ lote.product.name }}</td>
+                <td><code>{{ lote.codigo_lote }}</code></td>
+                <td>{{ lote.cantidad_actual }}</td>
+                <td style="color:var(--danger);font-weight:600">{{ lote.fecha_vencimiento|date:"d/m/Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="inv-empty">
+          <i class="bi bi-check-circle-fill" style="color:var(--success);opacity:.5"></i>
+          <p>No hay lotes vencidos.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Últimos Movimientos ──────────────────────────── -->
+  <div class="inv-card">
+    <div class="inv-card-header">
+      <h5><i class="bi bi-arrow-left-right" style="color:var(--accent)"></i> Últimos Movimientos</h5>
+      <a href="{% url 'inventario:movimiento_list' %}" class="inv-btn inv-btn-sm inv-btn-outline">Ver todos</a>
+    </div>
+    <div class="inv-card-body">
+      <div class="inv-table-wrap">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th>Cant.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for mov in ultimos_movimientos %}
+            <tr>
+              <td><small>{{ mov.fecha|date:"d/m H:i" }}</small></td>
+              <td>{{ mov.product.name }}</td>
+              <td>
+                {% if mov.cantidad > 0 %}
+                  <span class="inv-badge inv-badge-success">{{ mov.get_tipo_display }}</span>
                 {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                        <p class="mb-0">No hay productos con stock bajo.</p>
-                    </div>
+                  <span class="inv-badge inv-badge-danger">{{ mov.get_tipo_display }}</span>
                 {% endif %}
-            </div>
-        </div>
+              </td>
+              <td>
+                <span style="font-weight:700;{% if mov.cantidad > 0 %}color:var(--success){% else %}color:var(--danger){% endif %}">
+                  {% if mov.cantidad > 0 %}+{% endif %}{{ mov.cantidad }}
+                </span>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="inv-empty" style="padding:2rem">
+                <i class="bi bi-inbox"></i>
+                <p>No hay movimientos registrados.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-
-    <!-- Productos por Vencer -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-warning text-dark d-flex justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-clock"></i> Lotes por Vencer (30 días)</h5>
-                <a href="{% url 'inventario:lote_list' %}" class="btn btn-sm btn-dark">Ver todos</a>
-            </div>
-            <div class="card-body p-0">
-                {% if productos_por_vencer %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Lote</th>
-                                    <th>Stock</th>
-                                    <th>Vence</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for lote in productos_por_vencer %}
-                                <tr>
-                                    <td>{{ lote.product.name }}</td>
-                                    <td>{{ lote.codigo_lote }}</td>
-                                    <td>{{ lote.cantidad_actual }}</td>
-                                    <td>{{ lote.fecha_vencimiento|date:"d/m/Y" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                        <p class="mb-0">No hay lotes próximos a vencer.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
-<div class="row">
-    <!-- Lotes Vencidos -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-danger text-white">
-                <h5 class="mb-0"><i class="fas fa-skull-crossbones"></i> Lotes Vencidos</h5>
-            </div>
-            <div class="card-body p-0">
-                {% if lotes_vencidos %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Lote</th>
-                                    <th>Stock</th>
-                                    <th>Venció el</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for lote in lotes_vencidos %}
-                                <tr>
-                                    <td>{{ lote.product.name }}</td>
-                                    <td>{{ lote.codigo_lote }}</td>
-                                    <td>{{ lote.cantidad_actual }}</td>
-                                    <td class="text-danger">{{ lote.fecha_vencimiento|date:"d/m/Y" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                        <p class="mb-0">No hay lotes vencidos.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+<!-- ── Últimos Conteos Físicos ───────────────────────── -->
+<div style="margin-top:0">
+  <div class="inv-card">
+    <div class="inv-card-header">
+      <h5><i class="bi bi-clipboard-check" style="color:var(--text-muted)"></i> Últimos Conteos Físicos</h5>
+      <a href="{% url 'inventario:conteo_list' %}" class="inv-btn inv-btn-sm inv-btn-outline">Ver todos</a>
     </div>
-
-    <!-- Últimos Movimientos -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-info text-white d-flex justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-history"></i> Últimos Movimientos</h5>
-                <a href="{% url 'inventario:movimiento_list' %}" class="btn btn-sm btn-light">Ver todos</a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Producto</th>
-                                <th>Tipo</th>
-                                <th>Cant.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for mov in ultimos_movimientos %}
-                            <tr>
-                                <td><small>{{ mov.fecha|date:"d/m H:i" }}</small></td>
-                                <td>{{ mov.product.name }}</td>
-                                <td>
-                                    <span class="badge {% if mov.cantidad > 0 %}bg-success{% else %}bg-danger{% endif %}">
-                                        {{ mov.get_tipo_display }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="{% if mov.cantidad > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
-                                        {% if mov.cantidad > 0 %}+{% endif %}{{ mov.cantidad }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-3">No hay movimientos registrados.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="inv-card-body">
+      {% if ultimos_conteos %}
+        <div class="inv-table-wrap">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Usuario</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for conteo in ultimos_conteos %}
+              <tr>
+                <td>
+                  <a href="{% url 'inventario:conteo_detail' conteo.pk %}" style="color:var(--accent);font-weight:600;text-decoration:none">
+                    {{ conteo.codigo_conteo }}
+                  </a>
+                </td>
+                <td>{{ conteo.fecha_conteo|date:"d/m/Y" }}</td>
+                <td>
+                  {% if conteo.estado == 'completado' %}
+                    <span class="inv-badge inv-badge-success">Completado</span>
+                  {% elif conteo.estado == 'pendiente' %}
+                    <span class="inv-badge inv-badge-warning">Pendiente</span>
+                  {% elif conteo.estado == 'en_progreso' %}
+                    <span class="inv-badge inv-badge-info">En progreso</span>
+                  {% else %}
+                    <span class="inv-badge inv-badge-neutral">{{ conteo.get_estado_display }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ conteo.usuario|default:"-" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
+      {% else %}
+        <div class="inv-empty">
+          <i class="bi bi-clipboard"></i>
+          <p>No hay conteos físicos registrados.</p>
+        </div>
+      {% endif %}
     </div>
+  </div>
 </div>
 
-<!-- Últimos Conteos -->
-<div class="row">
-    <div class="col-12 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white d-flex justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-clipboard-check"></i> Últimos Conteos Físicos</h5>
-                <a href="{% url 'inventario:conteo_list' %}" class="btn btn-sm btn-light">Ver todos</a>
-            </div>
-            <div class="card-body p-0">
-                {% if ultimos_conteos %}
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                    <th>Usuario</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for conteo in ultimos_conteos %}
-                                <tr>
-                                    <td>
-                                        <a href="{% url 'inventario:conteo_detail' conteo.pk %}">{{ conteo.codigo_conteo }}</a>
-                                    </td>
-                                    <td>{{ conteo.fecha_conteo|date:"d/m/Y" }}</td>
-                                    <td>
-                                        {% if conteo.estado == 'completado' %}
-                                            <span class="badge bg-success">Completado</span>
-                                        {% elif conteo.estado == 'pendiente' %}
-                                            <span class="badge bg-warning text-dark">Pendiente</span>
-                                        {% elif conteo.estado == 'en_progreso' %}
-                                            <span class="badge bg-info">En progreso</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ conteo.get_estado_display }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ conteo.usuario|default:"-" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="p-4 text-center text-muted">
-                        <i class="fas fa-clipboard fa-2x mb-2"></i>
-                        <p class="mb-0">No hay conteos físicos registrados.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
