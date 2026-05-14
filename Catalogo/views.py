@@ -105,9 +105,9 @@ def product_create(request):
                 messages.info(request, f'{"Creada" if created else "Usada"} marca: {brand.name}')
             
             product.seller = request.user
-            if not product.category:
+            if not product.category_id:
                 form.add_error('new_category_name', 'Selecciona una categoría existente o ingresa una nueva')
-            elif not product.brand:
+            elif not product.brand_id:
                 form.add_error('new_brand_name', 'Selecciona una marca existente o ingresa una nueva')
             else:
                 product.save()
@@ -143,9 +143,9 @@ def product_update(request, slug):
                 product.brand = brand
                 messages.info(request, f'{"Creada" if created else "Usada"} marca: {brand.name}')
             
-            if not product.category:
+            if not product.category_id:
                 form.add_error('new_category_name', 'Selecciona una categoría existente o ingresa una nueva')
-            elif not product.brand:
+            elif not product.brand_id:
                 form.add_error('new_brand_name', 'Selecciona una marca existente o ingresa una nueva')
             else:
                 form.save()
